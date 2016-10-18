@@ -48,3 +48,5 @@ def main(analyze_path):
         queue.put(branch)
     queue.join()
     return main_list
+
+main("F:\\")

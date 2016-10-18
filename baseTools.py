@@ -29,6 +29,7 @@ class Cleaner:
 class Directory:
     def __init__(self, operation_input):
         self.operation_input = operation_input
+        self.directory_size = 0
         self.path = ""
 
     def get_current_directory(self):
@@ -40,3 +41,14 @@ class Directory:
             return True
         else:
             return False
+
+    def get_directory_size(self, unit):
+        for dirpath, dirnames, filenames in os.walk(self.operation_input):
+            for file in filenames:
+                self.path = os.path.join(dirpath, file)
+                self.directory_size += os.path.getsize(self.path)
+        return self.directory_size / unit
+
+    def get_file_size(self, unit):
+        return os.path.getsize(self.operation_input) / unit
+

@@ -1,5 +1,6 @@
 #!C:\Python\Python35-32\python.exe
 import os
+from baseTools import Directory
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -30,15 +31,8 @@ class Index:
         self.folder_name = ""
         self.directoryLeaves = []
 
-    @staticmethod
-    def checkDirectory(path):
-        if os.path.exists(path):
-            return True
-        else:
-            return False
-
     def directory(self, path, count=False):
-        if Index.checkDirectory(path):
+        if Directory(path).checkDirectory():
             for directory, directories, files in os.walk(path):
                 for sub_directory in directories:
                     self.directory_count += 1
@@ -53,7 +47,7 @@ class Index:
     @staticmethod
     def certifyDirectorySkeleton(path, specific_basename):
         for folder_name in Basename.get_basename(specific_basename):
-            if Index.checkDirectory(os.path.join(path, folder_name)):
+            if Directory(os.path.join(path, folder_name)).checkDirectory():
                 return True
             else:
                 pass
