@@ -44,7 +44,7 @@ class File:
     def write(self, data, file):
         self.data = data
         self.file = file
-        if not Directory(self.file).checkDirectory():
+        if not Directory(self.file).check_directory():
             return None
         else:
             with open(self.file, "w") as f:
@@ -52,7 +52,7 @@ class File:
 
     def read(self, file, specific):
         self.file = file
-        if not Directory(self.file).checkDirectory():
+        if not Directory(self.file).check_directory():
             return None
         else:
             if specific == "dict":

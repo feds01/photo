@@ -25,38 +25,23 @@ class Index:
     def __init__(self, path):
         self.photo_model_directories = []
         self.path = path
-        self.directory_count = 0
-        self.directory_list = []
         self.directories = []
         self.folder_name = ""
         self.directoryLeaves = []
 
-    def directory(self, path, count=False):
-        if Directory(path).checkDirectory():
-            for directory, directories, files in os.walk(path):
-                for sub_directory in directories:
-                    self.directory_count += 1
-                    self.directory_list.append(os.path.join(directory, sub_directory))
-            if count:
-                return self.directory_count
-            if not count:
-                return self.directory_list
-        else:
-            return 0
-
     @staticmethod
-    def certifyDirectorySkeleton(path, specific_basename):
+    def certify_directory_skeleton(path, specific_basename):
         for folder_name in Basename.get_basename(specific_basename):
-            if Directory(os.path.join(path, folder_name)).checkDirectory():
+            if Directory(os.path.join(path, folder_name)).check_directory():
                 return True
             else:
                 pass
 
-    def analyzeDirectorySkeleton(self):
+    def analyze_directory_skeleton(self):
         for directory in self.directories:
-                    if self.certifyDirectorySkeleton(directory, "all"):
-                        if self.certifyDirectorySkeleton(directory, "good"):
-                            if self.certifyDirectorySkeleton(directory, "crt"):
+                    if self.certify_directory_skeleton(directory, "all"):
+                        if self.certify_directory_skeleton(directory, "good"):
+                            if self.certify_directory_skeleton(directory, "crt"):
                                 if directory in self.photo_model_directories:
                                     pass
                                 else:
@@ -69,23 +54,23 @@ class Index:
                     else:
                         pass
 
-    def __directoryListFilter(self):
+    def __directory_filter(self):
         for directory in self.directories:
             if directory in self.directoryLeaves:
                 self.directories.remove(directory)
-            if Index.directory(self, directory, count=True) <= 3:
+            if Directory(directory).index_directory(count=True) <= 3:
                 try:
                     self.directories.remove(directory)
                 except ValueError:
                     pass
 
-    def runParentDirectory(self):
+    def run_parent_directory(self):
         if self.directories is None:
             return None
         else:
-            if self.certifyDirectorySkeleton(self.path, "all"):
-                if self.certifyDirectorySkeleton(self.path, "good"):
-                    if self.certifyDirectorySkeleton(self.path, "crt"):
+            if self.certify_directory_skeleton(self.path, "all"):
+                if self.certify_directory_skeleton(self.path, "good"):
+                    if self.certify_directory_skeleton(self.path, "crt"):
                         if self.path in self.photo_model_directories:
                             pass
                         else:
@@ -100,12 +85,12 @@ class Index:
 
     @staticmethod
     def run_directory(path):
-        if Index("").directory(path, count=True) < 3:
+        if Directory(path).index_directory(count=True) < 3:
             return None
         else:
-            if Index("").certifyDirectorySkeleton(path, "all"):
-                if Index("").certifyDirectorySkeleton(path, "good"):
-                    if Index("").certifyDirectorySkeleton(path, "crt"):
+            if Index("").certify_directory_skeleton(path, "all"):
+                if Index("").certify_directory_skeleton(path, "good"):
+                    if Index("").certify_directory_skeleton(path, "crt"):
                             print("found! " + path)
                             return path
                     else:
@@ -129,10 +114,10 @@ class Index:
 
     def cycle(self):
         self.__find_leaves(self.path)
-        self.directories = Index.directory(self, self.path, count=False)
-        self.__directoryListFilter()
-        self.analyzeDirectorySkeleton()
-        self.runParentDirectory()
+        self.directories = Directory(self.path).index_directory(count=False)
+        self.__directory_filter()
+        self.analyze_directory_skeleton()
+        self.run_parent_directory()
         if self.photo_model_directories is None:
             return None
         else:

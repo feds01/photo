@@ -30,13 +30,28 @@ class Directory:
     def __init__(self, operation_input):
         self.operation_input = operation_input
         self.directory_size = 0
+        self.directory_count = 0
+        self.directory_list = []
         self.path = ""
+
+    def index_directory(self, count=False):
+        if Directory(self.operation_input).check_directory():
+            for directory, directories, files in os.walk(self.operation_input):
+                for sub_directory in directories:
+                    self.directory_count += 1
+                    self.directory_list.append(os.path.join(directory, sub_directory))
+            if count:
+                return self.directory_count
+            if not count:
+                return self.directory_list
+        else:
+            return 0
 
     def get_current_directory(self):
         self.path = os.path.split(self.operation_input)[0]
         return self.path
 
-    def checkDirectory(self):
+    def check_directory(self):
         if os.path.exists(self.operation_input):
             return True
         else:
@@ -52,3 +67,6 @@ class Directory:
     def get_file_size(self, unit):
         return os.path.getsize(self.operation_input) / unit
 
+    @staticmethod
+    def get_command_path():
+        return os.getcwd()

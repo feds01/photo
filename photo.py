@@ -7,7 +7,7 @@ import FileTransfer
 
 class Main:
     def __init__(self):
-        pass
+        self.cmd_path = ""
 
     @staticmethod
     def initial_setup():
