@@ -1,7 +1,6 @@
 #!C:\Python\Python35-32\python.exe
 import FileTransfer
 import baseTools
-import photo
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."

@@ -16,5 +16,5 @@ class Main:
 
     @staticmethod
     def clean_session_files():
-        FileTransfer.File().clean_files(None, None, all=True)
+        FileTransfer.File().clean_files(None, None, general=True)
 

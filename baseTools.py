@@ -7,10 +7,11 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 class Cleaner:
     def __init__(self):
         self.final_list = []
+        self.input_list = []
 
     def list_organiser(self, path_list):
-        path_list = [x for x in path_list if x]
-        for element in path_list:
+        self.input_list = [x for x in path_list if x]
+        for element in self.input_list:
             if type(element) == list:
                 self.final_list.extend(self.list_organiser(element))
             else:
@@ -31,17 +32,32 @@ class Directory:
         self.operation_input = operation_input
         self.directory_size = 0
         self.directory_count = 0
+        self.file_count = 0
         self.directory_list = []
+        self.file_list = []
+        self.directories = []
+        self.directory = ""
         self.path = ""
 
-    def index_directory(self, count=False):
+    def index_directory(self, count=False, file_c=False):
         if Directory(self.operation_input).check_directory():
             for directory, directories, files in os.walk(self.operation_input):
                 for sub_directory in directories:
                     self.directory_count += 1
                     self.directory_list.append(os.path.join(directory, sub_directory))
+                if file_c:
+                    for file in files:
+                        self.file_list.append(os.path.join(directory, file))
+                        self.file_count += 1
+
             if count:
                 return self.directory_count
+
+            if file_c:
+                return self.file_list
+
+            if file_c and count:
+                return self.file_count
             if not count:
                 return self.directory_list
         else:
@@ -66,6 +82,15 @@ class Directory:
 
     def get_file_size(self, unit):
         return os.path.getsize(self.operation_input) / unit
+
+    def get_config_file_location(self):
+        self.directory = Directory(self.operation_input).get_current_directory()
+        self.directories = list(Directory(self.directory).index_directory(file_c=True))
+        for file in self.directories:
+            if os.path.split(file)[1] == "config.yml":
+                return file
+            else:
+                pass
 
     @staticmethod
     def get_command_path():

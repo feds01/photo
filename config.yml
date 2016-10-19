@@ -1,0 +1,23 @@
+folders:
+   good_folder_name:
+   - "_Good"
+   - "_GOOD"
+   - "Good"
+   - "GOOD"
+   - "good"
+   all_folder_name:
+   - "_all"
+   - "_ALL"
+   - "all"
+   - "All"
+   - "ALL"
+   crt_folder_name:
+   - "_DNG"
+   - "DNG"
+   - "crt"
+   - "CRT"
+   - "Crt"
+   - "CRT"
+blacklist:
+  enablerd: true
+  location: ""
