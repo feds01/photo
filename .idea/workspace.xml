@@ -1,17 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="e20c998f-15fa-460c-b0c4-bd0319b224db" name="Default" comment="added config.yml - stores base-names for directories, blacklist config&#10;added function in baseTools to find config file if moved&#10;added class &quot;Config&quot; - responsible for working with config.yml&#10;added function to retrieve data on base-names from config.yml called &quot;retrieve_basename&quot;&#10;cleaned up Basename class in SkeletonIndex to retrieve base-names from config.yml &#10;">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/config.yml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/Photo.iml" afterPath="$PROJECT_DIR$/.idea/Photo.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+    <list default="true" id="e20c998f-15fa-460c-b0c4-bd0319b224db" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/FileTransfer.py" afterPath="$PROJECT_DIR$/FileTransfer.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/SkeletonIndex.py" afterPath="$PROJECT_DIR$/SkeletonIndex.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/baseTools.py" afterPath="$PROJECT_DIR$/baseTools.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/fileAnalysis.py" afterPath="$PROJECT_DIR$/fileAnalysis.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/photo.py" afterPath="$PROJECT_DIR$/photo.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/threadScan.py" afterPath="$PROJECT_DIR$/threadScan.py" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/config.yml" afterPath="$PROJECT_DIR$/config.yml" />
     </list>
     <ignored path="Photo.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -70,12 +63,14 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="FileTransfer.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="FileTransfer.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/FileTransfer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-684">
-              <caret line="1" column="40" selection-start-line="1" selection-start-column="40" selection-end-line="1" selection-end-column="40" />
-              <folding />
+            <state relative-caret-position="261">
+              <caret line="106" column="0" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
+              <folding>
+                <element signature="e#35#75#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -83,8 +78,8 @@
       <file leaf-file-name="config.yml" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/config.yml">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="376">
-              <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
+            <state relative-caret-position="0">
+              <caret line="0" column="8" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="8" />
               <folding />
             </state>
           </provider>
@@ -93,8 +88,8 @@
       <file leaf-file-name="baseTools.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/baseTools.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="212">
-              <caret line="82" column="34" selection-start-line="82" selection-start-column="34" selection-end-line="82" selection-end-column="34" />
+            <state relative-caret-position="0">
+              <caret line="0" column="9" selection-start-line="0" selection-start-column="9" selection-end-line="0" selection-end-column="9" />
               <folding />
             </state>
           </provider>
@@ -103,14 +98,14 @@
       <file leaf-file-name="threadScan.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/threadScan.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="25">
-              <caret line="25" column="29" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
+            <state relative-caret-position="244">
+              <caret line="49" column="20" selection-start-line="49" selection-start-column="20" selection-end-line="49" selection-end-column="20" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="photo.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="photo.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/photo.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="85">
@@ -151,10 +146,10 @@
         <option value="$PROJECT_DIR$/threadScan.py" />
         <option value="$PROJECT_DIR$/photo.py" />
         <option value="$PROJECT_DIR$/fileAnalysis.py" />
-        <option value="$PROJECT_DIR$/config.yml" />
         <option value="$PROJECT_DIR$/exec-me.py" />
         <option value="$PROJECT_DIR$/SkeletonIndex.py" />
         <option value="$PROJECT_DIR$/baseTools.py" />
+        <option value="$PROJECT_DIR$/config.yml" />
         <option value="$PROJECT_DIR$/FileTransfer.py" />
       </list>
     </option>
@@ -205,7 +200,7 @@
       <recent name="C:\Users\Alex\PycharmProjects\Photo" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.baseTools">
+  <component name="RunManager" selected="Python.FileTransfer">
     <configuration default="false" name="SkeletonIndex" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -434,9 +429,9 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.baseTools" />
-        <item index="1" class="java.lang.String" itemvalue="Python.SkeletonIndex" />
-        <item index="2" class="java.lang.String" itemvalue="Python.FileTransfer" />
+        <item index="0" class="java.lang.String" itemvalue="Python.FileTransfer" />
+        <item index="1" class="java.lang.String" itemvalue="Python.baseTools" />
+        <item index="2" class="java.lang.String" itemvalue="Python.SkeletonIndex" />
         <item index="3" class="java.lang.String" itemvalue="Python.exec-me" />
         <item index="4" class="java.lang.String" itemvalue="Python.threadScan" />
       </list>
@@ -519,7 +514,14 @@
       <option name="project" value="LOCAL" />
       <updated>1476818328042</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="added config.yml - stores base-names for directories, blacklist config&#10;added function in baseTools to find config file if moved&#10;added class &quot;Config&quot; - responsible for working with config.yml&#10;added function to retrieve data on base-names from config.yml called &quot;retrieve_basename_data&quot;&#10;cleaned up Basename class in SkeletonIndex to retrieve base-names from config.yml &#10;">
+      <created>1476909921977</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1476909921977</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TodoView">
@@ -538,9 +540,9 @@
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.23919916" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.49578503" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4134199" sideWeight="0.4093783" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33262935" sideWeight="0.48524764" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33123028" sideWeight="0.48524764" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Python Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32900432" sideWeight="0.49789253" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.38328075" sideWeight="0.5906217" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.38328075" sideWeight="0.5906217" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.24973656" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32885906" sideWeight="0.49578503" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
@@ -618,7 +620,8 @@
     <MESSAGE value="Added &quot;Directory&quot; class to baseTools , generalised functions to do with directories" />
     <MESSAGE value="added get_file_size() to Directory&#10;added get_directory_size() to Directory" />
     <MESSAGE value="cleaned up function names&#10;renamed &quot;checkDirectory&quot; to &quot;index_directory&quot;&#10;moved and renamed &quot;directory&quot; from &quot;SkeletonIndex&quot; to &quot;index_directory&quot; to &quot;baseTools&quot;" />
-    <option name="LAST_COMMIT_MESSAGE" value="cleaned up function names&#10;renamed &quot;checkDirectory&quot; to &quot;index_directory&quot;&#10;moved and renamed &quot;directory&quot; from &quot;SkeletonIndex&quot; to &quot;index_directory&quot; to &quot;baseTools&quot;" />
+    <MESSAGE value="added config.yml - stores base-names for directories, blacklist config&#10;added function in baseTools to find config file if moved&#10;added class &quot;Config&quot; - responsible for working with config.yml&#10;added function to retrieve data on base-names from config.yml called &quot;retrieve_basename_data&quot;&#10;cleaned up Basename class in SkeletonIndex to retrieve base-names from config.yml &#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="added config.yml - stores base-names for directories, blacklist config&#10;added function in baseTools to find config file if moved&#10;added class &quot;Config&quot; - responsible for working with config.yml&#10;added function to retrieve data on base-names from config.yml called &quot;retrieve_basename_data&quot;&#10;cleaned up Basename class in SkeletonIndex to retrieve base-names from config.yml &#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -851,14 +854,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/config.yml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="376">
-          <caret line="23" column="0" selection-start-line="23" selection-start-column="0" selection-end-line="23" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/fileAnalysis.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="151">
@@ -879,36 +874,46 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/FileTransfer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-684">
-          <caret line="1" column="40" selection-start-line="1" selection-start-column="40" selection-end-line="1" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/baseTools.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="212">
-          <caret line="82" column="34" selection-start-line="82" selection-start-column="34" selection-end-line="82" selection-end-column="34" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/threadScan.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="25">
-          <caret line="25" column="29" selection-start-line="25" selection-start-column="29" selection-end-line="25" selection-end-column="29" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/photo.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="85">
           <caret line="5" column="0" selection-start-line="5" selection-start-column="0" selection-end-line="5" selection-end-column="0" />
           <folding>
             <element signature="e#0#15#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/baseTools.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="9" selection-start-line="0" selection-start-column="9" selection-end-line="0" selection-end-column="9" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/threadScan.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="244">
+          <caret line="49" column="20" selection-start-line="49" selection-start-column="20" selection-end-line="49" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="8" selection-start-line="0" selection-start-column="8" selection-end-line="0" selection-end-column="8" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/FileTransfer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="261">
+          <caret line="106" column="0" selection-start-line="106" selection-start-column="0" selection-end-line="106" selection-end-column="0" />
+          <folding>
+            <element signature="e#35#75#0" expanded="true" />
           </folding>
         </state>
       </provider>

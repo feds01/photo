@@ -19,5 +19,5 @@ folders:
    - "Crt"
    - "CRT"
 blacklist:
-  enablerd: true
-  location: ""
+  enabled: true
+  location: "artifact\blacklist.txt"

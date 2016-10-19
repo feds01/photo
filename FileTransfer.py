@@ -89,13 +89,23 @@ class Config:
             except Exception as exc:
                 print(exc)
 
+    def clean_raw_data(self, exception_key):
+        self.key_list = sorted(list(self.retrieve_config()))
+        for key in self.key_list:
+            if key == self.key_list[exception_key]:
+                pass
+            else:
+                self.raw_data.pop(key)
+
     def retrieve_basename_data(self):
         self.key_list = sorted(list(self.retrieve_config()))
         self.raw_data = self.retrieve_config()
-        self.raw_data.pop(self.key_list[0])
+        self.clean_raw_data(1)
         for directory_name_data in self.raw_data[self.key_list[1]]:
             self.basename_data.update({directory_name_data: self.raw_data[self.key_list[1]][directory_name_data]})
         return self.basename_data
 
     def retrieve_blacklist_data(self):
         pass
+
+print(Config().retrieve_basename_data())
