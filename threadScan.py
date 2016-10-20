@@ -1,4 +1,5 @@
 from SkeletonIndex import Index
+import baseTools
 from queue import Queue
 import threading
 import multiprocessing
@@ -28,7 +29,7 @@ class Task:
         self.path = path
 
     def branches(self):
-        self.branch_list = Index.find_branches(self.path)
+        self.branch_list = baseTools.Directory("").get_directory_branches(self.path)
         return self.branch_list
 
     @staticmethod

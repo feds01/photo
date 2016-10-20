@@ -1,28 +1,10 @@
 #!C:\Python\Python35-32\python.exe
 import os
-from baseTools import Directory
-from FileTransfer import Config
+from baseTools import Directory, Config
+
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
-
-
-class Basename:
-        def __init__(self):
-            self.basename_data = {}
-
-        def import_basename(self):
-            self.basename_data = Config().retrieve_basename_data()
-            return self.basename_data
-
-        def get_basename(self, specific):
-            self.import_basename()
-            if specific == "good_folder_name":
-                return self.basename_data[specific]
-            elif specific == "crt_folder_name":
-                return self.basename_data[specific]
-            elif specific == "all_folder_name":
-                return self.basename_data[specific]
 
 
 class Index:
@@ -35,7 +17,7 @@ class Index:
 
     @staticmethod
     def certify_directory_skeleton(path, specific_basename):
-        for folder_name in Basename().get_basename(specific_basename):
+        for folder_name in Config().get_specific_basename_data(specific_basename):
             if Directory(os.path.join(path, folder_name)).check_directory():
                 return True
             else:
@@ -109,13 +91,6 @@ class Index:
             if not dirs:
                 self.directoryLeaves.append(root)
 
-    @staticmethod
-    def find_branches(path):
-        branch_directories = []
-        for directory in os.listdir(path):
-            branch_directories.append(os.path.join(path, directory))
-        return branch_directories
-
     def cycle(self):
         self.__find_leaves(self.path)
         self.directories = Directory(self.path).index_directory(count=False)
@@ -126,5 +101,3 @@ class Index:
             return None
         else:
             return self.photo_model_directories
-
-Index("E:\\").cycle()
