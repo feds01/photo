@@ -2,7 +2,7 @@ import argparse
 import SkeletonIndex
 import threadScan
 import fileAnalysis
-import FileTransfer
+import baseTools
 
 
 class Main:
@@ -12,9 +12,9 @@ class Main:
     @staticmethod
     def initial_setup():
         print("running setup for first time . . .")
-        FileTransfer.File().run_setup()
+        baseTools.File().run_setup()
 
     @staticmethod
     def clean_session_files():
-        FileTransfer.File().clean_files(None, None, general=True)
+        baseTools.File().clean_files(None, None, general=True)
 

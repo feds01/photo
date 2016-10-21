@@ -67,16 +67,21 @@ class Directory:
         else:
             return 0
 
+    def find_specific_file(self, extension):
+        for root, dirs, files in os.walk(self.main_input):
+            for file in files:
+                if file.endswith(extension):
+                    self.file_list.append(os.path.join(root, file))
+        return self.file_list
+
     def index_photo_directory(self):
         for config_key in Config().get_basename_keys():
-            if config_key == "blacklist":
-                pass
-            else:
-                for basename in Config().get_specific_basename_data(config_key):
-                    if os.path.join(self.main_input, basename) in self.get_directory_branches(self.main_input):
-                        self.directories.append(os.path.join(self.main_input, basename))
-                    else:
-                        pass
+            for basename in Config().get_specific_basename_data(config_key):
+                if os.path.join(self.main_input, basename) in self.get_directory_branches(self.main_input):
+                    self.directories.append(os.path.join(self.main_input, basename))
+                else:
+                    pass
+
         return self.directories
 
     def check_directory(self):
@@ -165,9 +170,9 @@ class Config:
     def retrieve_basename_data(self):
         self.get_config_keys()
         self.raw_data = self.retrieve_config()
-        self.clean_raw_data(1)
-        for directory_name_data in self.raw_data[self.key_list[1]]:
-            self.basename_data.update({directory_name_data: self.raw_data[self.key_list[1]][directory_name_data]})
+        self.clean_raw_data(2)
+        for directory_name_data in self.raw_data[self.key_list[2]]:
+            self.basename_data.update({directory_name_data: self.raw_data[self.key_list[2]][directory_name_data]})
         return self.basename_data
 
     def retrieve_blacklist_data(self):
@@ -182,8 +187,8 @@ class Config:
         return self.key_list
 
     def get_basename_keys(self):
-        self.key_list = sorted(list(self.retrieve_config()))
-        return self.retrieve_config()[self.key_list[1]].keys()
+        self.get_config_keys()
+        return self.retrieve_config()[self.key_list[2]].keys()
 
 
 class File:
@@ -252,3 +257,4 @@ class File:
     def run_setup(self):
         self.setup_directories()
         self.setup_files()
+

@@ -21,3 +21,11 @@ folders:
 blacklist:
   enabled: true
   location: "artifact\blacklist.txt"
+
+file_extensions:
+   crt:
+   - ".crt"
+   - ".dng"
+   - ".raw"
+   good:
+   - ".jpg"
