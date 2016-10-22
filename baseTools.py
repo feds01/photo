@@ -149,6 +149,7 @@ class Config:
         self.stream = ""
         self.raw_data = {}
         self.key_list = []
+        self.extension_data = {}
         self.basename_data = {}
         self.config_file_location = ""
 
@@ -170,13 +171,21 @@ class Config:
     def retrieve_basename_data(self):
         self.get_config_keys()
         self.raw_data = self.retrieve_config()
-        self.clean_raw_data(2)
-        for directory_name_data in self.raw_data[self.key_list[2]]:
-            self.basename_data.update({directory_name_data: self.raw_data[self.key_list[2]][directory_name_data]})
+        self.clean_raw_data(self.key_list.index("folders"))
+        for directory_name_data in self.raw_data[self.key_list[self.key_list.index("folders")]]:
+            self.basename_data.update({directory_name_data: self.raw_data[self.key_list[self.key_list.index("folders")]][directory_name_data]})
         return self.basename_data
 
     def retrieve_blacklist_data(self):
         pass
+
+    def retrieve_extension_data(self):
+        self.get_config_keys()
+        self.raw_data = self.retrieve_config()
+        self.clean_raw_data(self.key_list.index("file_extensions"))
+        for file_extension_data in self.raw_data[self.key_list[self.key_list.index("file_extensions")]]:
+            self.extension_data.update({file_extension_data: self.raw_data[self.key_list[self.key_list.index("file_extensions")]][file_extension_data]})
+        return self.extension_data
 
     def get_specific_basename_data(self, specific):
         self.retrieve_basename_data()
@@ -258,3 +267,4 @@ class File:
         self.setup_directories()
         self.setup_files()
 
+print(Config().retrieve_extension_data())
