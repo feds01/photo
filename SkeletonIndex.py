@@ -17,7 +17,7 @@ class Index:
 
     @staticmethod
     def certify_directory_skeleton(path, specific_basename):
-        for folder_name in Config().get_specific_basename_data(specific_basename):
+        for folder_name in Config().get_specific_data("folders", specific_basename):
             if Directory(os.path.join(path, folder_name)).check_directory():
                 return True
             else:

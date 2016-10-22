@@ -72,11 +72,14 @@ class Directory:
             for file in files:
                 if file.endswith(extension):
                     self.file_list.append(os.path.join(root, file))
-        return self.file_list
+        if not self.file_list:
+            return 0
+        else:
+            return self.file_list
 
     def index_photo_directory(self):
-        for config_key in Config().get_basename_keys():
-            for basename in Config().get_specific_basename_data(config_key):
+        for config_key in Config().get_specific_keys("folders"):
+            for basename in Config().get_specific_data("folders", config_key):
                 if os.path.join(self.main_input, basename) in self.get_directory_branches(self.main_input):
                     self.directories.append(os.path.join(self.main_input, basename))
                 else:
@@ -149,8 +152,7 @@ class Config:
         self.stream = ""
         self.raw_data = {}
         self.key_list = []
-        self.extension_data = {}
-        self.basename_data = {}
+        self.data = {}
         self.config_file_location = ""
 
     def retrieve_config(self):
@@ -168,36 +170,25 @@ class Config:
             else:
                 self.raw_data.pop(key)
 
-    def retrieve_basename_data(self):
+    def retrieve_data(self, key):
         self.get_config_keys()
         self.raw_data = self.retrieve_config()
-        self.clean_raw_data(self.key_list.index("folders"))
-        for directory_name_data in self.raw_data[self.key_list[self.key_list.index("folders")]]:
-            self.basename_data.update({directory_name_data: self.raw_data[self.key_list[self.key_list.index("folders")]][directory_name_data]})
-        return self.basename_data
+        self.clean_raw_data(self.key_list.index(key))
+        for data_group_key in self.raw_data[self.key_list[self.key_list.index(key)]]:
+            self.data.update({data_group_key: self.raw_data[self.key_list[self.key_list.index(key)]][data_group_key]})
+        return self.data
 
-    def retrieve_blacklist_data(self):
-        pass
-
-    def retrieve_extension_data(self):
-        self.get_config_keys()
-        self.raw_data = self.retrieve_config()
-        self.clean_raw_data(self.key_list.index("file_extensions"))
-        for file_extension_data in self.raw_data[self.key_list[self.key_list.index("file_extensions")]]:
-            self.extension_data.update({file_extension_data: self.raw_data[self.key_list[self.key_list.index("file_extensions")]][file_extension_data]})
-        return self.extension_data
-
-    def get_specific_basename_data(self, specific):
-        self.retrieve_basename_data()
-        return self.basename_data[specific]
+    def get_specific_data(self, key, specific):
+        self.retrieve_data(key)
+        return self.data[specific]
 
     def get_config_keys(self):
         self.key_list = sorted(list(self.retrieve_config()))
         return self.key_list
 
-    def get_basename_keys(self):
+    def get_specific_keys(self, key):
         self.get_config_keys()
-        return self.retrieve_config()[self.key_list[2]].keys()
+        return self.retrieve_config()[self.key_list[self.key_list.index(key)]].keys()
 
 
 class File:
@@ -239,10 +230,10 @@ class File:
                     shutil.rmtree(os.path.join(self.current_directory, directory))
 
     def write(self, data, file):
-        self.data = data
+        self.data = str(data)
         self.file = file
         if not Directory(self.file).check_directory():
-            return None
+            return 0
         else:
             with open(self.file, "w") as f:
                 f.write(self.data), f.close()
@@ -266,5 +257,3 @@ class File:
     def run_setup(self):
         self.setup_directories()
         self.setup_files()
-
-print(Config().retrieve_extension_data())
