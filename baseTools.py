@@ -39,6 +39,7 @@ class Directory:
         self.file_count = 0
         self.directory_list = []
         self.file_list = []
+        self.file_extension_list = []
         self.file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
         self.directories = []
         self.directory = ""
@@ -68,16 +69,17 @@ class Directory:
             return 0
 
     def find_specific_file(self, extension):
-        for root, dirs, files in os.walk(self.main_input):
-            for file in files:
-                if file.endswith(extension):
-                    self.file_list.append(os.path.join(root, file))
-        if not self.file_list:
+        Directory(self.main_input).index_directory(file_c=True)
+        for file in self.file_list:
+            if file.endswith(extension):
+                self.file_extension_list.append(self.file_list)
+        if not self.file_extension_list:
             return 0
         else:
-            return self.file_list
+            return self.file_extension_list
 
     def index_photo_directory(self):
+        self.directories = []
         for config_key in Config().get_specific_keys("folders"):
             for basename in Config().get_specific_data("folders", config_key):
                 if os.path.join(self.main_input, basename) in self.get_directory_branches(self.main_input):
@@ -151,19 +153,22 @@ class Config:
     def __init__(self):
         self.stream = ""
         self.raw_data = {}
+        self.config_raw_data = {}
         self.key_list = []
         self.data = {}
         self.config_file_location = ""
+        self.retrieve_config()
 
     def retrieve_config(self):
         with open(Directory(__file__).get_config_file_location(), "r") as self.stream:
             try:
-                return yaml.load(self.stream)
+                self.raw_data = yaml.load(self.stream)
+                return self.raw_data
             except Exception as exc:
                 print(exc)
 
     def clean_raw_data(self, exception_key):
-        self.key_list = sorted(list(self.retrieve_config()))
+        self.key_list = sorted(list(self.raw_data))
         for key in self.key_list:
             if key == self.key_list[exception_key]:
                 pass
@@ -172,7 +177,6 @@ class Config:
 
     def retrieve_data(self, key):
         self.get_config_keys()
-        self.raw_data = self.retrieve_config()
         self.clean_raw_data(self.key_list.index(key))
         for data_group_key in self.raw_data[self.key_list[self.key_list.index(key)]]:
             self.data.update({data_group_key: self.raw_data[self.key_list[self.key_list.index(key)]][data_group_key]})
@@ -183,12 +187,12 @@ class Config:
         return self.data[specific]
 
     def get_config_keys(self):
-        self.key_list = sorted(list(self.retrieve_config()))
+        self.key_list = sorted(list(self.raw_data))
         return self.key_list
 
     def get_specific_keys(self, key):
         self.get_config_keys()
-        return self.retrieve_config()[self.key_list[self.key_list.index(key)]].keys()
+        return self.raw_data[self.key_list[self.key_list.index(key)]].keys()
 
 
 class File:
@@ -257,3 +261,4 @@ class File:
     def run_setup(self):
         self.setup_directories()
         self.setup_files()
+

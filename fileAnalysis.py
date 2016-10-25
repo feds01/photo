@@ -1,6 +1,6 @@
 #!C:\Python\Python35-32\python.exe
 from baseTools import *
-
+import time
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -8,19 +8,21 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 class Data:
     def __init__(self, path):
         self.path = path
-        self.destination_directory = os.path.join(Directory(__file__).get_current_directory(), "temp")
-        self.destination_file = os.path.join(self.destination_directory, "photo_directories_data.txt")
-        self.directory_data = list()
-        self.analysis_path = Directory(self.path)
+        self.destination_file = os.path.join(Directory(__file__).get_current_directory(),
+                                             "temp\\photo_directories_data.txt")
+        self.directory_data = []
+        self.analysis_path = Directory(path)
         self.counter_data = []
         self.packaged_data = {}
-        self.directory_byte_size = int(Directory(self.path).get_directory_size(1))
+        self.temp_data_on_indexing = []
 
     def create_data_on_directory(self):
-        self.directory_data = Directory(self.directory_byte_size).get_appropriate_units()
+        self.directory_data = Directory(Directory(self.path).get_directory_size(1)).get_appropriate_units()
         self.directory_data.append(self.analysis_path.index_photo_directory())
         for specific_key in Config().get_specific_keys("file_extensions"):
             for extension in Config().get_specific_data("file_extensions", specific_key):
+                if Directory(self.path).index_directory(count=True, file_c=True) == 0:
+                    self.directory_data.insert()
                 if extension == ".jpg":
                     self.directory_data.append(self.analysis_path.find_specific_file(extension))
                 else:
@@ -29,9 +31,18 @@ class Data:
         return self.directory_data
 
     def export_data_on_directory(self):
+        start = time.clock()
         self.packaged_data.update({self.path: self.create_data_on_directory()})
         File().write(self.packaged_data, self.destination_file)
+        return time.clock() - start
 
-
-Data("E:\\Photo\\TestFolder").export_data_on_directory()
-
+    """
+    def temp_data(self):
+        for i in range(50):
+            data = self.export_data_on_directory()
+            print(i)
+            print(self.packaged_data)
+            print(data)
+            self.temp_data_on_indexing.append(data)
+        return self.temp_data_on_indexing
+    """
