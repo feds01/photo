@@ -28,6 +28,9 @@ class Cleaner:
                 self.final_list.extend(element_list)
             return self.final_list
 
+    def directory_path_shorten(self, char_size=30):
+        raise NotImplementedError
+
 
 class Directory:
     def __init__(self, main_input):
