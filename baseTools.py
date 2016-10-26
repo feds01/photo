@@ -15,7 +15,7 @@ class Cleaner:
         self.input_list = [x for x in path_list if x]
         for element in self.input_list:
             if type(element) == list:
-                self.final_list.extend(self.list_organiser(element))
+                self.final_list.extend(element)
             else:
                 self.final_list.append(element)
         return self.final_list
@@ -86,7 +86,6 @@ class Directory:
                     self.directories.append(os.path.join(self.main_input, basename))
                 else:
                     pass
-
         return self.directories
 
     def check_directory(self):
