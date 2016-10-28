@@ -1,12 +1,14 @@
 #!C:\Python\Python35-32\python.exe
 from baseTools import *
+from tabulate import tabulate
 import time
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
 class Data:
-    def __init__(self, path, pipefile):
+    def __init__(self, path, pipe, pipe_file=""):
+        self.pipe_file = pipe_file
         self.path = path
         self.destination_file = ""
         self.directory_data = Directory(Directory(str(self.path)).get_directory_size(1)).get_appropriate_units()
@@ -15,7 +17,10 @@ class Data:
         self.packaged_data = {}
         self.temp_data_on_indexing = []
         self.extension_keys = []
-        self.fetch_data_destination_path(pipefile)
+        self.fetch_data_destination_path(pipe)
+
+    def fetch_data_from_external_source(self):
+        return File().read(self.pipe_file, "")
 
     def fetch_data_destination_path(self, key):
         self.destination_file = Config().get_specific_data("data", key)
@@ -57,11 +62,12 @@ class Data:
 class Table:
     def __init__(self, max_rows=5, pretty=False, detailed=False, path_char_size=30):
         self.max_rows = int(max_rows)
+        self.data_packets = 0
         self.pretty = pretty
         self.detailed = detailed
         self.path_size = path_char_size
         self.table_import_data = {}
-        self.headers = ["Number", "Directory-Path", "Size"]
+        self.headers = ["ID", "Directory-Path", "Size"]
         self.size_data = []
         self.all_columns = []
         self.column = []
@@ -75,6 +81,7 @@ class Table:
 
     def import_table_data(self):
         self.table_import_data = File().read(self.get_data_file_location("table_data"), "_dict")
+        self.data_packets = len(self.table_import_data.keys())
         for i in range(len(self.table_import_data.keys())):
             if (i) in range(self.max_rows):
                 pass
@@ -85,7 +92,6 @@ class Table:
     def convert_import_data_to_column_data(self, key):
         self.column = []
         self.column.append(key)
-        self.import_table_data()
         if self.path_size <= len(list(self.table_import_data[key][0])):
             self.column.append(self.table_import_data[key][1])
         else:
@@ -99,6 +105,15 @@ class Table:
             self.column.append("".join(self.size_data[:2]))
         return self.column
 
+    def create_final_column_data(self):
+        self.import_table_data()
+        for i in range(self.data_packets):
+            self.all_columns.append(self.convert_import_data_to_column_data(i+1))
+        return self.all_columns
 
-Table(max_rows=5).convert_import_data_to_column_data(1)
-Table(max_rows=5).convert_import_data_to_column_data(2)
+    def make_table(self):
+        self.create_final_column_data()
+        print(tabulate(self.all_columns, self.headers))
+        print()
+        print("Enter ID of directory to initiate cleansing process")
+

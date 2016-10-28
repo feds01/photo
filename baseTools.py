@@ -68,7 +68,7 @@ class Cleaner:
             self.old_block = self.construct[0] + Directory.get_directory_separator()
             for block in self.construct[1:]:
                 self.old_block = os.path.join(self.old_block, block)
-            return self.old_block + Directory.get_directory_separator()
+            return self.old_block
         else:
             return path
 

@@ -1,6 +1,7 @@
 #!C:\Python\Python35-32\python.exe
 import os
-from baseTools import Directory, Config
+from baseTools import Directory
+from fileAnalysis import Data
 
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -52,7 +53,7 @@ class Index:
                 self.directoryLeaves.append(root)
         return self.directoryLeaves
 
-    def cycle(self):
+    def cycle(self, pipe=False):
         self.directories = Directory(self.path).index_directory()
         if not self.thread_method:
             self.directories.append(Directory(self.path).get_current_directory())
@@ -62,4 +63,7 @@ class Index:
         if self.photo_model_directories is []:
             return []
         else:
-            return self.photo_model_directories
+            if pipe:
+                Data(self.photo_model_directories, "table_data").export_data_on_photo_directory()
+            else:
+                return self.photo_model_directories
