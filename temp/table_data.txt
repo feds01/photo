@@ -1,1 +1,1 @@
-{1: 'C:\\Users', 2: 'E:\\Photo\\Sandbox', 3: 'E:\\Software', 4: 'E:\\', 5: 'C:\\temp', 6: 'F:\\type', 7: 'Z:\\Launcher'}
+{1: ['E:\\Photo\\Sandbox\\dev\\pts\\kika-model\\2016\\orange\\dark\\night', 'E:\\Photo\\Sandbox\\dev\\...\\night\\', [0, 'bytes', 1]], 2: ['F:\\Software', 'F:\\Software', [411.41, 'Mb', 1048576]], 3: ['E:\\', 'E:\\', [0, 'bytes', 1]], 4: ['C:\\temp', 'C:\\temp', [0, 'bytes', 1]], 5: ['F:\\type', 'F:\\type', [0, 'bytes', 1]], 6: ['Z:\\Launcher', 'Z:\\Launcher', [0, 'bytes', 1]]}

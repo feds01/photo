@@ -38,7 +38,7 @@ class Data:
 
     def create_data_on_photo_directories(self):
         for photo_directory in self.path:
-            self.packaged_data.update({self.path.index(photo_directory)+1: photo_directory})
+            self.packaged_data.update({self.path.index(photo_directory)+1: [photo_directory, Cleaner().directory_path_shorten(photo_directory), Directory((Directory(photo_directory)).get_directory_size(1)).get_appropriate_units()]})
 
     def export_data_on_directory(self):
         self.packaged_data.update({self.path: self.create_data_on_directory()})
@@ -54,4 +54,51 @@ class Data:
         self.create_data_on_photo_directories()
         File().write(self.packaged_data, self.destination_file)
 
-Data(['C:\\Users','E:\\Photo\\Sandbox','E:\\Software','E:\\','C:\\temp','F:\\type','Z:\\Launcher'], "table_data").export_data_on_photo_directory()
+class Table:
+    def __init__(self, max_rows=5, pretty=False, detailed=False, path_char_size=30):
+        self.max_rows = int(max_rows)
+        self.pretty = pretty
+        self.detailed = detailed
+        self.path_size = path_char_size
+        self.table_import_data = {}
+        self.headers = ["Number", "Directory-Path", "Size"]
+        self.size_data = []
+        self.all_columns = []
+        self.column = []
+        self.file_origin = ""
+
+
+    def get_data_file_location(self, key):
+        self.file_origin = Config().get_specific_data("data", key)
+        self.file_origin = os.path.join(Directory(__file__).get_current_directory(), self.file_origin)
+        return self.file_origin
+
+    def import_table_data(self):
+        self.table_import_data = File().read(self.get_data_file_location("table_data"), "_dict")
+        for i in range(len(self.table_import_data.keys())):
+            if (i) in range(self.max_rows):
+                pass
+            else:
+                self.table_import_data.pop(i+1)
+        return self.table_import_data
+
+    def convert_import_data_to_column_data(self, key):
+        self.column = []
+        self.column.append(key)
+        self.import_table_data()
+        if self.path_size <= len(list(self.table_import_data[key][0])):
+            self.column.append(self.table_import_data[key][1])
+        else:
+            self.column.append(self.table_import_data[key][0])
+        self.size_data = self.table_import_data[key][2]
+        if self.size_data[0] == 0:
+            self.column.append("0Kb")
+        else:
+            if type(self.size_data[0]) == float:
+                self.size_data[0] = str(self.size_data[0])
+            self.column.append("".join(self.size_data[:2]))
+        return self.column
+
+
+Table(max_rows=5).convert_import_data_to_column_data(1)
+Table(max_rows=5).convert_import_data_to_column_data(2)

@@ -133,7 +133,7 @@ class Directory:
         return self.directories
 
     def check_directory(self):
-        if os.path.exists(self.main_input):
+        if os.path.exists(str(self.main_input)):
             return True
         else:
             return False
@@ -159,6 +159,8 @@ class Directory:
         return self.path
 
     def get_directory_size(self, unit):
+        if not Directory(self.main_input).check_directory():
+            return 0
         for directory, directories, files in os.walk(self.main_input):
             for file in files:
                 self.path = os.path.join(directory, file)
@@ -166,14 +168,17 @@ class Directory:
         return self.directory_size / unit
 
     def get_appropriate_units(self):
-        for i in range(5):
-            if self.byte_size / self.byte_exponent_count >= 1:
-                self.byte_size /= self.byte_exponent_count
-                continue
-            if self.byte_size / self.byte_exponent_count < 1 and i == 0:
-                return [self.main_input, self.file_sizes[0], 1]
-            if self.byte_size / self.byte_exponent_count < 1:
-                return [round(self.main_input / self.byte_exponent_count**i, 2), self.file_sizes[i], self.byte_exponent_count**i]
+        if self.main_input == 0:
+            return [self.main_input, "bytes", 1]
+        else:
+            for i in range(5):
+                if self.byte_size / self.byte_exponent_count >= 1:
+                    self.byte_size /= self.byte_exponent_count
+                    continue
+                if self.byte_size / self.byte_exponent_count < 1 and i == 0:
+                    return [self.main_input, self.file_sizes[0], 1]
+                if self.byte_size / self.byte_exponent_count < 1:
+                    return [round(self.main_input / self.byte_exponent_count**i, 2), self.file_sizes[i], self.byte_exponent_count**i]
 
     def get_file_size(self, unit):
         return os.path.getsize(self.main_input) / unit
@@ -294,10 +299,10 @@ class File:
 
     def read(self, file, specific):
         self.file = file
-        if not Directory(self.file).check_directory():
+        if not Directory(self.file).check_file():
             return None
         else:
-            if specific == "dict":
+            if specific == "_dict":
                 with open(file, "r") as f:
                     self.data = eval(f.read())
                     f.close()
