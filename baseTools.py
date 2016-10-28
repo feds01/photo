@@ -1,7 +1,7 @@
 import os
 import yaml
 import shutil
-
+from operator import itemgetter
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -10,6 +10,12 @@ class Cleaner:
     def __init__(self):
         self.final_list = []
         self.input_list = []
+        self.construct = []
+        self.path_construct_list = []
+        self.char_size = 0
+        self.overflow_chars = 0
+        self.old_block = ""
+        self.cur_block = ""
 
     def list_organiser(self, path_list):
         self.input_list = [x for x in path_list if x]
@@ -28,8 +34,43 @@ class Cleaner:
                 self.final_list.extend(element_list)
             return self.final_list
 
-    def directory_path_shorten(self, char_size=30):
-        raise NotImplementedError
+    def directory_path_shorten(self, path, char_size=30, count_separator_char=False):
+        self.char_size = char_size
+        self.overflow_chars = len(path) - (self.char_size + 1)
+        self.construct, self.input_list = path.split(os.sep), path.split(os.sep)
+        if count_separator_char:
+            for _ in self.input_list[:-1]:
+                self.overflow_chars += 1
+        if len(path) > self.char_size:
+            self.input_list.pop(-1)
+            self.final_list.append({self.input_list[-1]: len(self.input_list[-1])})
+            if int(self.final_list[0][self.input_list[-1]]) < self.overflow_chars:
+                self.input_list.pop(-1)
+                self.overflow_chars -= int(self.final_list[0][self.construct[-2]])
+                for component in reversed(self.input_list):
+                    if len(component) >= self.overflow_chars:
+                        self.final_list.append({component: len(component)})
+                        self.overflow_chars -= len(component)
+                        if self.overflow_chars <= 0:
+                            break
+                    if len(component) < self.overflow_chars:
+                        self.final_list.append({component: len(component)})
+                        self.overflow_chars -= len(component)
+                        continue
+            self.input_list = list()
+            for key in list(reversed(self.final_list)):
+                self.input_list.append(list(key.keys()))
+            self.input_list = self.list_organiser(self.input_list)[-len(self.input_list):]
+            self.path_construct_list.append(self.construct.index(self.input_list[0]))
+            for element in self.input_list:
+                self.construct.remove(element)
+            self.construct.insert(int(self.path_construct_list[0]), "...")
+            self.old_block = self.construct[0] + Directory.get_directory_separator()
+            for block in self.construct[1:]:
+                self.old_block = os.path.join(self.old_block, block)
+            return self.old_block + Directory.get_directory_separator()
+        else:
+            return path
 
 
 class Directory:
@@ -149,6 +190,13 @@ class Directory:
     @staticmethod
     def get_command_path():
         return os.getcwd()
+
+    @staticmethod
+    def get_directory_separator():
+        if os.pathsep == ";":
+            return "\\"
+        else:
+            return "/"
 
 
 class Config:

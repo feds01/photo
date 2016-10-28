@@ -1,0 +1,1 @@
+{1: 'C:\\Users', 2: 'E:\\Photo\\Sandbox', 3: 'E:\\Software', 4: 'E:\\', 5: 'C:\\temp', 6: 'F:\\type', 7: 'Z:\\Launcher'}
