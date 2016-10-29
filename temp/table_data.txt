@@ -1,1 +1,1 @@
-{1: ['F:sandbox', 'F:sandbox', [0.0, 'bytes', 1]], 2: ['F:temp\\test', 'F:temp\\test', [0.0, 'bytes', 1]]}
+{1: ['E:\\Photo\\sandbox', 'E:\\Photo\\sandbox', [0.0, 'bytes', 1]], 2: ['E:\\Photo\\temp\\test', 'E:\\Photo\\temp\\test', [0.0, 'bytes', 1]]}

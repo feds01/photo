@@ -1,7 +1,7 @@
 import argparse
-import SkeletonIndex
-import threadScan
-import fileAnalysis
+import index
+import thread_indexer
+import data
 import baseTools
 
 

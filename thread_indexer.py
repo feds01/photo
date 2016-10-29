@@ -1,4 +1,4 @@
-from SkeletonIndex import Index
+from index import Index
 from baseTools import Directory, Cleaner
 from queue import Queue
 import threading

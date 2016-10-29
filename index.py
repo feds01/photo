@@ -1,7 +1,7 @@
 #!C:\Python\Python35-32\python.exe
 import os
 from baseTools import Directory
-from fileAnalysis import Data
+from data import Data
 
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -21,7 +21,7 @@ class Index:
         photo_sub_directories = Directory(path).index_photo_directory()
         return photo_sub_directories
 
-    def analyze_directory_skeleton(self):
+    def analyze_directories(self):
         for directory in self.directories:
             if self.certify_directory(directory) is []:
                 pass
@@ -54,12 +54,16 @@ class Index:
         return self.directoryLeaves
 
     def cycle(self, pipe=False):
+        if not Directory(self.path).check_directory():
+            print("fatal: entered directory does not exist")
+            exit()
         self.directories = Directory(self.path).index_directory()
         if not self.thread_method:
             self.directories.append(Directory(self.path).get_current_directory())
+            pass
         self.find_leaves(self.path)
         self.directory_filter()
-        self.analyze_directory_skeleton()
+        self.analyze_directories()
         if self.photo_model_directories is []:
             return []
         else:
