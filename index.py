@@ -1,6 +1,6 @@
 #!C:\Python\Python35-32\python.exe
 import os
-from baseTools import Directory
+from utils import Directory
 from data import Data
 
 

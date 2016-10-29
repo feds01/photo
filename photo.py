@@ -2,7 +2,7 @@ import argparse
 import index
 import thread_indexer
 import data
-import baseTools
+import utils
 
 
 class Main:
@@ -12,9 +12,9 @@ class Main:
     @staticmethod
     def initial_setup():
         print("running setup for first time . . .")
-        baseTools.File().run_setup()
+        utils.File().run_setup()
 
     @staticmethod
     def clean_session_files():
-        baseTools.File().clean_files(None, None, general=True)
+        utils.File().clean_files(None, None, general=True)
 

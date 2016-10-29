@@ -1,5 +1,5 @@
 from index import Index
-from baseTools import Directory, Cleaner
+from utils import Directory, Cleaner
 from queue import Queue
 import threading
 import multiprocessing
