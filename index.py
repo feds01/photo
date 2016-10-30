@@ -68,6 +68,6 @@ class Index:
             return []
         else:
             if pipe:
-                Data(self.photo_model_directories, "table_data").export_data_on_photo_directory()
+                Data(self.photo_model_directories, "size_data").export_data_on_directories()
             else:
                 return self.photo_model_directories

@@ -112,13 +112,15 @@ class Directory:
         else:
             return 0
 
-    def find_specific_file(self, extension):
-        Directory(self.main_input).index_directory(file_c=True)
-        for file in self.file_list:
+    def find_specific_file(self, extension, file_list):
+        self.file_extension_list = []
+        for file in file_list:
             if file.endswith(extension):
-                self.file_extension_list.append(self.file_list)
+                self.file_extension_list.append(file)
+            else:
+                pass
         if not self.file_extension_list:
-            return 0
+            return []
         else:
             return self.file_extension_list
 
@@ -126,7 +128,7 @@ class Directory:
         self.directories = []
         for config_key in Config().get_specific_keys("folders"):
             for basename in Config().get_specific_data("folders", config_key):
-                if os.path.join(self.main_input, basename) in self.get_directory_branches(self.main_input):
+                if basename in os.listdir(self.main_input):
                     self.directories.append(os.path.join(self.main_input, basename))
                 else:
                     pass
@@ -147,7 +149,7 @@ class Directory:
     @staticmethod
     def get_directory_branches(path):
         branch_directories = []
-        for directory in os.listdir(path):
+        for directory in os.listdir(str(path)):
             if Directory(directory).check_file():
                 pass
             else:
