@@ -24,9 +24,9 @@ blacklist:
 
 file_extensions:
    crt:
-   - ".crt"
+   - ".CR2"
    - ".dng"
-   - ".raw"
+   - ".TIF"
    good:
    - ".jpg"
 

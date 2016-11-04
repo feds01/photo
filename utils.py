@@ -1,7 +1,6 @@
 import os
 import yaml
 import shutil
-from operator import itemgetter
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -207,6 +206,7 @@ class Directory:
 
 
 class Config:
+    #TODO: move everything from 'Config()' to config.py
     def __init__(self):
         self.stream = ""
         self.raw_data = {}
@@ -250,6 +250,7 @@ class Config:
     def get_specific_keys(self, key):
         self.get_config_keys()
         return self.raw_data[self.key_list[self.key_list.index(key)]].keys()
+
 
 
 class File:
