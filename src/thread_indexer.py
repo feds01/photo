@@ -1,8 +1,10 @@
-from index import Index
-from utils import Directory, Cleaner
-from queue import Queue
-import threading
 import multiprocessing
+import threading
+from queue import Queue
+
+from src.index import Index
+from src.utils import Directory, Cleaner
+
 main_list = []
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"

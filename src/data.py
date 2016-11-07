@@ -1,6 +1,8 @@
 #!C:\Python\Python35-32\python.exe
-from utils import *
 from prettytable import PrettyTable
+
+from src.utils import *
+
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 

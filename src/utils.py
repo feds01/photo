@@ -208,8 +208,20 @@ class Directory:
 
     def get_config_file_location(self):
         self.directory = Directory(self.main_input).get_current_directory()
-        self.directories = list(Directory(self.directory).index_directory(file_c=True))
-        for file in self.directories:
+        if self.directory.endswith("src"):
+            self.directories = Directory(os.path.split(self.directory)[0]) .index_directory(file_c=True)
+        else:
+            self.directories = Directory(self.directory).index_directory(file_c=True)
+        #TODO: remove code in main build, just for python to run quicker on this method
+        for file in list(self.directories):
+            if ".git" in file:
+                self.directories.remove(file)
+            if ".idea" in file:
+                self.directories.remove(file)
+            else:
+                continue
+
+        for file in list(self.directories):
             if os.path.split(file)[1] == "config.yml":
                 return file
             else:
@@ -228,6 +240,7 @@ class Directory:
 
 
 class Config:
+    config_file_location =  Directory(__file__).get_config_file_location()
     #TODO: move everything from 'Config()' to config.py
     def __init__(self):
         self.stream = ""
@@ -235,11 +248,10 @@ class Config:
         self.config_raw_data = {}
         self.key_list = []
         self.data = {}
-        self.config_file_location = ""
         self.retrieve_config()
 
     def retrieve_config(self):
-        with open(Directory(__file__).get_config_file_location(), "r") as self.stream:
+        with open(self.config_file_location, "r") as self.stream:
             try:
                 self.raw_data = yaml.load(self.stream)
                 return self.raw_data

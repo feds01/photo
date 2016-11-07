@@ -1,8 +1,4 @@
-import argparse
-import index
-import thread_indexer
-import data
-import utils
+from src import utils
 
 
 class Main:
