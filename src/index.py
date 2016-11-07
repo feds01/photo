@@ -15,7 +15,7 @@ class Index:
         self.thread_method = thread_method
         self.path = path
         self.directories = []
-        self.directoryLeaves = []
+        self.directory_leaves = []
 
     @staticmethod
     def certify_directory(path):
@@ -31,7 +31,7 @@ class Index:
                 self.photo_model_directories.append(directory)
 
     def directory_filter(self):
-        for directory in self.directoryLeaves:
+        for directory in self.directory_leaves:
             if Directory(directory).index_directory(count=True) <= 3:
                 try:
                     self.directories.remove(directory)
@@ -52,8 +52,8 @@ class Index:
     def find_leaves(self, path):
         for root, dirs, files in os.walk(path):
             if not dirs:
-                self.directoryLeaves.append(root)
-        return self.directoryLeaves
+                self.directory_leaves.append(root)
+        return self.directory_leaves
 
     def cycle(self, pipe=False):
         if not Directory(self.path).check_directory():
