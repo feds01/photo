@@ -16,6 +16,28 @@ class Cleaner:
         self.old_block = ""
         self.cur_block = ""
 
+    @staticmethod
+    def get_largest_element(data):
+        return len(max(data, key=len))
+
+    @staticmethod
+    def border_size_by_data_length(data, use_str=False):
+        # TODO: improve function
+        if use_str:
+            return len(str(data)) + 2
+        else:
+            if data >= 4:
+                return data + 1
+            else:
+                return 4
+
+    @staticmethod
+    def int_list_to_str(int_list):
+        str_list = []
+        for i in int_list:
+            str_list.append(str(i))
+        return str_list
+
     def list_organiser(self, path_list):
         self.input_list = [x for x in path_list if x]
         for element in self.input_list:
@@ -33,7 +55,7 @@ class Cleaner:
                 self.final_list.extend(element_list)
             return self.final_list
 
-    def directory_path_shorten(self, path, char_size=30, count_separator_char=False):
+    def shorten_path(self, path, char_size=30, count_separator_char=False):
         self.char_size = char_size
         self.overflow_chars = len(path) - (self.char_size + 1)
         self.construct, self.input_list = path.split(os.sep), path.split(os.sep)

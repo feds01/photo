@@ -51,21 +51,21 @@ class Data:
 
 
 class Table:
-    def __init__(self, path, max_index_sets=5, pretty=False, detailed=False, path_char_size=30):
+    def __init__(self, path, max_index_sets=5, pretty=NotImplemented, detailed=NotImplemented, path_char_size=30):
         self.path = path
         self.max_rows = int(max_index_sets)
         self.data_packets = 0
-        self.pretty = pretty
-        self.detailed = detailed
         self.path_size = path_char_size
         self.table_import_data = {}
         self.headers = ["ID", "Directory-Path", "crt", "dng", "tif", "jpg"]
         self.table = PrettyTable()
         self.size_data = []
+        self.border_data = []
         self.size_data_final = []
         self.all_rows = []
         self.row = []
         self.file_origin = ""
+        self.border_symbol = "-"
 
     def get_data_file_location(self, key):
         self.file_origin = Config().get_specific_data("data", key)
@@ -75,20 +75,25 @@ class Table:
     def import_table_data(self):
         self.table_import_data = File().read(self.get_data_file_location("size_data"), "_dict")
         self.data_packets = len(self.table_import_data.keys())
-        for i in range(len(self.table_import_data.keys())):
+        for i in range(self.data_packets):
             if i in range(self.max_rows):
                 pass
             else:
                 self.table_import_data.pop(i+1)
         return self.table_import_data
 
-    def convert_import_data_to_column_data(self, key):
+    def get_specific_data_from_import(self, sub_key):
+        specific_data = []
+        for key in range(1, self.data_packets):
+            specific_data.append(self.table_import_data[key][sub_key])
+        return specific_data
+
+    def make_row_data(self, key):
         self.row = []
         self.row.append(key)
         if self.path_size <= len(list(self.table_import_data[key][0])):
-            self.row.append(Cleaner().directory_path_shorten(self.table_import_data[key][0]))
+            self.row.append(Cleaner().shorten_path(self.table_import_data[key][0]))
         else:
-
             self.row.append(self.table_import_data[key][0])
         for sub_key in range(2, 6):
             self.row.append(self.table_import_data[key][sub_key])
@@ -101,23 +106,37 @@ class Table:
             self.size_data_final.append("".join(self.size_data[:2]))
         return self.row
 
-    def create_final_row_data(self):
+    def make_border(self):
+        borders = []
+        for i in range(2, 6):
+            i = Cleaner.int_list_to_str(self.get_specific_data_from_import(i))
+            self.border_data.append(Cleaner.border_size_by_data_length(Cleaner.get_largest_element(i)))
+        for i in self.border_data:
+            borders.append(self.border_symbol * int(i))
+        self.row = [Cleaner.border_size_by_data_length(self.max_rows, True)* self.border_symbol, (self.path_size+1)* self.border_symbol]
+        self.row.extend(borders)
+        self.table.add_row(self.row)
+        del self.row
+
+    def converge_row_data(self):
         self.import_table_data()
         for i in range(self.data_packets):
-            self.all_rows.append(self.convert_import_data_to_column_data(i + 1))
+            self.all_rows.append(self.make_row_data(i + 1))
         return self.all_rows
 
-    def make_table(self):
+    def define_table(self):
         self.table.border = False
-        print("Indexing Results of '" + self.path + "' . . .")
         self.table.field_names = self.headers
-        self.table.add_row([3*"-", (1 + self.path_size)*"-", 4*"-", 4*"-", 4*"-", 4*"-"])
         self.table.align = "l"
-        self.create_final_row_data()
+
+    def make_table(self):
+        self.define_table()
+        self.converge_row_data()
+        print("Indexing Results of '" + self.path + "' . . .")
+        self.make_border()
         for row in self.all_rows:
             self.table.add_row(row)
-        #print(tabulate(self.all_rows, headers=self.headers))
-        self.size_data_final.insert(0, (8 * "-"))
+        self.size_data_final.insert(0, self.border_symbol*Cleaner.border_size_by_data_length(Cleaner.get_largest_element(self.size_data_final)))
         self.table.add_column("size", self.size_data_final, align="r")
         print(self.table)
         print()
