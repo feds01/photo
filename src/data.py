@@ -27,7 +27,7 @@ class Data:
     def create_data_on_directory(self, given_path):
         self.directory_data.append(given_path)
         self.analysis_path = Directory(given_path)
-        self.file_list = Directory(given_path).index_directory(file_c=True)
+        self.file_list = Directory(given_path).index_directory(file=True)
         if self.file_list == []:
             self.directory_data.append([0, 0, 0, 0])
             self.directory_data = Cleaner().list_organiser(self.directory_data)

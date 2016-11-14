@@ -110,32 +110,29 @@ class Directory:
         self.directory = ""
         self.path = ""
 
-    def index_directory(self, count=False, file_c=False):
-        if Directory(self.main_input).check_directory():
+    def index_directory(self, count=False, file=False):
             for directory, directories, files in os.walk(self.main_input):
                 for sub_directory in directories:
                     self.directory_count += 1
                     self.directory_list.append(os.path.join(directory, sub_directory))
-                if file_c:
-                    for file in files:
-                        self.file_list.append(os.path.join(directory, file))
+                if file:
+                    for _file in files:
+                        self.file_list.append(os.path.join(directory, _file))
                         self.file_count += 1
                 else:
                     pass
             if count:
                 return self.directory_count
-            if file_c:
+            if file:
                 return self.file_list
-            if file_c and count:
+            if file and count:
                 return self.file_count
             if not count:
                 return self.directory_list
-        else:
-            return 0
 
-    def find_specific_file(self, extension, file_list):
+    def find_specific_file(self, extension, files):
         self.file_extension_list = []
-        for file in file_list:
+        for file in files:
             if file.endswith(extension):
                 self.file_extension_list.append(file)
             else:
@@ -223,10 +220,10 @@ class Directory:
     def get_config_file_location(self):
         self.directory = Directory(self.main_input).get_current_directory()
         if self.directory.endswith("src"):
-            self.directories = Directory(os.path.split(self.directory)[0]) .index_directory(file_c=True)
+            self.directories = Directory(os.path.split(self.directory)[0]) .index_directory(file=True)
         else:
-            self.directories = Directory(self.directory).index_directory(file_c=True)
-        #TODO: remove code in main build, just for python to run quicker on this method
+            self.directories = Directory(self.directory).index_directory(file=True)
+        #TODO: remove code in main build, just for finder to run quicker on this method
         for file in list(self.directories):
             if ".git" in file:
                 self.directories.remove(file)
