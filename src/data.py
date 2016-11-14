@@ -1,7 +1,7 @@
 #!C:\Python\Python35-32\python.exe
 from prettytable import PrettyTable
-
 from src.utils import *
+import time
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -24,9 +24,10 @@ class Data:
         self.destination_file = os.path.join(Directory(__file__).get_current_directory(), self.destination_file)
         return self.destination_file
 
-    def create_data_on_directory(self):
-        self.directory_data.append(self.path)
-        self.file_list = Directory(self.path).index_directory(file_c=True)
+    def create_data_on_directory(self, given_path):
+        self.directory_data.append(given_path)
+        self.analysis_path = Directory(given_path)
+        self.file_list = Directory(given_path).index_directory(file_c=True)
         if self.file_list == []:
             self.directory_data.append([0, 0, 0, 0])
             self.directory_data = Cleaner().list_organiser(self.directory_data)
@@ -41,15 +42,17 @@ class Data:
             for specific_files_list in self.counter_data:
                 self.directory_data.append(len(specific_files_list))
         self.directory_data.insert(1, self.analysis_path.index_photo_directory())
-        self.directory_data.append(Directory(Directory(str(self.path)).get_directory_size(1)).get_appropriate_units())
+        self.directory_data.append(Directory(Directory(given_path).get_directory_size(1)).get_appropriate_units())
         return self.directory_data
 
     def export_data_on_directories(self):
+        start = time.clock()
         self.fetch_data_destination_path(self.pipe_file)
         self.packaged_data = {}
         for directory in self.path:
-            self.packaged_data.update({self.path.index(directory)+1: Data(directory).create_data_on_directory()})
+            self.packaged_data.update({self.path.index(directory)+1: self.create_data_on_directory(directory)})
         File().write(self.packaged_data, self.destination_file)
+        return time.clock() - start
 
 
 class Table:

@@ -147,7 +147,8 @@ class Directory:
 
     def index_photo_directory(self):
         self.directories = []
-        for config_key in Config().get_specific_keys("folders"):
+        self.folder_keys = Config().get_specific_keys("folders")
+        for config_key in self.folder_keys:
             for basename in Config().get_specific_data("folders", config_key):
                 if basename in os.listdir(self.main_input):
                     self.directories.append(os.path.join(self.main_input, basename))
