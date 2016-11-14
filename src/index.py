@@ -48,6 +48,7 @@ class Index:
         return self.directory_leaves
 
     def cycle(self, pipe=False):
+        start = time.clock()
         if not Directory(self.path).check_directory():
             raise Fatal("directory does not exist")
         if not self.thread_method:
@@ -62,4 +63,7 @@ class Index:
             if pipe:
                 Data(self.photo_model_directories, "size_data").export_data_on_directories()
             else:
+                print(time.clock())
                 return self.photo_model_directories
+
+print(Index("E:\\").cycle())

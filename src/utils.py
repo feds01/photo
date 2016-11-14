@@ -146,15 +146,30 @@ class Directory:
             return self.file_extension_list
 
     def index_photo_directory(self):
-        self.directories = []
         self.folder_keys = Config().get_specific_keys("folders")
-        for config_key in self.folder_keys:
-            for basename in Config().get_specific_data("folders", config_key):
-                if basename in os.listdir(self.main_input):
-                    self.directories.append(os.path.join(self.main_input, basename))
+        self.directories_for_analysis = [self.main_input]
+        self.directories = []
+
+        def method(path):
+            directories = []
+            for config_key in self.folder_keys:
+                for basename in Config().get_specific_data("folders", config_key):
+                    if basename in os.listdir(path):
+                        directories.append(os.path.join(path, basename))
+                    else:
+                        pass
+            return directories
+
+        if len(self.directories_for_analysis) == 1:
+           return method(self.directories_for_analysis[0])
+        else:
+            for directory in self.directories_for_analysis:
+                result = method(directory)
+                if len(result) == 3:
+                    self.directories.append(result)
                 else:
                     pass
-        return self.directories
+            return self.directories
 
     def check_directory(self):
         if os.path.exists(str(self.main_input)):
