@@ -147,7 +147,7 @@ class Directory:
 
     def index_photo_directory(self):
         self.folder_keys = Config().get_specific_keys("folders")
-        self.directories_for_analysis = [self.main_input]
+        self.directories_for_analysis = Cleaner().list_organiser([self.main_input])
         self.directories = []
 
         def method(path):
@@ -159,14 +159,12 @@ class Directory:
                     else:
                         pass
             return directories
-
         if len(self.directories_for_analysis) == 1:
-           return method(self.directories_for_analysis[0])
+            return method(self.directories_for_analysis[0])
         else:
             for directory in self.directories_for_analysis:
-                result = method(directory)
-                if len(result) == 3:
-                    self.directories.append(result)
+                if len(method(directory)) == 3:
+                    self.directories.append(directory)
                 else:
                     pass
             return self.directories

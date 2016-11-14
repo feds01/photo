@@ -3,7 +3,7 @@ import os
 import time
 from src.data import Data
 from src.exceptions import *
-from src.utils import Directory
+from src.utils import Directory, Cleaner
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -22,11 +22,7 @@ class Index:
         return Directory(path).index_photo_directory()
 
     def analyze_directories(self):
-        for directory in self.directories:
-            if self.certify_directory(directory):
-                self.photo_model_directories.append(directory)
-            else:
-                pass
+        self.photo_model_directories.append(self.certify_directory(self.directories))
 
     def directory_filter(self):
         for directory in self.directory_leaves:
@@ -43,12 +39,12 @@ class Index:
 
     def find_leaves(self, path):
         for root, dirs, files in os.walk(path):
-            if not dirs:
+            if not dirs or len(dirs) < 3:
                 self.directory_leaves.append(root)
         return self.directory_leaves
 
     def cycle(self, pipe=False):
-        start = time.clock()
+        #start = time.clock()
         if not Directory(self.path).check_directory():
             raise Fatal("directory does not exist")
         if not self.thread_method:
@@ -60,10 +56,11 @@ class Index:
         if self.photo_model_directories is []:
             return []
         else:
+            self.photo_model_directories = Cleaner().list_organiser(self.photo_model_directories)
             if pipe:
                 Data(self.photo_model_directories, "size_data").export_data_on_directories()
             else:
-                print(time.clock())
+                #print(time.clock() - start)
                 return self.photo_model_directories
 
-print(Index("E:\\").cycle())
+#print(Index("E:\\").cycle())
