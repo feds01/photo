@@ -1,3 +1,2 @@
-import os
+from src import *
 
-print(os.path.realpath("E:\\Photo\\TestFolder\\_GOOD"))

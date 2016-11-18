@@ -1,6 +1,6 @@
 #!C:\Python\Python35-32\python.exe
 import os
-import time
+#import time
 from src.data import Data
 from src.exceptions import *
 from src.utils import Directory, Cleaner
