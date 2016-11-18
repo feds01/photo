@@ -146,6 +146,7 @@ class Directory:
         self.folder_keys = Config().get_specific_keys("folders")
         self.directories_for_analysis = Cleaner().list_organiser([self.main_input])
         self.directories = []
+        #print(self.directories_for_analysis, ": analysis list")
 
         def method(path):
             directories = []
@@ -157,7 +158,9 @@ class Directory:
                         pass
             return directories
         if len(self.directories_for_analysis) == 1:
-            return method(self.directories_for_analysis[0])
+            self.result = method(self.directories_for_analysis[0])
+            if len(self.result) == 3:
+                return self.directories_for_analysis[0]
         else:
             for directory in self.directories_for_analysis:
                 if len(method(directory)) == 3:
@@ -167,7 +170,7 @@ class Directory:
             return self.directories
 
     def check_directory(self):
-        if os.path.exists(str(self.main_input)):
+        if os.path.exists(self.main_input):
             return True
         else:
             return False
@@ -179,10 +182,10 @@ class Directory:
             return False
 
     @staticmethod
-    def get_directory_branches(path):
+    def get_directory_branches(path, path_list):
         branch_directories = []
-        for directory in os.listdir(str(path)):
-            if Directory(directory).check_file():
+        for directory in path_list:
+            if Directory(os.path.join(path, directory)).check_file():
                 pass
             else:
                 branch_directories.append(os.path.join(path, directory))

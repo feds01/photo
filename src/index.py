@@ -41,12 +41,21 @@ class Index:
         for root, dirs, files in os.walk(path):
             if not dirs or len(dirs) < 3:
                 self.directory_leaves.append(root)
+        if self.thread_method:
+            if path in self.directory_leaves:
+                self.directory_leaves.remove(path)
+            else:
+                pass
         return self.directory_leaves
 
     def cycle(self, pipe=False):
         #start = time.clock()
         if not Directory(self.path).check_directory():
             raise Fatal("directory does not exist")
+        if self.thread_method:
+
+            if len(Directory.get_directory_branches(self.path, os.listdir(self.path))) == 0:
+                return []
         if not self.thread_method:
             self.directories.append(Directory(self.path).get_current_directory())
         self.directories = Directory(self.path).index_directory()
@@ -62,5 +71,3 @@ class Index:
             else:
                 #print(time.clock() - start)
                 return self.photo_model_directories
-
-#print(Index("E:\\").cycle())

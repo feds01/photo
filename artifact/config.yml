@@ -1,3 +1,4 @@
+
 folders:
    good_folder_name:
    - "_Good"
@@ -7,7 +8,7 @@ folders:
    - "good"
    all_folder_name:
    - "_all"
-   - "_ALL"
+   - "_ALL"  
    - "all"
    - "All"
    - "ALL"
@@ -19,8 +20,8 @@ folders:
    - "Crt"
    - "CRT"
 blacklist:
-  enabled: true
-  location: "artifact\blacklist.txt"
+    enabled: true
+    location: "artifact\\blacklist.txt"
 
 file_extensions:
    crt:
@@ -29,10 +30,10 @@ file_extensions:
    - ".TIF"
    good:
    - ".jpg"
-
+  
 data:
    index_data: "temp\\photo_directories_data.txt"
-   table_data: "temp\\table_data.txt"
+   table_data: "  temp\\table_data.txt"
    size_data: "temp\\size_data.txt"
-   removed_files_data: "temp\\removed_files_data.txt"
-   completed_directories: "artifact\\completed_directories.txt"
+   removed_files_data:   "temp\\removed_files_data.txt"
+   completed_directories: "artifact\\completed_directories.txt"  

@@ -1,7 +1,7 @@
 import multiprocessing
 import threading
+import os
 from queue import Queue
-
 from src.index import Index
 from src.utils import Directory, Cleaner
 
@@ -30,7 +30,7 @@ class Task:
         self.path = path
 
     def branches(self):
-        self.branch_list = Directory("").get_directory_branches(self.path)
+        self.branch_list = Directory("").get_directory_branches(self.path, os.listdir(self.path))
         return self.branch_list
 
     @staticmethod
@@ -41,15 +41,13 @@ class Task:
 def main(analyze_path):
     queue = Queue()
     branches = Task(analyze_path).branches()
-    main_list.append(Index("").run_directory(Directory(analyze_path).get_current_directory()))
+    main_list.append(Index.run_directory(Directory(analyze_path).get_current_directory()))
     for x in range(multiprocessing.cpu_count()):
         thread = Thread(queue)
         thread.daemon = True
         thread.start()
     for branch in branches:
-        main_list.append(Index("").run_directory(branch))
+        main_list.append(Index.run_directory(branch))
         queue.put(branch)
     queue.join()
     return Cleaner().list_organiser(main_list)
-
-print(main("E:\\Photo"))
