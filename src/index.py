@@ -17,6 +17,7 @@ class Index:
         self.directories = []
         self.directory_leaves = []
 
+
     @staticmethod
     def certify_directory(path):
         return Directory(path).index_photo_directory()

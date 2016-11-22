@@ -1,6 +1,6 @@
 import os
-import yaml
 import shutil
+from src.config import Config
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -143,10 +143,10 @@ class Directory:
             return self.file_extension_list
 
     def index_photo_directory(self):
+        #CONFIG_USE
         self.folder_keys = Config().get_specific_keys("folders")
         self.directories_for_analysis = Cleaner().list_organiser([self.main_input])
         self.directories = []
-        #print(self.directories_for_analysis, ": analysis list")
 
         def method(path):
             directories = []
@@ -220,7 +220,18 @@ class Directory:
     def get_file_size(self, unit):
         return os.path.getsize(self.main_input) / unit
 
-    def get_config_file_location(self):
+    @staticmethod
+    def get_command_path():
+        return os.getcwd()
+
+    @staticmethod
+    def get_directory_separator():
+        if os.pathsep == ";":
+            return "\\"
+        else:
+            return "/"
+
+    def get_artifact_file_location(self, filename):
         self.directory = Directory(self.main_input).get_current_directory()
         if self.directory.endswith("src"):
             self.directories = Directory(os.path.split(self.directory)[0]) .index_directory(file=True)
@@ -236,68 +247,11 @@ class Directory:
                 continue
 
         for file in list(self.directories):
-            if os.path.split(file)[1] == "config.yml":
+            if os.path.split(file)[1] == filename:
                 return file
             else:
                 pass
 
-    @staticmethod
-    def get_command_path():
-        return os.getcwd()
-
-    @staticmethod
-    def get_directory_separator():
-        if os.pathsep == ";":
-            return "\\"
-        else:
-            return "/"
-
-
-class Config:
-    config_file_location =  Directory(__file__).get_config_file_location()
-    #TODO: move everything from 'Config()' to config.py
-    def __init__(self):
-        self.stream = ""
-        self.raw_data = {}
-        self.config_raw_data = {}
-        self.key_list = []
-        self.data = {}
-        self.retrieve_config()
-
-    def retrieve_config(self):
-        with open(self.config_file_location, "r") as self.stream:
-            try:
-                self.raw_data = yaml.load(self.stream)
-                return self.raw_data
-            except Exception as exc:
-                print(exc)
-
-    def clean_raw_data(self, exception_key):
-        self.key_list = sorted(list(self.raw_data))
-        for key in self.key_list:
-            if key == self.key_list[exception_key]:
-                pass
-            else:
-                self.raw_data.pop(key)
-
-    def retrieve_data(self, key):
-        self.get_config_keys()
-        self.clean_raw_data(self.key_list.index(key))
-        for data_group_key in self.raw_data[self.key_list[self.key_list.index(key)]]:
-            self.data.update({data_group_key: self.raw_data[self.key_list[self.key_list.index(key)]][data_group_key]})
-        return self.data
-
-    def get_specific_data(self, key, specific):
-        self.retrieve_data(key)
-        return self.data[specific]
-
-    def get_config_keys(self):
-        self.key_list = sorted(list(self.raw_data))
-        return self.key_list
-
-    def get_specific_keys(self, key):
-        self.get_config_keys()
-        return self.raw_data[self.key_list[self.key_list.index(key)]].keys()
 
 
 
@@ -363,6 +317,7 @@ class File:
                     self.data = f.read()
                     f.close()
                     return self.data
+
 
     def run_setup(self):
         self.setup_directories()
