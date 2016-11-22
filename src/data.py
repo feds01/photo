@@ -69,12 +69,13 @@ class Table:
         self.size_data_final = []
         self.all_rows = []
         self.row = []
-        self.file_origin = ""
+        self.application_root, self.file_origin = "", ""
         self.border_symbol = "-"
 
     def get_data_file_location(self, key):
         self.file_origin = Config().get_specific_data("data", key)
-        self.file_origin = os.path.join(Directory(__file__).get_current_directory(), self.file_origin)
+        self.application_root = Config().get_key_value("application_root")
+        self.file_origin = os.path.join(self.application_root, self.file_origin)
         return self.file_origin
 
     def import_table_data(self):
@@ -146,3 +147,5 @@ class Table:
         print(self.table)
         print()
         print("Enter ID of directory to initiate cleansing process")
+
+Table("E:\\").make_table()

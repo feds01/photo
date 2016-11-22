@@ -28,11 +28,12 @@ class Config:
             else:
                 self.raw_data.pop(key)
 
+
     def retrieve_data(self, key):
         self.get_config_keys()
         self.clean_raw_data(self.key_list.index(key))
-        for data_group_key in self.raw_data[self.key_list[self.key_list.index(key)]]:
-            self.data.update({data_group_key: self.raw_data[self.key_list[self.key_list.index(key)]][data_group_key]})
+        for data_group_key in self.get_key_value(key):
+            self.data.update({data_group_key: self.get_key_value(key)[data_group_key]})
         return self.data
 
     def get_specific_data(self, key, specific):
@@ -42,6 +43,9 @@ class Config:
     def get_config_keys(self):
         self.key_list = sorted(list(self.raw_data))
         return self.key_list
+
+    def get_key_value(self, key):
+        return self.raw_data.get(key)
 
     def get_specific_keys(self, key):
         self.get_config_keys()

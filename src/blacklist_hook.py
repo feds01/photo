@@ -13,7 +13,6 @@ class Blacklist:
         self.black_list_instance = {}
         self.black_list_instance.update({self.directory: self.black_list_type})
 
-
     def create_instance(self):
         self.package_directory()
         with open(self.file_location, "r") as file:
