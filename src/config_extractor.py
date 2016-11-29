@@ -28,7 +28,6 @@ class Config:
             else:
                 self.raw_data.pop(key)
 
-
     def retrieve_data(self, key):
         self.get_config_keys()
         self.clean_raw_data(self.key_list.index(key))

@@ -28,7 +28,7 @@ class Data:
         self.directory_data.append(given_path)
         self.analysis_path = Directory(given_path)
         self.file_list = Directory(given_path).index_directory(file=True)
-        if self.file_list == []:
+        if not self.file_list:
             self.directory_data.append([0, 0, 0, 0])
             self.directory_data = Cleaner().list_organiser(self.directory_data)
         else:
@@ -45,7 +45,9 @@ class Data:
         self.directory_data.append(Directory(Directory(given_path).get_directory_size(1)).get_appropriate_units())
         return self.directory_data
 
+    @property
     def export_data_on_directories(self):
+        # TODO: remove timings
         start = time.clock()
         self.fetch_data_destination_path(self.pipe_file)
         self.packaged_data = {}
@@ -56,8 +58,7 @@ class Data:
 
 
 class Table:
-    def __init__(self, path, max_index_sets=5, pretty=NotImplemented, detailed=NotImplemented, path_char_size=30):
-        self.path = path
+    def __init__(self, max_index_sets=5, path_char_size=30):
         self.max_rows = int(max_index_sets)
         self.data_packets = 0
         self.path_size = path_char_size
@@ -112,6 +113,9 @@ class Table:
             self.size_data_final.append("".join(self.size_data[:2]))
         return self.row
 
+    def load_instance_by_id(self, _id):
+        return self.table_import_data.get(_id)
+
     def make_border(self):
         borders = []
         for i in range(2, 6):
@@ -119,7 +123,7 @@ class Table:
             self.border_data.append(Cleaner.border_size_by_data_length(Cleaner.get_largest_element(i)))
         for i in self.border_data:
             borders.append(self.border_symbol * int(i))
-        self.row = [Cleaner.border_size_by_data_length(self.max_rows, True)* self.border_symbol, (self.path_size+1)* self.border_symbol]
+        self.row = [Cleaner.border_size_by_data_length(self.max_rows, True) * self.border_symbol, (self.path_size+1) * self.border_symbol]
         self.row.extend(borders)
         self.table.add_row(self.row)
         del self.row
@@ -138,14 +142,9 @@ class Table:
     def make_table(self):
         self.define_table()
         self.converge_row_data()
-        print("Indexing Results of '" + self.path + "' . . .")
         self.make_border()
         for row in self.all_rows:
             self.table.add_row(row)
         self.size_data_final.insert(0, self.border_symbol*Cleaner.border_size_by_data_length(Cleaner.get_largest_element(self.size_data_final)))
         self.table.add_column("size", self.size_data_final, align="r")
         print(self.table)
-        print()
-        print("Enter ID of directory to initiate cleansing process")
-
-Table("E:\\").make_table()

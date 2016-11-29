@@ -18,7 +18,7 @@ class IndexWithNormalMethod(unittest.TestCase):
 class DataMethod(unittest.TestCase):
 
     def test_time_on_creation(self):
-        if Data(["E:\\Files\\Ana Felix Snow Queen","E:\\Photo\\sandbox", "E:\\Photo\\temp\\test"], "size_data").export_data_on_directories() < 1:
+        if Data(["E:\\Files\\Ana Felix Snow Queen","E:\\Photo\\sandbox", "E:\\Photo\\temp\\test"], "size_data").export_data_on_directories < 1:
             self.assertEqual(1, 1)
         else:
             self.assertEqual(1, 0)

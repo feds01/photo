@@ -1,9 +1,12 @@
 import os
 import shutil
-from src.config import Config
+from src.config_extractor import Config
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
+
+def space(n):
+    return n * "\n"
 
 class Cleaner:
     def __init__(self):
@@ -13,8 +16,10 @@ class Cleaner:
         self.path_construct_list = []
         self.char_size = 0
         self.overflow_chars = 0
+        self.block_pos = 0
         self.old_block = ""
         self.cur_block = ""
+        self.slicing = False
 
     @staticmethod
     def get_largest_element(data):
@@ -55,6 +60,14 @@ class Cleaner:
                 self.final_list.extend(element_list)
             return self.final_list
 
+    @staticmethod
+    def element_case_finder(_list, case):
+        for element in _list:
+                if case in element or case is element:
+                    return int(_list.index(element))
+                else:
+                    pass
+
     def shorten_path(self, path, char_size=30, count_separator_char=False):
         self.char_size = char_size
         self.overflow_chars = len(path) - (self.char_size + 1)
@@ -62,7 +75,7 @@ class Cleaner:
         if count_separator_char:
             for _ in self.input_list[:-1]:
                 self.overflow_chars += 1
-        if len(path) > self.char_size:
+        if len(path) >= self.char_size:
             self.input_list.pop(-1)
             self.final_list.append({self.input_list[-1]: len(self.input_list[-1])})
             if int(self.final_list[0][self.input_list[-1]]) < self.overflow_chars:
@@ -86,6 +99,25 @@ class Cleaner:
             for element in self.input_list:
                 self.construct.remove(element)
             self.construct.insert(int(self.path_construct_list[0]), "...")
+            while len("".join(self.construct)) + int(len(self.construct))-1 > char_size:
+                self.overflow_chars = len("".join(self.construct)) + int(len(self.construct)) - 1
+                if self.overflow_chars-3 <= char_size:
+                    self.block_pos = (Cleaner.element_case_finder(list(self.construct), "...")) - 1
+                    if len(self.construct[self.block_pos]) is 3:
+                        self.slicing = True
+                        self.cur_block = self.construct[self.block_pos][0] + "..."
+                        break
+                    if self.overflow_chars - 2 == char_size + 1:
+                        self.cur_block = str("".join(list(self.construct[self.block_pos])[:2])) + "..."
+                    continue
+                if self.overflow_chars > char_size:
+                    self.construct.pop(self.construct.index("...")-1)
+                else:
+                    self.slicing = True
+                    break
+            if self.slicing:
+                self.construct.pop(self.block_pos), self.construct.pop(self.construct.index("..."))
+                self.construct.insert(self.block_pos, self.cur_block)
             self.old_block = self.construct[0] + Directory.get_directory_separator()
             for block in self.construct[1:]:
                 self.old_block = os.path.join(self.old_block, block)
@@ -143,7 +175,6 @@ class Directory:
             return self.file_extension_list
 
     def index_photo_directory(self):
-        #CONFIG_USE
         self.folder_keys = Config().get_specific_keys("folders")
         self.directories_for_analysis = Cleaner().list_organiser([self.main_input])
         self.directories = []
@@ -253,8 +284,6 @@ class Directory:
                 pass
 
 
-
-
 class File:
     def __init__(self):
         # TODO: move all stuff to YAML config file in artifacts
@@ -317,7 +346,6 @@ class File:
                     self.data = f.read()
                     f.close()
                     return self.data
-
 
     def run_setup(self):
         self.setup_directories()
