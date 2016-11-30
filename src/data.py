@@ -21,7 +21,7 @@ class Data:
 
     def fetch_data_destination_path(self, key):
         self.destination_file = Config().get_specific_data("data", key)
-        self.destination_file = os.path.join(Directory(__file__).get_current_directory(), self.destination_file)
+        self.destination_file = os.path.join(Config().get_key_value("application_root"), self.destination_file)
         return self.destination_file
 
     def create_data_on_directory(self, given_path):
@@ -45,7 +45,6 @@ class Data:
         self.directory_data.append(Directory(Directory(given_path).get_directory_size(1)).get_appropriate_units())
         return self.directory_data
 
-    @property
     def export_data_on_directories(self):
         # TODO: remove timings
         start = time.clock()
@@ -114,6 +113,8 @@ class Table:
         return self.row
 
     def load_instance_by_id(self, _id):
+        if self.table_import_data == {}:
+            self.import_table_data()
         return self.table_import_data.get(_id)
 
     def make_border(self):

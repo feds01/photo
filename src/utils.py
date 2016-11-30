@@ -1,5 +1,6 @@
 import os
 import shutil
+from src.exceptions import *
 from src.config_extractor import Config
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -322,14 +323,13 @@ class File:
                 else:
                     shutil.rmtree(os.path.join(self.current_directory, directory))
 
-    def write(self, data, file):
-        self.data = str(data)
-        self.file = file
-        if not Directory(self.file).check_directory():
+    @staticmethod
+    def write(data, file):
+        if not Directory(file).check_file():
             return 0
         else:
-            with open(self.file, "w") as f:
-                f.write(self.data), f.close()
+            with open(file, "w") as f:
+                f.write(str(data)), f.close()
 
     def read(self, file, specific):
         self.file = file
@@ -338,7 +338,10 @@ class File:
         else:
             if specific == "_dict":
                 with open(file, "r") as f:
-                    self.data = eval(f.read())
+                    try:
+                        self.data = eval(f.read())
+                    except SyntaxError:
+                        raise Fatal("fatal: No data in file")
                     f.close()
                     return self.data
             else:
@@ -350,4 +353,3 @@ class File:
     def run_setup(self):
         self.setup_directories()
         self.setup_files()
-

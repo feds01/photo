@@ -1,5 +1,6 @@
 import os
 
+
 def config_generation():
     with open(get_config_file_location(__file__), "w") as file:
         file.write("""\nfolders:\n   good_folder_name:\n   - \"_Good\"\n   - \"_GOOD\"\n   - \"Good\"\n\
@@ -12,6 +13,7 @@ def config_generation():
   temp\\\\table_data.txt\"\n   size_data: \"temp\\\\size_data.txt\"\n   removed_files_data:\
    \"temp\\\\removed_files_data.txt\"\n   completed_directories: \"artifact\\\\completed_directories.txt\"\
   \n"""), file.close()
+
 
 def check_config_stability():
     pass

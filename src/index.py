@@ -54,7 +54,6 @@ class Index:
         if not Directory(self.path).check_directory():
             raise Fatal("directory does not exist")
         if self.thread_method:
-
             if len(Directory.get_directory_branches(self.path, os.listdir(self.path))) == 0:
                 return []
         if not self.thread_method:
@@ -68,7 +67,7 @@ class Index:
         else:
             self.photo_model_directories = Cleaner().list_organiser(self.photo_model_directories)
             if pipe:
-                Data(self.photo_model_directories, "size_data").export_data_on_directories
+                Data(self.photo_model_directories, "size_data").export_data_on_directories()
             else:
                 #print(time.clock() - start)
                 return self.photo_model_directories

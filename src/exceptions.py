@@ -1,5 +1,7 @@
 class Fatal(Exception):
-    pass
+    def __init__(self, message):
+        print(message)
+        pass
 
 """
 class Config(BaseException):
