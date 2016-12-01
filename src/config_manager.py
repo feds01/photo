@@ -2,7 +2,7 @@ import os
 
 
 def config_generation():
-    with open(get_config_file_location(__file__), "w") as file:
+    with open(get_config_file_location(), "w") as file:
         file.write("""\nfolders:\n   good_folder_name:\n   - \"_Good\"\n   - \"_GOOD\"\n   - \"Good\"\n\
    - \"GOOD\"\n   - \"good\"\n   all_folder_name:\n   - \"_all\"\n   - \"_ALL\"\
   \n   - \"all\"\n   - \"All\"\n   - \"ALL\"\n   crt_folder_name:\n   - \"_DNG\"\n   - \"DNG\"\n
@@ -19,20 +19,21 @@ def check_config_stability():
     pass
 
 
-def get_config_file_location(path):
+def get_config_file_location():
     directory = os.path.dirname(__file__)
+
     def file_index(path):
         file_list = []
-        for directory, directories, files in os.walk(path):
+        for root, dirs, files in os.walk(path):
                 for _file in files:
-                    file_list.append(os.path.join(directory, _file))
+                    file_list.append(os.path.join(root, _file))
         return file_list
 
     if directory.endswith("src"):
         directories = file_index(os.path.dirname(directory))
     else:
         directories = file_index(directory)
-    #TODO: remove code in main build, just for finder to run quicker on this method
+    # TODO: remove code in main build, just for finder to run quicker on this method
     for file in list(directories):
         if ".git" in file:
             directories.remove(file)
@@ -45,4 +46,4 @@ def get_config_file_location(path):
         if os.path.split(file)[1] == "config.yml":
             return file
         else:
-             pass
+            pass

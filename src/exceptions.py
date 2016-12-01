@@ -3,6 +3,11 @@ class Fatal(Exception):
         print(message)
         pass
 
+
+class IndexingError(Exception):
+    def __init__(self, directory):
+        print("permissions: could not list directory -", directory)
+        pass
 """
 class Config(BaseException):
     def __init__(self, error_code, old_definition):

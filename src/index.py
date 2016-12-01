@@ -1,6 +1,6 @@
 #!C:\Python\Python35-32\python.exe
 import os
-#import time
+# import time
 from src.data import Data
 from src.exceptions import *
 from src.utils import Directory, Cleaner
@@ -16,7 +16,6 @@ class Index:
         self.path = path
         self.directories = []
         self.directory_leaves = []
-
 
     @staticmethod
     def certify_directory(path):
@@ -50,9 +49,9 @@ class Index:
         return self.directory_leaves
 
     def cycle(self, pipe=False):
-        #start = time.clock()
+        # start = time.clock()
         if not Directory(self.path).check_directory():
-            raise Fatal("directory does not exist")
+            Fatal("fatal: directory does not exist")
         if self.thread_method:
             if len(Directory.get_directory_branches(self.path, os.listdir(self.path))) == 0:
                 return []
@@ -69,5 +68,5 @@ class Index:
             if pipe:
                 Data(self.photo_model_directories, "size_data").export_data_on_directories()
             else:
-                #print(time.clock() - start)
+                # print(time.clock() - start)
                 return self.photo_model_directories

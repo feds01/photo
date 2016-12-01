@@ -3,6 +3,7 @@ folders:
    good_folder_name:
    - "_Good"
    - "_GOOD"
+   - "_good"
    - "Good"
    - "GOOD"
    - "good"
@@ -18,7 +19,7 @@ folders:
    - "crt"
    - "CRT"
    - "Crt"
-   - "CRT"
+   - "_CRT"
 blacklist:
     enabled: true
     location: "artifact\\blacklist.txt"

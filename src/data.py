@@ -25,6 +25,7 @@ class Data:
         return self.destination_file
 
     def create_data_on_directory(self, given_path):
+        self.directory_data, self.file_list, self.counter_data = [], [], []
         self.directory_data.append(given_path)
         self.analysis_path = Directory(given_path)
         self.file_list = Directory(given_path).index_directory(file=True)

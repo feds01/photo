@@ -184,10 +184,14 @@ class Directory:
             directories = []
             for config_key in self.folder_keys:
                 for basename in Config().get_specific_data("folders", config_key):
-                    if basename in os.listdir(path):
-                        directories.append(os.path.join(path, basename))
-                    else:
-                        pass
+                    try:
+                        if basename in os.listdir(path):
+                            directories.append(os.path.join(path, basename))
+                        else:
+                            pass
+                    except PermissionError:
+                        IndexingError(path)
+                        return ""
             return directories
         if len(self.directories_for_analysis) == 1:
             self.result = method(self.directories_for_analysis[0])

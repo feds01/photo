@@ -1,7 +1,8 @@
 import yaml
 from src.config_manager import get_config_file_location
 
-config_file_location = get_config_file_location(__file__)
+config_file_location = get_config_file_location()
+
 
 class Config:
     def __init__(self):

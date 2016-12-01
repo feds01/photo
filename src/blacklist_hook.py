@@ -1,5 +1,6 @@
 from src.utils import *
 
+
 class Blacklist:
     def __init__(self, directory, *args):
         self.black_list_type = list(*args)
