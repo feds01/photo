@@ -1,4 +1,3 @@
-
 #pycharm IDE project files
 .idea/
 #test directory
@@ -7,4 +6,4 @@ sandbox/
 src/__pycache__/
 __pycache__/
 #temporary files
-temp/
+temp/*
