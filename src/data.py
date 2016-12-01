@@ -58,8 +58,8 @@ class Data:
 
 
 class Table:
-    def __init__(self, max_index_sets=5, path_char_size=30):
-        self.max_rows = int(max_index_sets)
+    def __init__(self, max_instances=5, path_char_size=30):
+        self.max_rows = max_instances
         self.data_packets = 0
         self.path_size = path_char_size
         self.table_import_data = {}
@@ -83,10 +83,10 @@ class Table:
         self.table_import_data = File().read(self.get_data_file_location("size_data"), "_dict")
         self.data_packets = len(self.table_import_data.keys())
         for i in range(self.data_packets):
-            if i in range(self.max_rows):
+            if i+1 <= self.max_rows:
                 pass
             else:
-                self.table_import_data.pop(i+1)
+                dict(self.table_import_data).pop(i)
         return self.table_import_data
 
     def get_specific_data_from_import(self, sub_key):
@@ -132,8 +132,8 @@ class Table:
 
     def converge_row_data(self):
         self.import_table_data()
-        for i in range(self.data_packets):
-            self.all_rows.append(self.make_row_data(i + 1))
+        for i in range(1, self.data_packets):
+            self.all_rows.append(self.make_row_data(i))
         return self.all_rows
 
     def define_table(self):

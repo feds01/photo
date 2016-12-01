@@ -15,6 +15,7 @@ def fancy_tree_display(roots, values):
 
 
 def table_instance_display(instance_data):
+    file_extension_order = ["", "", "", ""]
     instance_leaves = {}
     file_count = 0
     print(instance_data[1])
@@ -23,7 +24,8 @@ def table_instance_display(instance_data):
     instance_data.pop(1)
     print("More detail about the photo directory - \'", os.path.basename(instance_data[0]), "\' :", space(1))
     print("Full directory path: ", instance_data[0])
-    for i in range(2, 5):
+    for i in range(1, 5):
+
         file_count += instance_data[i]
     print("Total files:", file_count)
 
@@ -38,3 +40,4 @@ print("Total files:", self.file_count)
 print(fancy_tree_display(["crt", "good", "all"], [3, 6, 2]))
 print("Total size: ", self.instance[5][0] + self.instance[5][1])
 """
+table_instance_display(Table().load_instance_by_id(1))
