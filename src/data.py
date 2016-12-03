@@ -37,12 +37,13 @@ class Data:
             for specific_key in sorted(self.extension_keys):
                 for extension in Config().get_specific_data("file_extensions", specific_key):
                     if extension == ".jpg":
-                        self.counter_data.append(self.analysis_path.find_specific_file(extension, self.file_list))
+                        jpg_count_data = self.analysis_path.find_specific_file(extension, self.file_list, case_sensitive=False)
+                        self.counter_data.append(jpg_count_data)
                     else:
-                        self.counter_data.append(self.analysis_path.find_specific_file(extension, self.file_list))
+                        self.counter_data.append(self.analysis_path.find_specific_file(extension, self.file_list, case_sensitive=False))
             for specific_files_list in self.counter_data:
                 self.directory_data.append(len(specific_files_list))
-        self.directory_data.insert(1, self.analysis_path.index_photo_directory())
+        self.directory_data.insert(1, self.analysis_path.index_photo_directory(return_folders=True))
         self.directory_data.append(Directory(Directory(given_path).get_directory_size(1)).get_appropriate_units())
         return self.directory_data
 

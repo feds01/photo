@@ -135,11 +135,13 @@ class Directory:
         self.byte_size = self.main_input
         self.directory_count = 0
         self.file_count = 0
+        self.folder_keys = []
         self.directory_list = []
         self.file_list = []
         self.file_extension_list = []
         self.file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
         self.directories = []
+        self.result = []
         self.directory = ""
         self.path = ""
 
@@ -154,30 +156,34 @@ class Directory:
                         self.file_count += 1
                 else:
                     pass
+            if file and count:
+                return self.file_count
             if count:
                 return self.directory_count
             if file:
                 return self.file_list
-            if file and count:
-                return self.file_count
             if not count:
                 return self.directory_list
 
-    def find_specific_file(self, extension, files):
+    def find_specific_file(self, extension, files, case_sensitive=True):
         self.file_extension_list = []
-        for file in files:
-            if file.endswith(extension):
-                self.file_extension_list.append(file)
+        extensions = extension.split()
+        if not case_sensitive:
+            if extension.islower():
+                extensions.append(extension.upper())
             else:
-                pass
-        if not self.file_extension_list:
-            return []
-        else:
-            return self.file_extension_list
+                extensions.append(extension.lower())
+        for file in files:
+            for extension in extensions:
+                if file.endswith(extension):
+                    self.file_extension_list.append(file)
+                else:
+                    pass
+        return self.file_extension_list
 
-    def index_photo_directory(self):
+    def index_photo_directory(self, return_folders=False):
         self.folder_keys = Config().get_specific_keys("folders")
-        self.directories_for_analysis = Cleaner().list_organiser([self.main_input])
+        self.main_input = Cleaner().list_organiser([self.main_input])
         self.directories = []
 
         def method(path):
@@ -193,13 +199,16 @@ class Directory:
                         IndexingError(path)
                         return ""
             return directories
-        if len(self.directories_for_analysis) == 1:
-            self.result = method(self.directories_for_analysis[0])
+        if return_folders:
+            return method(self.main_input[0])
+        if len(self.main_input) == 1:
+            self.result = method(self.main_input[0])
             if len(self.result) == 3:
-                return self.directories_for_analysis[0]
+                return self.main_input[0]
         else:
-            for directory in self.directories_for_analysis:
-                if len(method(directory)) == 3:
+            for directory in self.main_input:
+                self.result = method(directory)
+                if len(self.result) == 3:
                     self.directories.append(directory)
                 else:
                     pass
@@ -273,7 +282,7 @@ class Directory:
             self.directories = Directory(os.path.split(self.directory)[0]) .index_directory(file=True)
         else:
             self.directories = Directory(self.directory).index_directory(file=True)
-        #TODO: remove code in main build, just for finder to run quicker on this method
+        # TODO: remove code in main build, just for finder to run quicker on this method
         for file in list(self.directories):
             if ".git" in file:
                 self.directories.remove(file)

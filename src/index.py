@@ -51,7 +51,7 @@ class Index:
     def cycle(self, pipe=False):
         # start = time.clock()
         if not Directory(self.path).check_directory():
-            Fatal("fatal: directory does not exist")
+            raise Fatal("fatal: directory does not exist")
         if self.thread_method:
             if len(Directory.get_directory_branches(self.path, os.listdir(self.path))) == 0:
                 return []
@@ -70,3 +70,5 @@ class Index:
             else:
                 # print(time.clock() - start)
                 return self.photo_model_directories
+
+Index("E:\\").cycle(pipe=True)
