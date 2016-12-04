@@ -3,7 +3,7 @@ import threading
 import os
 from queue import Queue
 from src.index import Index
-from src.utils import Directory, Cleaner
+from src.utils import Directory, Utility
 
 main_list = []
 
@@ -50,4 +50,4 @@ def main(analyze_path):
         main_list.append(Index.run_directory(branch))
         queue.put(branch)
     queue.join()
-    return Cleaner().list_organiser(main_list)
+    return Utility().list_organiser(main_list)

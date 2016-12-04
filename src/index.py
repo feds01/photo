@@ -3,7 +3,7 @@ import os
 # import time
 from src.data import Data
 from src.exceptions import *
-from src.utils import Directory, Cleaner
+from src.utils import Directory, Utility
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -64,11 +64,9 @@ class Index:
         if self.photo_model_directories is []:
             return []
         else:
-            self.photo_model_directories = Cleaner().list_organiser(self.photo_model_directories)
+            self.photo_model_directories = Utility().list_organiser(self.photo_model_directories)
             if pipe:
                 Data(self.photo_model_directories, "size_data").export_data_on_directories()
             else:
                 # print(time.clock() - start)
                 return self.photo_model_directories
-
-Index("E:\\").cycle(pipe=True)

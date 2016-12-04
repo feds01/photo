@@ -31,7 +31,7 @@ class Data:
         self.file_list = Directory(given_path).index_directory(file=True)
         if not self.file_list:
             self.directory_data.append([0, 0, 0, 0])
-            self.directory_data = Cleaner().list_organiser(self.directory_data)
+            self.directory_data = Utility().list_organiser(self.directory_data)
         else:
             self.extension_keys = Config().get_specific_keys("file_extensions")
             for specific_key in sorted(self.extension_keys):
@@ -100,7 +100,7 @@ class Table:
         self.row = []
         self.row.append(key)
         if self.path_size <= len(list(self.table_import_data[key][0])):
-            self.row.append(Cleaner().shorten_path(self.table_import_data[key][0]))
+            self.row.append(Utility().shorten_path(self.table_import_data[key][0]))
         else:
             self.row.append(self.table_import_data[key][0])
         for sub_key in range(2, 6):
@@ -122,11 +122,11 @@ class Table:
     def make_border(self):
         borders = []
         for i in range(2, 6):
-            i = Cleaner.int_list_to_str(self.get_specific_data_from_import(i))
-            self.border_data.append(Cleaner.border_size_by_data_length(Cleaner.get_largest_element(i)))
+            i = Utility.int_list_to_str(self.get_specific_data_from_import(i))
+            self.border_data.append(Utility.border_size_by_data_length(Utility.get_largest_element(i)))
         for i in self.border_data:
             borders.append(self.border_symbol * int(i))
-        self.row = [Cleaner.border_size_by_data_length(self.max_rows, True) * self.border_symbol, (self.path_size+1) * self.border_symbol]
+        self.row = [Utility.border_size_by_data_length(self.max_rows, True) * self.border_symbol, (self.path_size + 1) * self.border_symbol]
         self.row.extend(borders)
         self.table.add_row(self.row)
         del self.row
@@ -148,6 +148,6 @@ class Table:
         self.make_border()
         for row in self.all_rows:
             self.table.add_row(row)
-        self.size_data_final.insert(0, self.border_symbol*Cleaner.border_size_by_data_length(Cleaner.get_largest_element(self.size_data_final)))
+        self.size_data_final.insert(0, self.border_symbol * Utility.border_size_by_data_length(Utility.get_largest_element(self.size_data_final)))
         self.table.add_column("size", self.size_data_final, align="r")
         print(self.table)

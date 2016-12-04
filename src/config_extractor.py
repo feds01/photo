@@ -1,6 +1,10 @@
 import yaml
 from src.config_manager import get_config_file_location
 
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
+
+
 config_file_location = get_config_file_location()
 
 

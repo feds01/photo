@@ -2,6 +2,7 @@ import os
 import shutil
 from src.exceptions import *
 from src.config_extractor import Config
+
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -9,7 +10,8 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 def space(n):
     return n * "\n"
 
-class Cleaner:
+
+class Utility:
     def __init__(self):
         self.final_list = []
         self.input_list = []
@@ -103,7 +105,7 @@ class Cleaner:
             while len("".join(self.construct)) + int(len(self.construct))-1 > char_size:
                 self.overflow_chars = len("".join(self.construct)) + int(len(self.construct)) - 1
                 if self.overflow_chars-3 <= char_size:
-                    self.block_pos = (Cleaner.element_case_finder(list(self.construct), "...")) - 1
+                    self.block_pos = (Utility.element_case_finder(list(self.construct), "...")) - 1
                     if len(self.construct[self.block_pos]) is 3:
                         self.slicing = True
                         self.cur_block = self.construct[self.block_pos][0] + "..."
@@ -183,7 +185,7 @@ class Directory:
 
     def index_photo_directory(self, return_folders=False):
         self.folder_keys = Config().get_specific_keys("folders")
-        self.main_input = Cleaner().list_organiser([self.main_input])
+        self.main_input = Utility().list_organiser([self.main_input])
         self.directories = []
 
         def method(path):
@@ -325,7 +327,7 @@ class File:
                 f.close()
 
     def clean_files(self, file, specific, general=False):
-        file_list = Cleaner().join_lists(self.necessary_files_artifact, self.necessary_files_temp)
+        file_list = Utility().join_lists(self.necessary_files_artifact, self.necessary_files_temp)
         if file in file_list:
             with open(os.path.join(specific, file), "w") as f:
                 f.flush(), f.truncate(), f.close()

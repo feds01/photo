@@ -1,11 +1,13 @@
-import os
 from src.utils import *
 from src.data import Table
+
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
 
 
 def fancy_tree_display(roots, values):
     full_string, tree_symbol = "", "|_ "
-    max_root = Cleaner().get_largest_element(roots)
+    max_root = Utility().get_largest_element(roots)
     for i in range(len(roots)):
         align = ""
         if len(roots[i]) < 5:
@@ -70,3 +72,4 @@ def safe_mode_selector(directory, pid):
             return [directory, "--safe"]
         if safe_scan_input == "n":
             return [directory]
+

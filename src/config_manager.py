@@ -1,5 +1,8 @@
 import os
 
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
+
 
 def config_generation():
     with open(get_config_file_location(), "w") as file:
