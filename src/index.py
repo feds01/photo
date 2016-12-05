@@ -66,7 +66,7 @@ class Index:
         else:
             self.photo_model_directories = Utility().list_organiser(self.photo_model_directories)
             if pipe:
-                Data(self.photo_model_directories, "size_data").export_data_on_directories()
+                Data(self.photo_model_directories).export_data_on_directories()
             else:
                 # print(time.clock() - start)
                 return self.photo_model_directories

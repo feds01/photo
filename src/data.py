@@ -8,9 +8,8 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
 class Data:
-    def __init__(self, path, pipe_file=""):
+    def __init__(self, path):
         self.path = path
-        self.pipe_file = pipe_file
         self.destination_file = ""
         self.directory_data = []
         self.analysis_path = Directory(path)
@@ -19,9 +18,9 @@ class Data:
         self.packaged_data = {}
         self.extension_keys = []
 
-    def fetch_data_destination_path(self, key):
-        self.destination_file = Config().get_specific_data("data", key)
-        self.destination_file = os.path.join(Config().get_key_value("application_root"), self.destination_file)
+    def fetch_data_destination_path(self):
+        self.destination_file = sorted(Config().get_specific_data("application_directories", "temp"))[2]
+        self.destination_file = os.path.join(Config().get_key_value("application_root"), os.path.join("temp", self.destination_file))
         return self.destination_file
 
     def create_data_on_directory(self, given_path):
@@ -50,7 +49,7 @@ class Data:
     def export_data_on_directories(self):
         # TODO: remove timings
         start = time.clock()
-        self.fetch_data_destination_path(self.pipe_file)
+        self.fetch_data_destination_path()
         self.packaged_data = {}
         for directory in self.path:
             self.packaged_data.update({self.path.index(directory)+1: self.create_data_on_directory(directory)})
@@ -74,14 +73,13 @@ class Table:
         self.application_root, self.file_origin = "", ""
         self.border_symbol = "-"
 
-    def get_data_file_location(self, key):
-        self.file_origin = Config().get_specific_data("data", key)
+    def get_data_file_location(self):
+        self.file_origin = sorted(Config().get_specific_data("application_directories", "temp"))[2]
         self.application_root = Config().get_key_value("application_root")
-        self.file_origin = os.path.join(self.application_root, self.file_origin)
-        return self.file_origin
+        return os.path.join(self.application_root, os.path.join("temp", self.file_origin))
 
     def import_table_data(self):
-        self.table_import_data = File(self.get_data_file_location("size_data")).read("_dict")
+        self.table_import_data = File(self.get_data_file_location()).read("_dict")
         self.data_packets = len(self.table_import_data.keys())
         for i in range(self.data_packets):
             if i+1 <= self.max_rows:
