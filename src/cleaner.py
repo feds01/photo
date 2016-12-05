@@ -45,17 +45,15 @@ class Analyse:
             else:
                 pass
 
-    def path_converter(self):
-        for file in self.files:
-            self.crt_path_files.append(os.path.join(self.directory_folders[0], os.path.basename(file)))
+    def path_converter(self, path):
+            return os.path.join(self.directory_folders[0], os.path.basename(path))
 
     def crt_file_finder(self):
-        self.path_converter()
         self.crt_folder_files = Directory(self.directory_folders[0]).index_directory(file=True)
-        for file in self.crt_path_files:
+        for file in self.files:
             self.crt_file_version = []
             for extension in self.crt_extensions:
-                self.crt_file_version.append(Utility().extension_swapper(file, extension, remove_dot=True))
+                self.crt_file_version.append(Utility().extension_swapper(self.path_converter(file), extension, remove_dot=True))
             for version in self.crt_file_version:
                 if version in self.crt_folder_files:
                     self.constructed_report.update({file: version})
@@ -67,6 +65,6 @@ class Analyse:
         self.crt_file_finder()
         return self.constructed_report
 
-Analyse("E:\\Files\\Ana Felix Snow Queen\\").run_analysis()
-Analyse("E:\\Files\\Ana Felix Forest First\\").run_analysis()
+print(Analyse("E:\\Files\\Ana Felix Snow Queen\\").run_analysis())
+print(Analyse("E:\\Files\\Ana Felix Forest First\\").run_analysis())
 
