@@ -6,4 +6,4 @@ sandbox/
 src/__pycache__/
 __pycache__/
 #temporary files
-temp/*
+/temp/*
