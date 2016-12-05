@@ -41,10 +41,4 @@ file_extensions:
    - ".TIF"
    good:
    - ".jpg"
-  
-data:
-   index_data: "temp\\photo_directories_data.txt"
-   table_data: "  temp\\table_data.txt"
-   size_data: "temp\\size_data.txt"
-   removed_files_data:   "temp\\removed_files_data.txt"
-   completed_directories: "artifact\\completed_directories.txt"  
+
