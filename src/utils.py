@@ -71,6 +71,13 @@ class Utility:
                 else:
                     pass
 
+    @staticmethod
+    def extension_swapper(file, ext, remove_dot=False):
+        if remove_dot:
+            return file[:-4] + ext
+        else:
+            return file[:-3] + ext
+
     def shorten_path(self, path, char_size=30, count_separator_char=False):
         self.char_size = char_size
         self.overflow_chars = len(path) - (self.char_size + 1)
@@ -301,58 +308,54 @@ class Directory:
 
 
 class File:
-    def __init__(self):
-        # TODO: move all stuff to YAML config file in artifacts
-        self.necessary_directories = ["temp", "artifact"]
-        self.necessary_files_temp = ["photo_directories_data.txt", "removed_files_data.txt", "table_data.txt",
-                                     "size_data.txt"]
-        self.necessary_files_artifact = ["blacklist.txt", "completed_directories.txt", "config.txt"]
-        self.current_directory = Directory(__file__).get_current_directory()
-        self.file = ""
+    def __init__(self, file):
+        self.application_root = Config().get_key_value("application_root")
+        self.application_directories = Config().get_specific_keys("application_directories")
+        self.temp_files = Config().get_specific_data("application_directories", "temp")
+        self.artifact_files = Config().get_specific_data("application_directories", "artifact")
+        self.file = file
         self.data = ""
 
     def setup_directories(self):
-        for directory in self.necessary_directories:
+        for directory in self.application_directories:
             if os.path.exists(directory):
                 pass
             else:
-                os.mkdir(os.path.join(self.current_directory, directory))
+                os.mkdir(os.path.join(self.application_root, directory))
 
     def setup_files(self):
-        for file in self.necessary_files_temp:
-            with open(os.path.join(self.necessary_directories[0], file), "w") as f:
+        for file in self.temp_files:
+            with open(os.path.join(self.application_directories[0], file), "w") as f:
                 f.close()
-        for file in self.necessary_files_artifact:
-            with open(os.path.join(self.necessary_directories[1], file), "w") as f:
+        for file in self.artifact_files:
+            with open(os.path.join(self.application_directories[1], file), "w") as f:
                 f.close()
 
     def clean_files(self, file, specific, general=False):
-        file_list = Utility().join_lists(self.necessary_files_artifact, self.necessary_files_temp)
+        file_list = Utility().join_lists(self.artifact_files, self.temp_files)
         if file in file_list:
             with open(os.path.join(specific, file), "w") as f:
                 f.flush(), f.truncate(), f.close()
         if general:
-            for directory in self.necessary_directories:
-                if directory == self.necessary_directories[1]:
+            for directory in self.application_directories:
+                if directory == self.application_directories[1]:
                     pass
                 else:
-                    shutil.rmtree(os.path.join(self.current_directory, directory))
+                    shutil.rmtree(os.path.join(self.application_root, directory))
 
-    @staticmethod
-    def write(data, file):
-        if not Directory(file).check_file():
+    def write(self, data):
+        if not Directory(self.file).check_file():
             return 0
         else:
-            with open(file, "w") as f:
+            with open(self.file, "w") as f:
                 f.write(str(data)), f.close()
 
-    def read(self, file, specific):
-        self.file = file
+    def read(self, specific):
         if not Directory(self.file).check_file():
             return None
         else:
             if specific == "_dict":
-                with open(file, "r") as f:
+                with open(self.file, "r") as f:
                     try:
                         self.data = eval(f.read())
                     except SyntaxError:

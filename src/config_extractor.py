@@ -53,4 +53,4 @@ class Config:
 
     def get_specific_keys(self, key):
         self.get_config_keys()
-        return self.raw_data[self.key_list[self.key_list.index(key)]].keys()
+        return list(self.raw_data[self.key_list[self.key_list.index(key)]].keys())

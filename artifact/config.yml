@@ -1,4 +1,14 @@
 application_root: "E:\\Photo\\"
+application_directories:
+   temp:
+   - "size_data.txt"
+   - "table-data.txt"
+   - "photo_directories_data.txt"
+   - "removed_files_data.txt"
+   artifact:
+   - "blacklist.txt"
+   - "completed_directories.txt"
+
 folders:
    good_folder_name:
    - "_Good"

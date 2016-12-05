@@ -1,16 +1,10 @@
-from src import utils
+from src.utils import *
+from src.cli_helpers import *
+from src.data import *
+from src.cleaner import *
+
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
 
 
-class Main:
-    def __init__(self):
-        self.cmd_path = ""
-
-    @staticmethod
-    def initial_setup():
-        print("running setup for first time . . .")
-        utils.File().run_setup()
-
-    @staticmethod
-    def clean_session_files():
-        utils.File().clean_files(None, None, general=True)
-
+CLI_INPUT_BLOCK = "~$"

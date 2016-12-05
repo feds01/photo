@@ -54,7 +54,7 @@ class Data:
         self.packaged_data = {}
         for directory in self.path:
             self.packaged_data.update({self.path.index(directory)+1: self.create_data_on_directory(directory)})
-        File().write(self.packaged_data, self.destination_file)
+        File(self.destination_file).write(self.packaged_data)
         return time.clock() - start
 
 
@@ -81,7 +81,7 @@ class Table:
         return self.file_origin
 
     def import_table_data(self):
-        self.table_import_data = File().read(self.get_data_file_location("size_data"), "_dict")
+        self.table_import_data = File(self.get_data_file_location("size_data")).read("_dict")
         self.data_packets = len(self.table_import_data.keys())
         for i in range(self.data_packets):
             if i+1 <= self.max_rows:
