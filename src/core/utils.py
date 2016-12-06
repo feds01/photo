@@ -1,7 +1,7 @@
 import os
 import shutil
-from src.exceptions import *
-from src.config_extractor import Config
+from src.core.config_extractor import Config
+from src.core.exceptions import *
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."

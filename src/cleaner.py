@@ -1,5 +1,4 @@
-from src.utils import *
-from src.config_extractor import *
+from src.core.utils import *
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."

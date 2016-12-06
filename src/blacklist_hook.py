@@ -1,4 +1,4 @@
-from src.utils import *
+from src.core.utils import *
 
 
 class Blacklist:

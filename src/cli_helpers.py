@@ -1,8 +1,15 @@
-from src.utils import *
+import time
+from src.core.utils import *
 from src.data import Table
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
+
+
+def load_file_info(path):
+    size = Directory(Directory(path).get_file_size(1)).get_appropriate_units()
+    change_date = time.ctime(os.path.getctime(path))
+    print("size:", str(size[0]) + size[1], " last modification:", change_date)
 
 
 def fancy_tree_display(roots, values):
@@ -34,7 +41,7 @@ def table_instance_display(instance_data):
 def table_selector(max_id, prefix="~$ "):
     print("Enter the ID of the directory or enter the path of the directory to continue: ")
     dirs = []
-    for i in range(1, max_id):
+    for i in range(1, max_id+1):
         dirs.append(Table().load_instance_by_id(i)[0])
     while True:
         scan_dir_input = input(prefix)
@@ -43,7 +50,8 @@ def table_selector(max_id, prefix="~$ "):
             if max_id < scan_dir_input or scan_dir_input < 0:
                 print("The entered ID is too high or too low.")
             else:
-                return safe_mode_selector(scan_dir_input, "path")
+                print(dirs[scan_dir_input-1])
+                return safe_mode_prompt(scan_dir_input, "")
         except ValueError:
             try:
                 if scan_dir_input[0] is ":":
@@ -58,33 +66,75 @@ def table_selector(max_id, prefix="~$ "):
             if scan_dir_input not in dirs:
                 print("Entered directory path not present.")
             else:
-                return safe_mode_selector(scan_dir_input, "path")
+                return safe_mode_prompt(scan_dir_input, "path")
 
 
-def safe_mode_selector(directory, pid):
+def enable_safe_mode():
+    while True:
+        enable_safe = input("enable 'safe-mode' [Y/n]? ").lower()
+        if enable_safe == "y":
+            write_confirmation = {"safe-mode": True}
+            scan_vars_file = os.path.join(Config().get_key_value("application_root"), "temp\\scan_vars.txt")
+            old = dict(File(scan_vars_file).read("_dict"))
+            try:
+                old.pop("safe-mode")
+                old.update(write_confirmation)
+            except KeyError:
+                old.update(write_confirmation)
+            File(scan_vars_file).write(old)
+            return "safe"
+        if enable_safe == "n":
+            return "unsafe"
+        else:
+            pass
+
+
+def confirm_disable_safe_mode():
+    while True:
+        confirm_disable = input("Are you sure you want to proceed without 'safe-mode' enabled [Y/n]?").lower()
+        if confirm_disable == "y":
+            return "unsafe"
+        if confirm_disable == "n":
+            return enable_safe_mode()
+        if confirm_disable == ":info":
+            artifact_location = os.path.join(Config().get_key_value("application_root"), "artifact\\cli_entries\\safe_mode.txt")
+            print(File(artifact_location).read(specific=""))
+        else:
+            pass
+
+
+def safe_mode_prompt(directory, pid):
     if pid == "path":
         pass
     else:
         directory = Table().load_instance_by_id(directory)
-    while True:
-        safe_scan_input = input("Scan the directory in safe mode [Y/n]? ").lower()
-        if safe_scan_input == "y":
-            return [directory, "--safe"]
-        if safe_scan_input == "n":
-            return [directory]
+    return [directory, confirm_disable_safe_mode()]
 
 
 def safe_mode_file_deletion(files):
-    crt_files = files.values()
+    crt_files = sorted(files.values())
     delete_list = []
-    for file in files:
-        print(file)
     for file in crt_files:
-        confirm_delete_input = input("Are you sure you want to delete '" + file + "' [Y/n]?").lower()
-        if confirm_delete_input == "y":
-            delete_list.append(file)
-        if confirm_delete_input == "n":
-            print(files.fromkeys(files))
-
-
-safe_mode_file_deletion({'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1726.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1726.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1755.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1755.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1731.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1731.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1742.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1742.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1762.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1762.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1733.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1733.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1761.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1761.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1769.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1769.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1796.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1796.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1789.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1789.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1795.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1795.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1804.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1804.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1786.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1786.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1800.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1800.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1794.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1794.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1748.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1748.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1734.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1734.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1746.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1746.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1767.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1767.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1744.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1744.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1785.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1785.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1768.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1768.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1771.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1771.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1745.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1745.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1753.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1753.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1803.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1803.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1775.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1775.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1781.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1781.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1750.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1750.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1774.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1774.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1792.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1792.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1760.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1760.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1756.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1756.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1747.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1747.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1743.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1743.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1757.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1757.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1759.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1759.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1776.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1776.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1779.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1779.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1787.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1787.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1729.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1729.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1778.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1778.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1739.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1739.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1764.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1764.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1777.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1777.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1720.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1720.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1727.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1727.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1802.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1802.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1782.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1782.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1797.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1797.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1754.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1754.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1793.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1793.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1799.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1799.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1738.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1738.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1798.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1798.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1740.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1740.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1783.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1783.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1730.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1730.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1758.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1758.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1784.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1784.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1780.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1780.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1763.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1763.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1765.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1765.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1728.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1728.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1766.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1766.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1772.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1772.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1788.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1788.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1770.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1770.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1790.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1790.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1773.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1773.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1749.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1749.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1752.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1752.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1791.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1791.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1723.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1723.dng', 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1801.JPG': 'E:\\Files\\Ana Felix Snow Queen\\crt\\IMG_1801.dng'})
+        current_file = True
+        while current_file:
+            confirm_delete_input = input("Are you sure you want to delete '" + file + "' [Y/n]?").lower()
+            if confirm_delete_input == "y":
+                delete_list.append(file)
+                current_file = False
+            elif confirm_delete_input == "n":
+                for path in files.keys():
+                    if files.get(path) == file:
+                        files.pop(path)
+                        print("canceled deletion")
+                        break
+                current_file = False
+            elif confirm_delete_input.isspace() or confirm_delete_input == "":
+                pass
+            elif confirm_delete_input == ":open":
+                command = "explorer.exe " + file
+                os.popen(command)
+            elif confirm_delete_input == ":info":
+                load_file_info(file)
+            elif confirm_delete_input == ":stop":
+                return "stop"
+    return delete_list

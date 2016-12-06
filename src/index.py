@@ -1,9 +1,9 @@
 #!C:\Python\Python35-32\python.exe
 import os
 # import time
+from src.core.exceptions import *
+from src.core.utils import Directory, Utility
 from src.data import Data
-from src.exceptions import *
-from src.utils import Directory, Utility
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."

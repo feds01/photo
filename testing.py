@@ -1,6 +1,6 @@
 import unittest
 import src.thread_indexer
-from src.exceptions import *
+from src.core.exceptions import *
 from src.data import Data
 from src.index import Index
 
