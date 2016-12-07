@@ -261,6 +261,8 @@ class Directory:
     def get_appropriate_units(self):
         if self.main_input == 0:
             return [self.main_input, "bytes", 1]
+        if self.main_input/1024**5 > 1:
+            raise ByteOverflow
         else:
             for i in range(5):
                 if self.byte_size / self.byte_exponent_count >= 1:

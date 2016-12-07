@@ -8,6 +8,12 @@ class IndexingError(Exception):
     def __init__(self, directory):
         print("permissions: could not list directory -", directory)
         pass
+
+
+class ByteOverflow(Exception):
+    def __init__(self):
+        print("while converting bytes to units, the byte count overflowed 1024**5.")
+
 """
 class Config(BaseException):
     def __init__(self, error_code, old_definition):
