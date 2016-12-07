@@ -64,3 +64,38 @@ class Analyse:
         self.crt_file_finder()
         return self.constructed_report
 
+
+class Delete:
+    def __init__(self, delete, quite=False):
+        self.quite = quite
+        self.delete_list = delete
+        self.total_size = 0
+        self.file_size = 0
+        self.saved_space = ""
+        self.file_path = ""
+        self.file_info = ""
+        self.file_name = ""
+
+    def calculate(self):
+        for file in self.delete_list:
+            self.total_size += Directory(file).get_file_size()
+
+    def delete_file(self):
+        self.file_size = Directory(self.file_path).get_file_size()
+        if not self.quite:
+            self.file_info = Directory(self.file_size).get_appropriate_units()
+            print("deleting: " + self.file_name, "size:", str(self.file_info[0]) + self.file_info[1])
+        try:
+            os.remove(self.file_path)
+        except Exception as e:
+            print("could not remove file: ", str(e))
+
+    def deletion_manager(self):
+        self.calculate()
+        for file in self.delete_list:
+            self.file_path = file
+            self.file_name = os.path.basename(self.file_path)
+            self.delete_file()
+        self.total_size = Directory(self.total_size).get_appropriate_units()
+        self.saved_space = str(self.total_size[0]) + self.total_size[1]
+        return "saved:", self.saved_space, "of space with operation."

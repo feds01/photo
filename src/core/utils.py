@@ -249,7 +249,7 @@ class Directory:
         self.path = os.path.split(self.main_input)[0]
         return self.path
 
-    def get_directory_size(self, unit):
+    def get_directory_size(self, unit=1):
         if not Directory(self.main_input).check_directory():
             return 0
         for directory, directories, files in os.walk(self.main_input):
@@ -271,7 +271,7 @@ class Directory:
                 if self.byte_size / self.byte_exponent_count < 1:
                     return [round(self.main_input / self.byte_exponent_count**i, 2), self.file_sizes[i], self.byte_exponent_count**i]
 
-    def get_file_size(self, unit):
+    def get_file_size(self, unit=1):
         return os.path.getsize(self.main_input) / unit
 
     @staticmethod

@@ -7,7 +7,7 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
 def load_file_info(path):
-    size = Directory(Directory(path).get_file_size(1)).get_appropriate_units()
+    size = Directory(Directory(path).get_file_size()).get_appropriate_units()
     change_date = time.ctime(os.path.getctime(path))
     print("size:", str(size[0]) + size[1], " last modification:", change_date)
 
@@ -136,3 +136,10 @@ def safe_mode_file_deletion(files):
     for file in cancel_delete_files:
         crt_files.pop(crt_files.index(file))
     return crt_files
+
+
+def prepare_files(files):
+    """this function is only used if the method does not go through
+       safe_mode_file_deletion()
+    """
+    return sorted(files.values())

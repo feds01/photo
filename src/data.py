@@ -43,7 +43,7 @@ class Data:
             for specific_files_list in self.counter_data:
                 self.directory_data.append(len(specific_files_list))
         self.directory_data.insert(1, self.analysis_path.index_photo_directory(return_folders=True))
-        self.directory_data.append(Directory(Directory(given_path).get_directory_size(1)).get_appropriate_units())
+        self.directory_data.append(Directory(Directory(given_path).get_directory_size()).get_appropriate_units())
         return self.directory_data
 
     def export_data_on_directories(self):
