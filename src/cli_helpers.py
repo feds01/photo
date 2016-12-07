@@ -113,21 +113,17 @@ def safe_mode_prompt(directory, pid):
 
 def safe_mode_file_deletion(files):
     crt_files = sorted(files.values())
-    delete_list = []
+    cancel_delete_files = []
     for file in crt_files:
         current_file = True
         while current_file:
             confirm_delete_input = input("Are you sure you want to delete '" + file + "' [Y/n]?").lower()
             if confirm_delete_input == "y":
-                delete_list.append(file)
                 current_file = False
             elif confirm_delete_input == "n":
-                for path in files.keys():
-                    if files.get(path) == file:
-                        files.pop(path)
-                        print("canceled deletion")
-                        break
-                current_file = False
+                    cancel_delete_files.append(file)
+                    print("canceled deletion")
+                    current_file = False
             elif confirm_delete_input.isspace() or confirm_delete_input == "":
                 pass
             elif confirm_delete_input == ":open":
@@ -137,4 +133,6 @@ def safe_mode_file_deletion(files):
                 load_file_info(file)
             elif confirm_delete_input == ":stop":
                 return "stop"
-    return delete_list
+    for file in cancel_delete_files:
+        crt_files.pop(crt_files.index(file))
+    return crt_files

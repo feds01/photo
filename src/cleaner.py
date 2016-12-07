@@ -64,6 +64,3 @@ class Analyse:
         self.crt_file_finder()
         return self.constructed_report
 
-print(Analyse("E:\\Files\\Ana Felix Snow Queen\\").run_analysis())
-print(Analyse("E:\\Files\\Ana Felix Forest First\\").run_analysis())
-
