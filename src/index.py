@@ -10,7 +10,8 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
 class Index:
-    def __init__(self, path, thread_method=False):
+    def __init__(self, path, thread_method=False, max_instances=-1):
+        self.max_instances = max_instances
         self.photo_model_directories = []
         self.thread_method = thread_method
         self.path = path
@@ -18,11 +19,11 @@ class Index:
         self.directory_leaves = []
 
     @staticmethod
-    def certify_directory(path):
-        return Directory(path).index_photo_directory()
+    def certify_directory(path, max_instances=-1):
+        return Directory(path).index_photo_directory(max_instances=max_instances)
 
     def analyze_directories(self):
-        self.photo_model_directories.append(self.certify_directory(self.directories))
+        self.photo_model_directories.append(self.certify_directory(self.directories, self.max_instances))
 
     def directory_filter(self):
         for directory in self.directory_leaves:
