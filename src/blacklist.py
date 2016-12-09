@@ -15,8 +15,9 @@ class Blacklist:
     def __init__(self, directory=""):
         self.directory = directory
         self.new_black_list = []
-        self.old_black_list = []
         self.black_list = []
+        self.bad_entries = []
+        self.child_list, self.root_list = [], []
         self.file_location = Directory(__file__).get_artifact_file_location("blacklist.txt")
 
     def read_blacklist(self, specific=None):
@@ -28,6 +29,27 @@ class Blacklist:
                 return False
         else:
             return self.black_list
+
+    def get_child_entries(self):
+        self.child_list = []
+        self.black_list = self.read_blacklist()
+        for entry in list(self.black_list):
+            if is_child(entry, self.directory):
+                self.child_list.append(entry)
+            else:
+                pass
+
+    def get_root_entries(self):
+        self.root_list = []
+        self.black_list = self.read_blacklist()
+        if os.path.split(self.directory)[1] == "":
+            return []
+
+        for entry in list(self.black_list):
+            if is_child(self.directory, entry):
+                self.root_list.append(entry)
+            else:
+                pass
 
     def check_entry_duplication(self):
         self.black_list = self.read_blacklist()
@@ -43,34 +65,28 @@ class Blacklist:
                 pass
 
     def create_instance(self):
-        self.old_black_list = []
-        self.old_black_list = self.read_blacklist()
-        self.old_black_list.append(self.directory)
-        self.new_black_list = self.old_black_list
+        self.black_list = []
+        self.black_list = self.read_blacklist()
+        self.black_list.append(self.directory)
+        self.new_black_list = self.black_list
         File(self.file_location).write(self.new_black_list)
 
     def remove_entry(self, roots=False, children=False):
         cycle_done = False
+        self.bad_entries = []
         self.black_list = self.read_blacklist()
         if roots and children:
             cycle_done = True
-            for entry in list(self.black_list):
-                if is_child(self.directory, entry) or is_child(entry, self.directory):
-                    self.black_list.remove(entry)
-
+            self.get_child_entries(), self.get_root_entries()
         if roots and not cycle_done:
-            for entry in list(self.black_list):
-                if is_child(self.directory, entry):
-                    self.black_list.remove(entry)
-
+            self.get_root_entries()
         if children and not cycle_done:
-            for entry in list(self.black_list):
-                if is_child(entry, self.black_list):
-                    self.black_list.remove(entry)
-
+            self.get_child_entries()
         if self.directory in self.black_list:
             self.black_list.remove(self.directory)
-
+        self.bad_entries = Utility().join_lists(self.child_list, self.root_list)
+        for entry in self.bad_entries:
+            self.black_list.remove(entry)
         self.purge_artifact(), File(self.file_location).write(self.black_list)
 
     def purge_artifact(self):
