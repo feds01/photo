@@ -328,6 +328,7 @@ class File:
                 os.mkdir(os.path.join(self.application_root, directory))
 
     def setup_files(self):
+        # TODO: needs re-work
         for file in self.temp_files:
             with open(os.path.join(self.application_directories[0], file), "w") as f:
                 f.close()
@@ -358,12 +359,12 @@ class File:
         if not Directory(self.file).check_file():
             return None
         else:
-            if specific == "_dict":
+            if specific == "_dict" or "list":
                 with open(self.file, "r") as f:
                     try:
                         self.data = eval(f.read())
                     except SyntaxError:
-                        raise Fatal("fatal: No data in file")
+                        pass
                     f.close()
                     return self.data
             else:
@@ -371,6 +372,13 @@ class File:
                     self.data = f.read()
                     f.close()
                     return self.data
+
+    def remove(self):
+        os.remove(self.file)
+
+    def create(self):
+        with open(self.file, "w") as f:
+            f.close()
 
     def run_setup(self):
         self.setup_directories()
