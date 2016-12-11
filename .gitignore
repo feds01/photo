@@ -4,6 +4,11 @@
 sandbox/
 #python execution files
 src/__pycache__/
+src/core/__pycache__/
+src/hooks/__pycache__/
 __pycache__/
 #temporary files
 /temp/*
+#articafts
+/artifact/blacklist.txt
+artifact/cli_entries/
