@@ -7,6 +7,31 @@ from src.data import Data
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
+"""
+Module name: indexer.py
+Usage: cli.py, thread_indexer.py
+Description -
+
+This module is used to index a directory recursively and find a specific directory structure with
+specific sub-folder names at the first recursion depth. The module runs an index and outputs
+the results in a form of a list which it can pipe to the "data.py" module. The argument "path" must
+be passed to the method as this is the starting point of the index. Furthermore arguments such as
+"black_list", "max_instances" can be specified to limit the index results or filter the indexing results.
+The argument "thread_index" is used by the module "thread_indexer.py" which enables support for the required
+method.
+
+:exception if :arg "path" is not a real directory
+:raises Fatal(), stops application as the exception was caught too deep. A check was passed in "cli.py" and is
+        not passed in this module.
+
+:argument path           (index start point)                                             [default= "" (necessary)]
+:argument black_list     (filters folder scan with black_list)                           [default= False         ]
+:argument thread_method  (enable support for thread_method)                              [default= False         ]
+:argument max_instances  (indexes until the scan finds the maximum amount of instances)  [default= -1 (no limit) ]
+
+:returns list with results i.e; Index("F:\\").run_index() -> ["F:\\Model\\Aria\\", "F:\\photos\\James_sept"]
+"""
+
 
 class Index:
     def __init__(self, path, thread_method=False, black_list=False, max_instances=-1):
@@ -37,11 +62,12 @@ class Index:
             return path
 
     def find_leaves(self, path):
-        for root, dirs, files in os.walk(path):
-            if root not in self.directories:
+        for parent, children, files in os.walk(path):
+            del files
+            if parent not in self.directories:
                 continue
-            if not dirs or len(dirs) < 3:
-                self.directory_leaves.append(root)
+            if not children or len(children) < 3:
+                self.directory_leaves.append(parent)
         if self.thread_method:
             if path in self.directory_leaves:
                 self.directory_leaves.remove(path)

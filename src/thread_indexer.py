@@ -3,7 +3,7 @@ import os
 import threading
 from queue import Queue
 from src.core.utils import Directory, Utility
-from src.index import Index
+from src.indexer import Index
 
 main_list = []
 

@@ -2,7 +2,7 @@ import unittest
 import src.thread_indexer
 from src.core.utils import *
 from src.data import Data
-from src.index import Index
+from src.indexer import Index
 
 
 class IndexWithNormalMethod(unittest.TestCase):
