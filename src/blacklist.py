@@ -1,4 +1,5 @@
 from src.core.utils import *
+
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -12,23 +13,18 @@ def is_child(child, directory, symlinks=False):
 
 
 class Blacklist:
-    def __init__(self, directory=""):
+    def __init__(self, directory="", *dirs):
+        self.dirs = list(*dirs)
         self.directory = directory
         self.new_black_list = []
         self.black_list = []
-        self.bad_entries = []
+        self.bad_entries, self.bad_child_entries = [], []
         self.child_list, self.root_list = [], []
         self.file_location = Directory(__file__).get_artifact_file_location("blacklist.txt")
 
-    def read_blacklist(self, specific=None):
+    def read_blacklist(self):
         self.black_list = File(self.file_location).read(specific="")
-        if specific:
-            if specific in self.black_list:
-                return True
-            else:
-                return False
-        else:
-            return self.black_list
+        return self.black_list
 
     def get_child_entries(self):
         self.child_list = []
@@ -64,7 +60,7 @@ class Blacklist:
             else:
                 pass
 
-    def create_instance(self):
+    def add_entry(self):
         self.black_list = []
         self.black_list = self.read_blacklist()
         self.black_list.append(self.directory)
@@ -88,6 +84,25 @@ class Blacklist:
         for entry in self.bad_entries:
             self.black_list.remove(entry)
         self.purge_artifact(), File(self.file_location).write(self.black_list)
+
+    def check_entry(self, directory):
+        if directory in self.black_list:
+            return True
+        else:
+            return False
+
+    def run_blacklist_check(self):
+        self.black_list = self.read_blacklist()
+        self.bad_entries = []
+        for directory in self.dirs:
+            if self.check_entry(directory):
+                self.bad_entries.append(directory)
+            else:
+                pass
+        for entry in self.bad_entries:
+            self.bad_child_entries.append(Directory(entry).index_directory())
+
+        return Utility().join_lists(self.bad_entries, self.bad_child_entries)
 
     def purge_artifact(self):
         File(self.file_location).remove(), File(self.file_location).create()
