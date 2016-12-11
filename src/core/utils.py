@@ -46,8 +46,8 @@ class Utility:
             str_list.append(str(i))
         return str_list
 
-    def list_organiser(self, path_list):
-        self.input_list = [x for x in path_list if x]
+    def list_organiser(self, _list):
+        self.input_list = [x for x in _list if x]
         for element in self.input_list:
             if type(element) == list:
                 self.final_list.extend(element)

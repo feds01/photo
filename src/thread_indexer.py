@@ -35,7 +35,7 @@ class Task:
 
     @staticmethod
     def thread_task(directory):
-            return Index(directory, thread_method=True).cycle()
+            return Index(directory, thread_method=True).run_index()
 
 
 def main(analyze_path):
