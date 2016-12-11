@@ -19,8 +19,8 @@ class Data:
         self.extension_keys = []
 
     def fetch_data_destination_path(self):
-        self.destination_file = sorted(Config().get_specific_data("application_directories", "temp"))[2]
-        self.destination_file = os.path.join(Config().get_key_value("application_root"), os.path.join("temp", self.destination_file))
+        self.destination_file = Config().get_specific_data("application_directories", "size_data")
+        self.destination_file = os.path.join(Config().get_key_value("application_root"), self.destination_file)
         return self.destination_file
 
     def create_data_on_directory(self, given_path):
@@ -70,17 +70,17 @@ class Table:
         self.size_data_final = []
         self.all_rows = []
         self.row = []
-        self.application_root, self.file_origin = "", ""
+        self.destination_file, self.application_root, self.file_origin = "", "", ""
         self.border_symbol = "-"
 
     def get_data_file_location(self):
-        self.file_origin = sorted(Config().get_specific_data("application_directories", "temp"))[2]
+        self.file_origin = Config().get_specific_data("application_directories", "size_data")
         self.application_root = Config().get_key_value("application_root")
-        return os.path.join(self.application_root, os.path.join("temp", self.file_origin))
+        return os.path.join(self.application_root, self.file_origin)
 
     def import_table_data(self):
         self.table_import_data = File(self.get_data_file_location()).read("_dict")
-        self.data_packets = len(self.table_import_data.keys())
+        self.data_packets = int(len(self.table_import_data.keys()))
         for i in range(self.data_packets):
             if i+1 <= self.max_rows:
                 pass
@@ -88,22 +88,29 @@ class Table:
                 dict(self.table_import_data).pop(i)
         return self.table_import_data
 
+    """
+    def export_table_data(self):
+        self.application_root = Config().get_key_value("application_root")
+        self.destination_file = os.path.join(self.application_root, (Config().get_specific_data("application_directories", "table_data")))
+        print(self.destination_file)
+    """
+
     def get_specific_data_from_import(self, sub_key):
         specific_data = []
-        for key in range(1, self.data_packets):
-            specific_data.append(self.table_import_data[key][sub_key])
+        for key in range(self.data_packets):
+            specific_data.append(self.table_import_data[key+1][sub_key])
         return specific_data
 
     def make_row_data(self, key):
         self.row = []
         self.row.append(key)
-        if self.path_size <= len(list(self.table_import_data[key][0])):
+        if self.path_size <= len(list(self.table_import_data[key+1][0])):
             self.row.append(Utility().shorten_path(self.table_import_data[key][0]))
         else:
-            self.row.append(self.table_import_data[key][0])
+            self.row.append(self.table_import_data[key+1][0])
         for sub_key in range(2, 6):
-            self.row.append(self.table_import_data[key][sub_key])
-        self.size_data = self.table_import_data[key][-1]
+            self.row.append(self.table_import_data[key+1][sub_key])
+        self.size_data = self.table_import_data[key+1][-1]
         if self.size_data[0] == 0:
             self.size_data_final.append("0Kb")
         else:
@@ -131,7 +138,7 @@ class Table:
 
     def converge_row_data(self):
         self.import_table_data()
-        for i in range(1, self.data_packets):
+        for i in range(self.data_packets):
             self.all_rows.append(self.make_row_data(i))
         return self.all_rows
 

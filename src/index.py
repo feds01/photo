@@ -2,7 +2,6 @@
 # import time
 from src.hooks.blacklist_hook import *
 from src.core.exceptions import *
-from src.core.utils import Directory, Utility
 from src.data import Data
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"

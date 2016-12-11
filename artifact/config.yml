@@ -1,13 +1,18 @@
-application_root: "E:\\Photo\\"
+application_root: "E:\\\\Photo\\\\"
 application_directories:
    temp:
    - "size_data.txt"
-   - "table-data.txt"
-   - "photo_directories_data.txt"
+   - "table_data.txt"
+   - "instance_data.txt"
    - "removed_files_data.txt"
+   - "completed_directories.txt"
    artifact:
    - "blacklist.txt"
-   - "completed_directories.txt"
+   size_data      : "temp\\\\size_data.txt"
+   table_data     : "temp\\\\table_data.txt"
+   photo_data     : "temp\\\\instance_data.txt"
+   removed_files  : "temp\\\\removed_files_data.txt"
+   completed_dirs : "temp\\\\completed_directories.txt"
 
 folders:
    good_folder_name:
@@ -32,7 +37,7 @@ folders:
    - "_CRT"
 blacklist:
     enabled: true
-    location: "artifact\\blacklist.txt"
+    location: "artifact\\\\blacklist.txt"
 
 file_extensions:
    crt:

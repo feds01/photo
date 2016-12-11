@@ -13,9 +13,11 @@ def is_child(child, directory, symlinks=False):
 
 
 class Blacklist:
-    def __init__(self, directory="", *dirs):
+    def __init__(self, directory="", use_filter=False, *dirs):
         self.dirs = list(*dirs)
+        self.use_filter = use_filter
         self.directory = directory
+        self.disk = ""
         self.new_black_list = []
         self.black_list = []
         self.bad_entries, self.bad_child_entries = [], []
@@ -60,6 +62,18 @@ class Blacklist:
             else:
                 pass
 
+    def redundancy_check(self):
+        if self.check_entry_duplication() or self.check_entry_recursive_duplication():
+            self.remove_entry(roots=True, children=True)
+        else:
+            pass
+
+    def check_entry_existence(self, directory):
+        if directory in self.black_list:
+            return True
+        else:
+            return False
+
     def add_entry(self):
         self.black_list = []
         self.black_list = self.read_blacklist()
@@ -85,17 +99,13 @@ class Blacklist:
             self.black_list.remove(entry)
         self.purge_artifact(), File(self.file_location).write(self.black_list)
 
-    def check_entry(self, directory):
-        if directory in self.black_list:
-            return True
-        else:
-            return False
-
     def run_blacklist_check(self):
         self.black_list = self.read_blacklist()
+        if self.use_filter:
+            self.entry_filter_by_volume()
         self.bad_entries = []
         for directory in self.dirs:
-            if self.check_entry(directory):
+            if self.check_entry_existence(directory):
                 self.bad_entries.append(directory)
             else:
                 pass
@@ -106,3 +116,11 @@ class Blacklist:
 
     def purge_artifact(self):
         File(self.file_location).remove(), File(self.file_location).create()
+
+    def entry_filter_by_volume(self):
+        self.disk = os.path.splitdrive(self.directory)
+        for entry in self.black_list:
+            if os.path.splitdrive(entry) != self.disk:
+                self.black_list.remove(entry)
+            else:
+                pass
