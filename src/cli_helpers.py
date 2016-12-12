@@ -14,7 +14,7 @@ def load_file_info(path):
 
 def fancy_tree_display(roots, values):
     full_string, tree_symbol = "", "|_ "
-    max_root = Utility().get_largest_element(roots)
+    max_root = get_largest_element(roots)
     for i in range(len(roots)):
         align = ""
         if len(roots[i]) < 5:
@@ -29,7 +29,7 @@ def table_instance_display(instance_data):
     for directory in instance_data[1]:
         instance_leaves.update({os.path.basename(directory): Directory(directory).index_directory(count=True, file=True)})
     instance_data.pop(1)
-    print("More detail about the photo directory - '" + os.path.basename(instance_data[0]) + "' :", space(1))
+    print("More detail about the photo directory - '" + os.path.basename(instance_data[0]) + "' :", print_space(1))
     print("Full directory path: ", instance_data[0])
     for i in range(1, 5):
         file_count += instance_data[i]

@@ -13,7 +13,7 @@ def is_child(child, directory, symlinks=False):
 
 
 class Blacklist:
-    def __init__(self, directory="", use_filter=False, *dirs):
+    def __init__(self, *dirs, directory="", use_filter=False):
         self.dirs = list(*dirs)
         self.use_filter = use_filter
         self.directory = directory
@@ -107,13 +107,10 @@ class Blacklist:
         for directory in self.dirs:
             if self.check_entry_existence(directory):
                 self.bad_entries.append(directory)
-            else:
-                pass
-        for entry in self.bad_entries:
-            self.bad_child_entries.append(Directory(entry).index_directory())
+                self.bad_entries.append(Directory(directory).index_directory())
 
         return Utility().join_lists(self.bad_entries, self.bad_child_entries)
-
+ 
     def purge_artifact(self):
         File(self.file_location).remove(), File(self.file_location).create()
 

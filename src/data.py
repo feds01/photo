@@ -127,11 +127,11 @@ class Table:
     def make_border(self):
         borders = []
         for i in range(2, 6):
-            i = Utility.int_list_to_str(self.get_specific_data_from_import(i))
-            self.border_data.append(Utility.border_size_by_data_length(Utility.get_largest_element(i)))
+            i = int_list_to_str(self.get_specific_data_from_import(i))
+            self.border_data.append(border_size_by_data_length(get_largest_element(i)))
         for i in self.border_data:
             borders.append(self.border_symbol * int(i))
-        self.row = [Utility.border_size_by_data_length(self.max_rows, True) * self.border_symbol, (self.path_size + 1) * self.border_symbol]
+        self.row = [border_size_by_data_length(self.max_rows, True) * self.border_symbol, (self.path_size + 1) * self.border_symbol]
         self.row.extend(borders)
         self.table.add_row(self.row)
         del self.row
@@ -153,6 +153,6 @@ class Table:
         self.make_border()
         for row in self.all_rows:
             self.table.add_row(row)
-        self.size_data_final.insert(0, self.border_symbol * Utility.border_size_by_data_length(Utility.get_largest_element(self.size_data_final)))
+        self.size_data_final.insert(0, self.border_symbol * border_size_by_data_length(get_largest_element(self.size_data_final)))
         self.table.add_column("size", self.size_data_final, align="r")
         print(self.table)

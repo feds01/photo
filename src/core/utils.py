@@ -7,8 +7,53 @@ __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
-def space(n):
+def print_space(n):
     return n * "\n"
+
+
+def get_largest_element(_list):
+    return len(max(_list, key=len))
+
+
+def find_element(_list, case):
+        for element in _list:
+                if case in element or case is element:
+                    return int(_list.index(element))
+                else:
+                    pass
+
+
+def extension_swapper(file, ext, remove_dot=False):
+    if remove_dot:
+        return file[:-4] + ext
+    else:
+        return file[:-3] + ext
+
+
+def border_size_by_data_length(data, use_str=False):
+        if use_str:
+            return len(str(data)) + 2
+        if data >= 4:
+            return data + 1
+        else: return 4
+
+
+def int_list_to_str(int_list):
+        str_list = []
+        for i in int_list:
+            str_list.append(str(i))
+        return str_list
+
+
+def get_command_path():
+        return os.getcwd()
+
+
+def get_directory_separator():
+        if os.pathsep == ";":
+            return "\\"
+        else:
+            return "/"
 
 
 class Utility:
@@ -23,28 +68,6 @@ class Utility:
         self.old_block = ""
         self.cur_block = ""
         self.slicing = False
-
-    @staticmethod
-    def get_largest_element(data):
-        return len(max(data, key=len))
-
-    @staticmethod
-    def border_size_by_data_length(data, use_str=False):
-        # TODO: improve function
-        if use_str:
-            return len(str(data)) + 2
-        else:
-            if data >= 4:
-                return data + 1
-            else:
-                return 4
-
-    @staticmethod
-    def int_list_to_str(int_list):
-        str_list = []
-        for i in int_list:
-            str_list.append(str(i))
-        return str_list
 
     def list_organiser(self, _list):
         self.input_list = [x for x in _list if x]
@@ -62,21 +85,6 @@ class Utility:
             for element_list in lists:
                 self.final_list.extend(element_list)
             return self.final_list
-
-    @staticmethod
-    def element_case_finder(_list, case):
-        for element in _list:
-                if case in element or case is element:
-                    return int(_list.index(element))
-                else:
-                    pass
-
-    @staticmethod
-    def extension_swapper(file, ext, remove_dot=False):
-        if remove_dot:
-            return file[:-4] + ext
-        else:
-            return file[:-3] + ext
 
     def shorten_path(self, path, char_size=30, count_separator_char=False):
         self.char_size = char_size
@@ -112,7 +120,7 @@ class Utility:
             while len("".join(self.construct)) + int(len(self.construct))-1 > char_size:
                 self.overflow_chars = len("".join(self.construct)) + int(len(self.construct)) - 1
                 if self.overflow_chars-3 <= char_size:
-                    self.block_pos = (Utility.element_case_finder(list(self.construct), "...")) - 1
+                    self.block_pos = (find_element(list(self.construct), "...")) - 1
                     if len(self.construct[self.block_pos]) is 3:
                         self.slicing = True
                         self.cur_block = self.construct[self.block_pos][0] + "..."
@@ -128,7 +136,7 @@ class Utility:
             if self.slicing:
                 self.construct.pop(self.block_pos), self.construct.pop(self.construct.index("..."))
                 self.construct.insert(self.block_pos, self.cur_block)
-            self.old_block = self.construct[0] + Directory.get_directory_separator()
+            self.old_block = self.construct[0] + get_directory_separator()
             for block in self.construct[1:]:
                 self.old_block = os.path.join(self.old_block, block)
             return self.old_block
@@ -277,17 +285,6 @@ class Directory:
 
     def get_file_size(self, unit=1):
         return os.path.getsize(self.main_input) / unit
-
-    @staticmethod
-    def get_command_path():
-        return os.getcwd()
-
-    @staticmethod
-    def get_directory_separator():
-        if os.pathsep == ";":
-            return "\\"
-        else:
-            return "/"
 
     def get_artifact_file_location(self, filename):
         self.directory = Directory(self.main_input).get_current_directory()

@@ -52,7 +52,7 @@ class Analyse:
         for file in self.files:
             self.crt_file_version = []
             for extension in self.crt_extensions:
-                self.crt_file_version.append(Utility().extension_swapper(self.path_converter(file), extension, remove_dot=True))
+                self.crt_file_version.append(extension_swapper(self.path_converter(file), extension, remove_dot=True))
             for version in self.crt_file_version:
                 if version in self.crt_folder_files:
                     self.constructed_report.update({file: version})
@@ -98,4 +98,4 @@ class Delete:
             self.delete_file()
         self.total_size = Directory(self.total_size).get_appropriate_units()
         self.saved_space = str(self.total_size[0]) + self.total_size[1]
-        return "saved:", self.saved_space, "of space with operation."
+        return "saved:", self.saved_space, "of print_space with operation."
