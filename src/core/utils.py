@@ -205,7 +205,7 @@ class Directory:
                     pass
         return self.file_extension_list
 
-    def index_photo_directory(self, return_folders=False, max_instances=-1):
+    def index_photo_directory(self, return_folders=False, silent_mode=False, max_instances=-1):
         self.folder_keys = Config().get_specific_keys("folders")
         self.main_input = Utility().list_organiser([self.main_input])
         self.directories = []
@@ -220,7 +220,10 @@ class Directory:
                         else:
                             pass
                     except PermissionError:
-                        IndexingError(path)
+                        if silent_mode:
+                            pass
+                        else:
+                            IndexingError(path)
                         return ""
             return directories
         if return_folders:
