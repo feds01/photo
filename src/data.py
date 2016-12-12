@@ -6,6 +6,13 @@ from src.core.utils import *
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
+"""
+Module name: data.py
+Usage:
+Description -
+
+"""
+
 
 class Data:
     def __init__(self, path):
@@ -88,12 +95,10 @@ class Table:
                 dict(self.table_import_data).pop(i)
         return self.table_import_data
 
-    """
     def export_table_data(self):
         self.application_root = Config().get_key_value("application_root")
         self.destination_file = os.path.join(self.application_root, (Config().get_specific_data("application_directories", "table_data")))
-        print(self.destination_file)
-    """
+        File(self.destination_file).write(self.all_rows)
 
     def get_specific_data_from_import(self, sub_key):
         specific_data = []
@@ -155,4 +160,5 @@ class Table:
             self.table.add_row(row)
         self.size_data_final.insert(0, self.border_symbol * border_size_by_data_length(get_largest_element(self.size_data_final)))
         self.table.add_column("size", self.size_data_final, align="r")
+        self.export_table_data()
         print(self.table)

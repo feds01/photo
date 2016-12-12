@@ -5,6 +5,13 @@ from src.data import Table
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
+"""
+Module name: cli_helpers.py
+Usage:
+Description -
+
+"""
+
 
 def load_file_info(path):
     size = Directory(Directory(path).get_file_size()).get_appropriate_units()

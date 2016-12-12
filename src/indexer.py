@@ -12,20 +12,23 @@ Module name: indexer.py
 Usage: cli.py, thread_indexer.py
 Description -
 
-This module is used to index a directory recursively and find a specific directory structure with
-specific sub-folder names at the first recursion depth. The module runs an index and outputs
-the results in a form of a list which it can pipe to the "data.py" module. The argument "path" must
-be passed to the method as this is the starting point of the index. Furthermore arguments such as
-"black_list", "max_instances" can be specified to limit the index results or filter the indexing results.
-The argument "thread_index" is used by the module "thread_indexer.py" which enables support for the required
-method.
+This module is used to index a directory recursively and find a specific directory
+structure with specific sub-folder names at the first recursion depth. The module
+runs an index and outputs the results in a form of a list which it can pipe to the
+"data.py" module. The argument "path" must be passed to the method as this is the
+starting point of the index. Furthermore arguments such as "use_blacklist", "max_instances"
+can be specified to limit the index results or filter the indexing results. The
+argument "thread_index" is used by the module "thread_indexer.py" which enables
+support for the required method.
+
+Index():
 
 :exception if :arg "path" is not a real directory
 :raises Fatal(), stops application as the exception was caught too deep. A check was passed in "cli.py" and is
         not passed in this module.
 
 :argument path           (index start point)                                             [default= "" (necessary)]
-:argument black_list     (filters folder scan with black_list)                           [default= False         ]
+:argument use_blacklist  (filters folder scan with black_list)                           [default= False         ]
 :argument thread_method  (enable support for thread_method)                              [default= False         ]
 :argument max_instances  (indexes until the scan finds the maximum amount of instances)  [default= -1 (no limit) ]
 
@@ -34,8 +37,8 @@ method.
 
 
 class Index:
-    def __init__(self, path, thread_method=False, black_list=False, max_instances=-1):
-        self.using_blacklist = black_list
+    def __init__(self, path, thread_method=False, use_blacklist=False, max_instances=-1):
+        self.use_blacklist = use_blacklist
         self.max_instances = max_instances
         self.photo_model_directories = []
         self.thread_method = thread_method
@@ -85,7 +88,7 @@ class Index:
         if not self.thread_method:
             self.directories.append(Directory(self.path).get_current_directory())
         self.directories = Directory(self.path).index_directory()
-        if self.using_blacklist:
+        if self.use_blacklist:
             self.directories = certify_index_results(self.directories)
         self.find_leaves(self.path)
         self.directory_filter(), self.analyze_directories()

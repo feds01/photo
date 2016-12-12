@@ -5,10 +5,19 @@ from queue import Queue
 from src.core.utils import Directory, Utility
 from src.indexer import Index
 
-main_list = []
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
+
+"""
+Module name: thread_indexer.py
+Usage:
+Description -
+
+"""
+
+
+main_list = []
 
 
 class Thread(threading.Thread):

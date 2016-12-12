@@ -4,6 +4,16 @@ from src.core.utils import *
 from src.data import Data
 from src.indexer import Index
 
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
+
+"""
+Module name: testing.py
+Usage:
+Description -
+
+"""
+
 
 class IndexWithNormalMethod(unittest.TestCase):
 

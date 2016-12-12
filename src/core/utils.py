@@ -6,6 +6,13 @@ from src.core.exceptions import *
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
+"""
+Module name: utils.py
+Usage:
+Description -
+
+"""
+
 
 def print_space(n):
     return n * "\n"
