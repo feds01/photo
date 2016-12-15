@@ -37,21 +37,21 @@ Index():
 
 
 class Index:
-    def __init__(self, path, thread_method=False, use_blacklist=False, max_instances=-1):
+    def __init__(self, path, thread_method=False, silent_mode=False, use_blacklist=False, max_instances=-1):
+        self.silent_mode = silent_mode
         self.use_blacklist = use_blacklist
         self.max_instances = max_instances
         self.photo_model_directories = []
         self.thread_method = thread_method
         self.path = path
-        self.directories = []
-        self.directory_leaves = []
+        self.directories, self.directory_leaves = [], []
 
     @staticmethod
-    def validate_directory_structure(path, max_instances=-1):
-        return Directory(path).index_photo_directory(max_instances=max_instances)
+    def validate_directory_structure(path, max_instances=-1, silent_mode=False):
+        return Directory(path).index_photo_directory(max_instances=max_instances, silent_mode=silent_mode)
 
     def analyze_directories(self):
-        self.photo_model_directories.append(self.validate_directory_structure(self.directories, self.max_instances))
+        self.photo_model_directories.append(self.validate_directory_structure(self.directories, self.max_instances, silent_mode=self.silent_mode))
 
     def directory_filter(self):
         for directory in self.directory_leaves:
@@ -65,12 +65,10 @@ class Index:
             return path
 
     def find_leaves(self, path):
-        for parent, children, files in os.walk(path):
-            del files
-            if parent not in self.directories:
-                continue
-            if not children or len(children) < 3:
-                self.directory_leaves.append(parent)
+        for directory in self.directories:
+            if len(Directory.get_directory_branches(directory, handle_get_content(directory, silent_mode=self.silent_mode))) < 3:
+                self.directory_leaves.append(directory)
+
         if self.thread_method:
             if path in self.directory_leaves:
                 self.directory_leaves.remove(path)
@@ -78,20 +76,27 @@ class Index:
                 pass
         return self.directory_leaves
 
-    def run_index(self, pipe=False):
-        # start = time.clock()
-        if not Directory(self.path).check_directory():
-            raise Fatal("fatal: directory does not exist")
+    def apply_filter(self, return_results=False):
+        if self.use_blacklist:
+            self.directories = certify_index_results(self.directories)
+        self.find_leaves(self.path), self.directory_filter()
+        if return_results:
+            return self.directories
+
+    def thread_method_helper(self):
         if self.thread_method:
             if len(Directory.get_directory_branches(self.path, os.listdir(self.path))) == 0:
                 return []
         if not self.thread_method:
-            self.directories.append(Directory(self.path).get_current_directory())
+            self.directories.append(self.path)
+
+    def run_index(self, pipe=False):
+        # start = time.clock()
+        if not Directory(self.path).check_directory():
+            raise Fatal("fatal: directory does not exist")
+        self.thread_method_helper()
         self.directories = Directory(self.path).index_directory()
-        if self.use_blacklist:
-            self.directories = certify_index_results(self.directories)
-        self.find_leaves(self.path)
-        self.directory_filter(), self.analyze_directories()
+        self.apply_filter(), self.analyze_directories()
         self.photo_model_directories = Utility().list_organiser(self.photo_model_directories)
         if pipe:
             Data(self.photo_model_directories).export_data_on_directories()

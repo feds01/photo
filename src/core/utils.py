@@ -63,6 +63,25 @@ def get_directory_separator():
             return "/"
 
 
+def handle_get_content(path, silent_mode=False):
+    try:
+        content = os.listdir(path)
+    except PermissionError:
+        if silent_mode:
+            pass
+        else:
+            IndexingError(path)
+        return ""
+    return content
+
+
+def _validate_content_load(content):
+    if content is "":
+        return ""
+    else:
+        pass
+
+
 class Utility:
     def __init__(self):
         self.final_list = []
@@ -160,6 +179,7 @@ class Directory:
         self.directory_count = 0
         self.file_count = 0
         self.folder_keys = []
+        self.all_keys = []
         self.directory_list = []
         self.file_list = []
         self.file_extension_list = []
@@ -209,22 +229,19 @@ class Directory:
         self.folder_keys = Config().get_specific_keys("folders")
         self.main_input = Utility().list_organiser([self.main_input])
         self.directories = []
+        for basename_key in self.folder_keys:
+            self.all_keys.append(Config().get_specific_data("folders", basename_key))
+        self.all_keys = Utility().list_organiser(self.all_keys)
 
         def method(path):
             directories = []
-            for config_key in self.folder_keys:
-                for basename in Config().get_specific_data("folders", config_key):
-                    try:
-                        if basename in os.listdir(path):
-                            directories.append(os.path.join(path, basename))
-                        else:
-                            pass
-                    except PermissionError:
-                        if silent_mode:
-                            pass
-                        else:
-                            IndexingError(path)
-                        return ""
+            content = handle_get_content(path, silent_mode=silent_mode)
+            _validate_content_load(content)
+            for basename in self.all_keys:
+                    if basename in content:
+                        directories.append(os.path.join(path, basename))
+                    else:
+                        pass
             return directories
         if return_folders:
             return method(self.main_input[0])
@@ -257,6 +274,7 @@ class Directory:
 
     @staticmethod
     def get_directory_branches(path, path_list):
+        _validate_content_load(path_list)
         branch_directories = []
         for directory in path_list:
             if Directory(os.path.join(path, directory)).check_file():
