@@ -73,12 +73,13 @@ class Blacklist:
         self.disk = ""
         self.new_blacklist = []
         self.blacklist = []
-        self.bad_entries, self.bad_child_entries = [], []
+        self.bad_entries = []
         self.child_list, self.root_list = [], []
         self.file_location = Directory(__file__).get_artifact_file_location("blacklist.txt")
+        self.cycle_done = False
 
     def read_blacklist(self):
-        self.blacklist = File(self.file_location).read(specific="")
+        self.blacklist = File(file=self.file_location).read(specific="list")
         return self.blacklist
 
     def get_child_entries(self):
@@ -141,18 +142,18 @@ class Blacklist:
         File(self.file_location).write(self.new_blacklist)
 
     def remove_entry(self, roots=False, children=False):
-        cycle_done = False
+        self.cycle_done = False
         self.bad_entries = []
         self.blacklist = self.read_blacklist()
         if self.directory not in self.blacklist:
             raise BlacklistEntryError("not-present")
         else:
             if roots and children:
-                cycle_done = True
+                self.cycle_done = True
                 self.get_child_entries(), self.get_root_entries()
-            if roots and not cycle_done:
+            if roots and not self.cycle_done:
                 self.get_root_entries()
-            if children and not cycle_done:
+            if children and not self.cycle_done:
                 self.get_child_entries()
             if self.directory in self.blacklist:
                 self.blacklist.remove(self.directory)
@@ -171,7 +172,7 @@ class Blacklist:
                 self.bad_entries.append(directory)
                 self.bad_entries.append(Directory(directory).index_directory())
 
-        return Utility().join_lists(self.bad_entries, self.bad_child_entries)
+        return self.bad_entries
 
     def purge_artifact(self):
         File(self.file_location).remove(), File(self.file_location).create()
@@ -183,3 +184,9 @@ class Blacklist:
                 self.blacklist.remove(entry)
             else:
                 pass
+
+    def multi_volume_scan(self):
+        if self.directory == "*":
+            return True
+        else:
+            return False

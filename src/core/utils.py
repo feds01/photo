@@ -1,4 +1,5 @@
 import os
+import ast
 import shutil
 from src.core.config_extractor import Config
 from src.core.exceptions import *
@@ -386,18 +387,12 @@ class File:
         if not Directory(self.file).check_file():
             return None
         else:
-            if specific == "_dict" or "list":
-                with open(self.file, "r") as f:
-                    try:
-                        self.data = eval(f.read())
-                    except SyntaxError:
-                        pass
-                    f.close()
-                    return self.data
-            else:
-                with open(self.file, "r") as f:
-                    self.data = f.read()
-                    f.close()
+            with open(self.file, "r") as f:
+                self.data = f.read()
+                f.close()
+                if specific in ["_dict", "list"]:
+                    return ast.literal_eval(self.data)
+                else:
                     return self.data
 
     def remove(self):
