@@ -66,7 +66,8 @@ def is_child(child, directory, symlinks=False):
 
 
 class Blacklist:
-    def __init__(self, *dirs, directory="", use_filter=False):
+    def __init__(self, *dirs, directory="", use_filter=False, helpers):
+        self.helpers = helpers
         self.dirs = list(*dirs)
         self.use_filter = use_filter
         self.directory = directory
@@ -170,8 +171,14 @@ class Blacklist:
         for directory in self.dirs:
             if self.check_entry_existence(directory):
                 self.bad_entries.append(directory)
-                self.bad_entries.append(Directory(directory).index_directory())
-
+                if directory in list(self.helpers.keys()):  # the more big job instances the faster
+                    self.bad_entries.append(self.helpers.get(directory))
+                    self.bad_entries = Utility().list_organiser(self.bad_entries)
+                    continue
+                else:
+                    self.bad_entries.append(Directory(directory).index_directory())
+            else:
+                pass
         return self.bad_entries
 
     def purge_artifact(self):

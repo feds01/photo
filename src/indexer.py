@@ -37,13 +37,16 @@ Index():
 
 
 class Index:
-    def __init__(self, path, thread_method=False, silent_mode=False, use_blacklist=False, max_instances=-1):
-        self.silent_mode = silent_mode
+    def __init__(self, path, thread_method=False, silent=False, use_blacklist=False, max_instances=-1):
+        self.silent_mode = silent
+        self.thread_method = thread_method
+        self.path = path
         self.use_blacklist = use_blacklist
         self.max_instances = max_instances
         self.photo_model_directories = []
-        self.thread_method = thread_method
-        self.path = path
+        self.first_layer_nodes = Directory.get_directory_branches(self.path, os.listdir(self.path))
+        self.big_job_data = {}
+        self.directory_index_data = []
         self.directories, self.directory_leaves = [], []
 
     @staticmethod
@@ -78,7 +81,7 @@ class Index:
 
     def apply_filter(self, return_results=False):
         if self.use_blacklist:
-            self.directories = certify_index_results(self.directories)
+            self.directories = certify_index_results(self.directories, helpers=self.big_job_data)
         self.find_leaves(self.path), self.directory_filter()
         if return_results:
             return self.directories
@@ -90,12 +93,25 @@ class Index:
         if not self.thread_method:
             self.directories.append(self.path)
 
+    def run_directory_index(self):
+        self.directories = []
+        self.big_job_data = {}
+        for node in self.first_layer_nodes:
+            self.directory_index_data = Directory(node).index_directory()
+            if len(self.directory_index_data) >= 2048:
+                self.big_job_data.update({node: self.directory_index_data})
+            else:
+                pass
+            self.directories.append(self.directory_index_data)
+        self.directories.append(self.first_layer_nodes)
+        self.directories = Utility().list_organiser(self.directories)
+
     def run_index(self, pipe=False):
         # start = time.clock()
         if not Directory(self.path).check_directory():
             raise Fatal("fatal: directory does not exist")
+        self.run_directory_index()
         self.thread_method_helper()
-        self.directories = Directory(self.path).index_directory()
         self.apply_filter(), self.analyze_directories()
         self.photo_model_directories = Utility().list_organiser(self.photo_model_directories)
         if pipe:
@@ -103,3 +119,5 @@ class Index:
         else:
             # print(time.clock() - start)
             return self.photo_model_directories
+
+# print(Index("C:\\", use_blacklist=True silent=True).run_index())

@@ -11,8 +11,8 @@ Description -
 """
 
 
-def certify_index_results(results):
-    directories = Utility().list_organiser(Blacklist(results, directory="").run_blacklist_check())
+def certify_index_results(results, helpers):
+    directories = Utility().list_organiser(Blacklist(results, directory="", helpers=helpers).run_blacklist_check())
     for _dir in directories:
         results.remove(_dir)
     return results
