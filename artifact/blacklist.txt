@@ -1,1 +1,1 @@
-["C:\\Windows", "C:\\ProgramData", "C:\\Users", "C:\\$Recycle.Bin", "C:\\Program Files"]
+[]
