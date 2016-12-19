@@ -18,7 +18,7 @@ Description -
 class IndexWithNormalMethod(unittest.TestCase):
 
     def test_index_method(self):
-        self.assertEqual(Index("E:\\Photo\\").run_index(pipe=False), ["E:\\Photo\\sandbox", "E:\\Photo\\temp\\test"])
+        self.assertEqual(Index("G:\\Photo\\").run_index(pipe=False), ["G:\\Photo\\sandbox"])
 
     """
     def test_index_thread_method(self):
@@ -32,16 +32,16 @@ class IndexWithNormalMethod(unittest.TestCase):
 class DataMethod(unittest.TestCase):
     def setUp(self):
         self.file_location = os.path.join(Config().get_key_value("application_root"), "temp\\size_data.txt")
-        self.expected_result = {1: ['E:\\Files\\Ana Felix Snow Queen', ['E:\\Files\\Ana Felix Snow Queen\\_GOOD', 'E:\\Files\\Ana Felix Snow Queen\\all', 'E:\\Files\\Ana Felix Snow Queen\\crt'], 0, 75, 38, 754, [7.08, 'Gb', 1073741824]], 2: ['E:\\Photo\\sandbox', ['E:\\Photo\\sandbox\\all', 'E:\\Photo\\sandbox\\crt', 'E:\\Photo\\sandbox\\good'], 1, 0, 0, 2, [0.0, 'bytes', 1]], 3: ['E:\\Photo\\temp\\test', ['E:\\Photo\\temp\\test\\Good', 'E:\\Photo\\temp\\test\\_all', 'E:\\Photo\\temp\\test\\crt'], 0, 0, 0, 0, [0.0, 'bytes', 1]]}
+        self.expected_result = {1: ['G:\\Files\\Ana Felix Snow Queen', ['G:\\Files\\Ana Felix Snow Queen\\_GOOD', 'G:\\Files\\Ana Felix Snow Queen\\all', 'G:\\Files\\Ana Felix Snow Queen\\crt'], 0, 75, 38, 754, [7.08, 'Gb', 1073741824]], 2: ['G:\\Photo\\sandbox', ['G:\\Photo\\sandbox\\all', 'G:\\Photo\\sandbox\\crt', 'G:\\Photo\\sandbox\\good'], 1, 0, 0, 2, [0.0, 'bytes', 1]]}
 
     def test_time_on_creation(self):
-        if Data(["E:\\Files\\Ana Felix Snow Queen", "E:\\Photo\\sandbox", "E:\\Photo\\temp\\test"]).export_data_on_directories() < 1:
+        if Data(["G:\\Files\\Ana Felix Snow Queen", "G:\\Photo\\sandbox"]).export_data_on_directories() < 1:
             self.assertEqual(1, 1)
         else:
             self.assertEqual(1, 0)
 
     def test_correct_data(self):
-        Data(["E:\\Files\\Ana Felix Snow Queen", "E:\\Photo\\sandbox", "E:\\Photo\\temp\\test"]).export_data_on_directories()
+        Data(["G:\\Files\\Ana Felix Snow Queen", "G:\\Photo\\sandbox"]).export_data_on_directories()
         self.assertEqual(File(self.file_location).read("_dict"), self.expected_result)
 
 
