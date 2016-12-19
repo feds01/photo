@@ -44,7 +44,6 @@ class DataMethod(unittest.TestCase):
         Data(["G:\\Files\\Ana Felix Snow Queen", "G:\\Photo\\sandbox"]).export_data_on_directories()
         self.assertEqual(File(self.file_location).read("_dict"), self.expected_result)
 
-
 class IndexItemSize(unittest.TestCase):
 
     def test_zero_bytes(self):

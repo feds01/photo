@@ -111,6 +111,7 @@ class Index:
         # start = time.clock()
         if not Directory(self.path).check_directory():
             raise Fatal("fatal: directory does not exist")
+        self.first_layer_nodes = Directory.get_directory_branches(self.path, os.listdir(self.path))
         self.run_directory_index()
         self.thread_method_helper()
         self.apply_filter(), self.analyze_directories()
