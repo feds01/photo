@@ -44,7 +44,7 @@ class Index:
         self.use_blacklist = use_blacklist
         self.max_instances = max_instances
         self.photo_model_directories = []
-        self.first_layer_nodes = Directory.get_directory_branches(self.path, os.listdir(self.path))
+        self.first_layer_nodes = []
         self.big_job_data = {}
         self.directory_index_data = []
         self.directories, self.directory_leaves = [], []
