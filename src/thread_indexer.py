@@ -1,6 +1,6 @@
 import multiprocessing
 from queue import Queue
-from src.blacklist import *
+from src.hooks.blacklist_hook import *
 from src.core.utils import *
 from src.indexer import Index
 
@@ -15,19 +15,19 @@ Description -
 
 """
 
-
 main_list = []
+
 
 def blacklist_check_nodes(root):
     root_branches = Directory.get_directory_branches(root,os.listdir(root))
-    root_branches = Blacklist(helpers=Blacklist().read_blacklist()).check_entry_existence(root_branches)
-
+    root_branches = Blacklist().check_entry_existence(root_branches)
     return root_branches
 
 
-
-
-
+def index_branch(branch, use_blacklist=True): # This is a target function!
+    instance = Index(branch, thread_method=True, use_blacklist=use_blacklist)
+    instance.run_directory_index()
+    return instance.apply_filter(return_results=True)
 
 
 """

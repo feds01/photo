@@ -19,7 +19,7 @@ Description -
 class IndexWithNormalMethod(unittest.TestCase):
 
     def test_index_method(self):
-        self.assertEqual(Index("G:\\Photo\\").run_index(pipe=False), ["G:\\Photo\\sandbox"])
+        self.assertEqual(Index("G:\\Photo\\").run(pipe=False), ["G:\\Photo\\sandbox"])
 
     """
     def test_index_thread_method(self):
@@ -27,7 +27,7 @@ class IndexWithNormalMethod(unittest.TestCase):
     """
 
     def test_index_with_fake_dir(self):
-        self.assertRaises(Fatal, lambda: Index("F:\\Photo\\").run_index(pipe=False))
+        self.assertRaises(Fatal, lambda: Index("F:\\Photo\\").run(pipe=False))
 
 
 class DataMethod(unittest.TestCase):

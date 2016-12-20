@@ -67,33 +67,30 @@ class Index:
         if Index.validate_directory_structure(path):
             return path
 
-    def find_leaves(self, path):
+    def find_leaves(self):
         for directory in self.directories:
             if len(Directory.get_directory_branches(directory, handle_get_content(directory, silent_mode=self.silent_mode))) < 3:
                 self.directory_leaves.append(directory)
-
-        if self.thread_method:
-            if path in self.directory_leaves:
-                self.directory_leaves.remove(path)
-            else:
-                pass
         return self.directory_leaves
 
     def apply_filter(self, return_results=False):
         if self.use_blacklist:
             self.directories = certify_index_results(self.directories, helpers=self.big_job_data)
-        self.find_leaves(self.path), self.directory_filter()
+        self.find_leaves(), self.directory_filter()
         if return_results:
             return self.directories
 
-    def thread_method_helper(self):
-        if self.thread_method:
-            if len(Directory.get_directory_branches(self.path, os.listdir(self.path))) == 0:
-                return []
-        if not self.thread_method:
-            self.directories.append(self.path)
+    def node_count_check(self):
+        if len(self.directories) is 0:
+            if not self.silent_mode:
+                print("error: given directory is a leaf.")
+            return []
 
-    def run_directory_index(self):
+    def run_directory_index(self, _return=False):
+        if not  self.thread_method:
+            self.first_layer_nodes = Directory.get_directory_branches(self.path, os.listdir(self.path))
+        else:
+            self.first_layer_nodes = [self.path]
         self.directories = []
         self.big_job_data = {}
         for node in self.first_layer_nodes:
@@ -105,14 +102,15 @@ class Index:
             self.directories.append(self.directory_index_data)
         self.directories.append(self.first_layer_nodes)
         self.directories = Utility().list_organiser(self.directories)
+        if _return:
+            return [self.directories, self.big_job_data]
 
-    def run_index(self, pipe=False):
+    def run(self, pipe=False):
         # start = time.clock()
         if not Directory(self.path).check_directory():
             raise Fatal("fatal: directory does not exist")
-        self.first_layer_nodes = Directory.get_directory_branches(self.path, os.listdir(self.path))
         self.run_directory_index()
-        self.thread_method_helper()
+        self.node_count_check()
         self.apply_filter(), self.analyze_directories()
         self.photo_model_directories = Utility().list_organiser(self.photo_model_directories)
         if pipe:
