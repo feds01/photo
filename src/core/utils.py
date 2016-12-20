@@ -340,7 +340,7 @@ class Directory:
 class File:
     def __init__(self, file):
         self.application_root = Config().get_key_value("application_root")
-        self.application_directories = sorted(Config().get_specific_keys("application_directories"))
+        self.application_directories = sorted(Config().get_specific_data("application_directories","dirs"))
         self.temp_files = Config().get_specific_data("application_directories", "temp")
         self.artifact_files = Config().get_specific_data("application_directories", "artifact")
         self.file = file
@@ -348,21 +348,21 @@ class File:
 
     def setup_directories(self):
         for directory in self.application_directories:
-            if os.path.exists(directory):
-                pass
-            else:
+            try:
                 os.mkdir(os.path.join(self.application_root, directory))
+            except FileExistsError:
+                pass
 
     def setup_files(self):
         for application_dir in self.application_directories:
             if application_dir == "temp":
                 for _file in self.temp_files:
-                    self.file = os.path.join(application_dir, _file)
+                    self.file = os.path.join(self.application_root, application_dir, _file)
                     self.create()
-                else:
-                    for _file in self.artifact_files:
-                        self.file = os.path.join(application_dir, _file)
-                        self.create()
+            else:
+                for _file in self.artifact_files:
+                    self.file = os.path.join(self.application_root, application_dir, _file)
+                    self.create()
 
     def clean_files(self, file, specific, general=False):
         file_list = Utility().join_lists(self.artifact_files, self.temp_files)

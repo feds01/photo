@@ -54,14 +54,11 @@ class Data:
         return self.directory_data
 
     def export_data_on_directories(self):
-        # TODO: remove timings
-        start = time.clock()
         self.fetch_data_destination_path()
         self.packaged_data = {}
         for directory in self.path:
             self.packaged_data.update({self.path.index(directory)+1: self.create_data_on_directory(directory)})
         File(self.destination_file).write(self.packaged_data)
-        return time.clock() - start
 
 
 class Table:
