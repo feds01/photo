@@ -66,7 +66,7 @@ def is_child(child, directory, symlinks=False):
 
 
 class Blacklist:
-    def __init__(self, *dirs, directory="", use_filter=False, helpers):
+    def __init__(self, *dirs, directory="", use_filter=False, helpers=''):
         self.helpers = helpers
         self.dirs = list(*dirs)
         self.use_filter = use_filter
@@ -123,11 +123,23 @@ class Blacklist:
         else:
             pass
 
-    def check_entry_existence(self, directory):
-        if directory in self.blacklist:
-            return True
+    def check_entry_existence(self, entries, inverted=False):
+        if self.helpers is not "":
+            self.blacklist = self.read_blacklist()
+        verify_list = []
+        for entry in entries:
+            if entry in self.blacklist:
+                verify_list.append(entry)
+            else:
+                pass
+        if not inverted:
+            for entry in verify_list:
+                entries.remove(entry)
+            return entries
         else:
-            return False
+            return verify_list
+
+
 
     def add_entry(self):
         self.blacklist = []

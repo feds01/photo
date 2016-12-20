@@ -388,8 +388,15 @@ class File:
             return None
         else:
             with open(self.file, "r") as f:
-                self.data = f.read()
-                f.close()
+                try:
+                    self.data = f.read()
+                except SyntaxError:
+                    if specific is "list":
+                        return []
+                    else:
+                        return {}
+                finally:
+                    f.close()
                 if specific in ["_dict", "list"]:
                     return ast.literal_eval(self.data)
                 else:
