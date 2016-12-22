@@ -86,16 +86,20 @@ class Index:
             return self.directories
 
     def node_count_check(self):
-        if len(self.directories) is 0:
+        if len(self.first_layer_nodes) is 0:
             if not self.silent_mode:
                 print("error: given directory is a leaf.")
-            return []
+            return True
 
     def run_directory_index(self, _return=False):
         if not self.thread_method:
             self.first_layer_nodes = Directory.get_directory_branches(self.path, os.listdir(self.path))
+            if self.use_blacklist:
+                self.first_layer_nodes = Blacklist().check_entry_existence(self.first_layer_nodes)
         else:
             self.first_layer_nodes = [self.path]
+        if self.node_count_check():
+            return []
         self.directories = []
         for node in self.first_layer_nodes:
             self.directory_index_data = Directory(node).index_directory()
@@ -114,7 +118,6 @@ class Index:
         if not Directory(self.path).check_directory():
             raise Fatal("fatal: directory does not exist")
         self.run_directory_index()
-        self.node_count_check()
         self.apply_filter(), self.analyze_directories()
         self.photo_model_directories = Utility().list_organiser(self.photo_model_directories)
         if pipe:

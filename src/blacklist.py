@@ -81,7 +81,7 @@ class Blacklist:
         if "artifact-loc" in list(self.helpers):
             self.file_location = self.helpers.get("artifact-loc")
         else:
-            self.file_location = Directory(__file__).get_artifact_file_location(call="inner-b", filename="blacklist.txt")
+            self.file_location = Directory(__file__).get_artifact_file_location(filename="blacklist.txt")
 
     def read_blacklist(self):
         self.blacklist = File(file=self.file_location).read(specific="list")
