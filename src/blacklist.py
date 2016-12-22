@@ -76,8 +76,12 @@ class Blacklist:
         self.blacklist = []
         self.bad_entries = []
         self.child_list, self.root_list = [], []
-        self.file_location = Directory(__file__).get_artifact_file_location("blacklist.txt")
         self.cycle_done = False
+
+        if "artifact-loc" in list(self.helpers):
+            self.file_location = self.helpers.get("artifact-loc")
+        else:
+            self.file_location = Directory(__file__).get_artifact_file_location(call="inner-b", filename="blacklist.txt")
 
     def read_blacklist(self):
         self.blacklist = File(file=self.file_location).read(specific="list")

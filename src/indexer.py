@@ -1,8 +1,9 @@
 #!C:\Python\Python35-32\python.exe
 # import time
-from src.hooks.blacklist_hook import *
-from src.core.exceptions import *
 from src.data import Data
+from src.hooks.blacklist_hook import *
+
+
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -37,7 +38,7 @@ Index():
 
 
 class Index:
-    def __init__(self, path, thread_method=False, silent=False, use_blacklist=False, max_instances=-1):
+    def __init__(self, *args, path, thread_method=False, silent=False, use_blacklist=False, max_instances=-1):
         self.silent_mode = silent
         self.thread_method = thread_method
         self.path = path
@@ -45,9 +46,12 @@ class Index:
         self.max_instances = max_instances
         self.photo_model_directories = []
         self.first_layer_nodes = []
-        self.big_job_data = {}
         self.directory_index_data = []
         self.directories, self.directory_leaves = [], []
+        if self.thread_method:
+            self.big_job_data = args[0]
+        else:
+            self.big_job_data = {}
 
     @staticmethod
     def validate_directory_structure(path, max_instances=-1, silent_mode=False):
@@ -76,6 +80,7 @@ class Index:
     def apply_filter(self, return_results=False):
         if self.use_blacklist:
             self.directories = certify_index_results(self.directories, helpers=self.big_job_data)
+
         self.find_leaves(), self.directory_filter()
         if return_results:
             return self.directories
@@ -87,12 +92,11 @@ class Index:
             return []
 
     def run_directory_index(self, _return=False):
-        if not  self.thread_method:
+        if not self.thread_method:
             self.first_layer_nodes = Directory.get_directory_branches(self.path, os.listdir(self.path))
         else:
             self.first_layer_nodes = [self.path]
         self.directories = []
-        self.big_job_data = {}
         for node in self.first_layer_nodes:
             self.directory_index_data = Directory(node).index_directory()
             if len(self.directory_index_data) >= 2048:
@@ -119,4 +123,4 @@ class Index:
             # print(time.clock() - start)
             return self.photo_model_directories
 
-# print(Index("C:\\", use_blacklist=True silent=True).run_index())
+# print(Index(path="C:\\", use_blacklist=True, silent=True).run())
