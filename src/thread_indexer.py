@@ -1,5 +1,6 @@
 # import time
 import multiprocessing
+from numpy import array_split
 from src.indexer import Index
 from src.hooks.blacklist_hook import *
 from multiprocessing import Pool, freeze_support
@@ -39,6 +40,18 @@ def form_job_queue(nodes, helpers, use_blacklist):
     return JOB_QUEUE
 
 
+def form_filter_job_queue(directory_blocks, silent_mode):
+    global JOB_QUEUE
+    JOB_QUEUE = []
+    for block in directory_blocks:
+        JOB_QUEUE.append([list(block), silent_mode])
+    return JOB_QUEUE
+
+
+def filter_wrapper(*args):
+    return apply_filter(args[0][0], args[0][1])
+
+
 def index_wrapper(*args):
     return index_branch(args[0][0], args[0][1], args[0][2])
 
@@ -48,30 +61,50 @@ def index_branch(branch, helpers, use_blacklist=False):  # This is a target func
         instance = Index(helpers, path=branch, thread_method=True, use_blacklist=use_blacklist)
     else:
         instance = Index(path=branch, thread_method=True)
-    instance.run_directory_index()
-    return instance.apply_filter(return_results=True)
+    instance.run_directory_index(), instance.blacklist_filter()
+    return instance.directories
 
 
-def run_directory_index(root, max_instances=-1, use_blacklist=False):
-    del max_instances
+def apply_filter(directories, silent):
+    instance = Index(path='', use_blacklist=False, silent=silent)
+    instance.directories = directories
+    instance.apply_filter()
+    return instance.directories
+
+
+def split_workload(results):
+    return array_split(results, 10)  # TODO: replace `10` with `PROCESS_COUNT`
+
+
+def run_directory_index(root, silent=False, max_instances=-1, use_blacklist=False):
+    del max_instances # temporary, not implemented yet
     global artifact_location, JOB_QUEUE, PROCESS_COUNT, result
     freeze_support()
     if use_blacklist:
-        artifact_location.update({"artifact-loc": str(Directory(__file__).get_artifact_file_location(call="mod-launch", filename="blacklist.txt"))})
+        artifact_location.update({"artifact-loc": str(Directory(__file__).get_artifact_file_location(filename="blacklist.txt"))})
     nodes = get_nodes(root)
     JOB_QUEUE = form_job_queue(nodes, artifact_location, use_blacklist)
-    pool = Pool(6)  # TODO: replace with PROCESS_COUNT
+    pool = Pool(10)  # TODO: replace with PROCESS_COUNT
     result = pool.map(index_wrapper, JOB_QUEUE)
+    result = Utility().list_organiser(result)
     pool.close(), pool.join()
-    return Utility().list_organiser(result)
+    #--------------------------------------------------#
+    #             The Filter Process!
+    chunks = split_workload(result)
+    JOB_QUEUE = form_filter_job_queue(chunks, silent)
+    pool = Pool(10)  # TODO: replace with PROCESS_COUNT
+    result = pool.map(filter_wrapper, JOB_QUEUE)
+    pool.close(), pool.join()
+    result = Utility().list_organiser(result)
+    return result
 
 
 if __name__ == '__main__':
-    pass
     # start = time.clock()
-    # run_directory_index("C:\\", use_blacklist=True)
+    # directories = run_directory_index("C:\\", use_blacklist=True)
+    # print(directories)
     # print(time.clock() - start)
-
+    pass
 """
 def main(analyze_path):
     queue = Queue()

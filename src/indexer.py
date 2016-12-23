@@ -4,7 +4,6 @@ from src.data import Data
 from src.hooks.blacklist_hook import *
 
 
-
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -77,9 +76,12 @@ class Index:
                 self.directory_leaves.append(directory)
         return self.directory_leaves
 
+    def blacklist_filter(self):
+        self.directories = certify_index_results(self.directories, helpers=self.big_job_data)
+
     def apply_filter(self, return_results=False):
         if self.use_blacklist:
-            self.directories = certify_index_results(self.directories, helpers=self.big_job_data)
+            self.blacklist_filter()
 
         self.find_leaves(), self.directory_filter()
         if return_results:
@@ -118,7 +120,8 @@ class Index:
         if not Directory(self.path).check_directory():
             raise Fatal("fatal: directory does not exist")
         self.run_directory_index()
-        self.apply_filter(), self.analyze_directories()
+        self.apply_filter()
+        self.analyze_directories()
         self.photo_model_directories = Utility().list_organiser(self.photo_model_directories)
         if pipe:
             Data(self.photo_model_directories).export_data_on_directories()
