@@ -1,5 +1,4 @@
-import time
-import multiprocessing
+# import time
 from numpy import array_split
 from src.indexer import Index
 from src.hooks.blacklist_hook import *
@@ -19,7 +18,7 @@ JOB_QUEUE = []
 artifact_location = {}
 
 # variable not implemented yet
-PROCESS_COUNT = multiprocessing.cpu_count() * 6
+PROCESS_COUNT = os.cpu_count() * 6
 # final result variable
 result = []
 
@@ -65,7 +64,7 @@ def index_branch(branch, helpers, use_blacklist=False):  # This is a target func
     return instance.directories
 
 
-def apply_filter(directories, silent): # this is also a target function
+def apply_filter(directories, silent):  # this is also a target function
     instance = Index(path='', use_blacklist=False, silent=silent)
     instance.directories = directories
     instance.apply_filter()
@@ -77,18 +76,20 @@ def validate_directory_structure(paths, silent=False, max_instances=-1):
 
 
 def split_workload(results):
-    return array_split(results, 10)  # TODO: replace `10` with `PROCESS_COUNT`
+    return array_split(results, PROCESS_COUNT)
+
 
 def run_apply_filter(results, silent=False):
-    global JOB_QUEUE, PROCESS_COUNT
+    global JOB_QUEUE, PROCESS_COUNT, result
     freeze_support()
     chunks = split_workload(results)
     JOB_QUEUE = form_filter_job_queue(chunks, silent)
-    pool = Pool(10)  # TODO: replace with PROCESS_COUNT
+    pool = Pool(PROCESS_COUNT)
     result = pool.map(filter_wrapper, JOB_QUEUE)
     result = Utility().list_organiser(result)
     pool.close(), pool.join()
     return result
+
 
 def run_directory_index(root, use_blacklist=False):
     global artifact_location, JOB_QUEUE, PROCESS_COUNT, result
@@ -97,14 +98,22 @@ def run_directory_index(root, use_blacklist=False):
         artifact_location.update({"artifact-loc": str(Directory(__file__).get_artifact_file_location(filename="blacklist.txt"))})
     nodes = get_nodes(root)
     JOB_QUEUE = form_job_queue(nodes, artifact_location, use_blacklist)
-    pool = Pool(10)  # TODO: replace with PROCESS_COUNT
+    pool = Pool(PROCESS_COUNT)
     result = pool.map(index_wrapper, JOB_QUEUE)
     result = Utility().list_organiser(result)
     pool.close(), pool.join()
     return result
 
+
 def run(path, silent=False, max_instances=-1, use_blacklist=False):
+    global result
     result = run_directory_index(path, use_blacklist)
     result = run_apply_filter(result, silent)
     photo_directories = validate_directory_structure(result, silent, max_instances)
     return photo_directories
+
+if __name__ == '__main__':
+    freeze_support()
+    # start = time.clock()
+   # print(run('C:\\', use_blacklist=True))
+    #print(time.clock() - start)

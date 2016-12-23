@@ -39,7 +39,7 @@ class DataMethod(unittest.TestCase):
         self.expected_result = {1: ['G:\\Files\\Ana Felix Snow Queen', ['G:\\Files\\Ana Felix Snow Queen\\_GOOD', 'G:\\Files\\Ana Felix Snow Queen\\all', 'G:\\Files\\Ana Felix Snow Queen\\crt'], 0, 75, 38, 754, [7.08, 'Gb', 1073741824]], 2: ['G:\\Photo\\sandbox', ['G:\\Photo\\sandbox\\all', 'G:\\Photo\\sandbox\\crt', 'G:\\Photo\\sandbox\\good'], 1, 0, 0, 2, [0.0, 'bytes', 1]]}
 
     def test_time_on_creation(self):
-        if self.end < 1:
+        if self.end < 2:
             self.assertEqual(1, 1)
         else:
             self.assertEqual(1, 0)
