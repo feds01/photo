@@ -1,8 +1,8 @@
 import os
 import ast
 import shutil
-from src.core.config_extractor import Config
 from src.core.exceptions import *
+from src.core.config_extractor import Config
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -13,7 +13,6 @@ Usage:
 Description -
 
 """
-
 
 def print_space(n):
     return n * "\n"
@@ -318,7 +317,7 @@ class Directory:
     def get_artifact_file_location(self, filename):
         self.directory = Directory(self.main_input).get_current_directory()
         if self.directory.endswith("src"):
-            self.directories = Directory(os.path.split(self.directory)[0]) .index_directory(file=True)
+            self.directories = Directory(os.path.split(self.directory)[0]).index_directory(file=True)
         else:
             self.directories = Directory(self.directory).index_directory(file=True)
         # TODO: remove code in main build, just for finder to run quicker on this method
@@ -388,8 +387,15 @@ class File:
             return None
         else:
             with open(self.file, "r") as f:
-                self.data = f.read()
-                f.close()
+                try:
+                    self.data = f.read()
+                except SyntaxError:
+                    if specific is "list":
+                        return []
+                    else:
+                        return {}
+                finally:
+                    f.close()
                 if specific in ["_dict", "list"]:
                     return ast.literal_eval(self.data)
                 else:

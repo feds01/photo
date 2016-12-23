@@ -1,5 +1,8 @@
-application_root: "E:\\\\Photo\\\\"
+application_root: "G:\\\\Photo\\\\"
 application_directories:
+   dirs:
+   - "temp"
+   - "artifact"
    temp:
    - "size_data.txt"
    - "table_data.txt"

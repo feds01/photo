@@ -34,7 +34,8 @@ def table_instance_display(instance_data):
     instance_leaves = {}
     file_count = 0
     for directory in instance_data[1]:
-        instance_leaves.update({os.path.basename(directory): Directory(directory).index_directory(count=True, file=True)})
+        instance_leaves.update({os.path.basename(directory): Directory(directory).index_directory(count=True,
+                                                                                                  file=True)})
     instance_data.pop(1)
     print("More detail about the photo directory - '" + os.path.basename(instance_data[0]) + "' :", print_space(1))
     print("Full directory path: ", instance_data[0])

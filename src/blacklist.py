@@ -66,8 +66,8 @@ def is_child(child, directory, symlinks=False):
 
 
 class Blacklist:
-    def __init__(self, *dirs, directory="", use_filter=False, helpers):
-        self.helpers = helpers
+    def __init__(self, *dirs, directory="", use_filter=False, helpers=''):
+        self.helpers = dict(helpers)
         self.dirs = list(*dirs)
         self.use_filter = use_filter
         self.directory = directory
@@ -76,8 +76,12 @@ class Blacklist:
         self.blacklist = []
         self.bad_entries = []
         self.child_list, self.root_list = [], []
-        self.file_location = Directory(__file__).get_artifact_file_location("blacklist.txt")
         self.cycle_done = False
+
+        if "artifact-loc" in list(self.helpers):
+            self.file_location = self.helpers.get("artifact-loc")
+        else:
+            self.file_location = Directory(__file__).get_artifact_file_location(filename="blacklist.txt")
 
     def read_blacklist(self):
         self.blacklist = File(file=self.file_location).read(specific="list")
@@ -123,11 +127,24 @@ class Blacklist:
         else:
             pass
 
-    def check_entry_existence(self, directory):
-        if directory in self.blacklist:
-            return True
+    def check_entry_existence(self, entries, inverted=False):
+        entries = Utility().list_organiser([entries])
+        verify_list = []
+        if self.blacklist is None:
+            self.blacklist = self.read_blacklist()
+        for entry in entries:
+            if entry in self.blacklist:
+                verify_list.append(entry)
+            else:
+                pass
+        if not inverted:
+            # entries which came out clean
+            for entry in verify_list:
+                entries.remove(entry)
+            return entries
         else:
-            return False
+            # entries which did are in blacklist
+            return verify_list
 
     def add_entry(self):
         self.blacklist = []
@@ -169,14 +186,18 @@ class Blacklist:
             self.entry_filter_by_volume()
         self.bad_entries = []
         for directory in self.dirs:
-            if self.check_entry_existence(directory):
+            if len(self.check_entry_existence(directory, inverted=True)) > 0:
                 self.bad_entries.append(directory)
-                if directory in list(self.helpers.keys()):  # the more big job instances the faster
-                    self.bad_entries.append(self.helpers.get(directory))
-                    self.bad_entries = Utility().list_organiser(self.bad_entries)
+                if self.helpers == {}:
+                    self.bad_entries.append(Directory(directory).index_directory())
                     continue
                 else:
-                    self.bad_entries.append(Directory(directory).index_directory())
+                    if directory in list(dict(self.helpers).keys()):  # the more big job instances the faster
+                        self.bad_entries.append(dict(self.helpers).get(directory))
+                        self.bad_entries = Utility().list_organiser(self.bad_entries)
+                        continue
+                    else:
+                        self.bad_entries.append(Directory(directory).index_directory())
             else:
                 pass
         return self.bad_entries
