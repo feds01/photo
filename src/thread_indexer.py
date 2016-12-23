@@ -1,4 +1,4 @@
-# import time
+import time
 import multiprocessing
 from numpy import array_split
 from src.indexer import Index
@@ -19,7 +19,7 @@ JOB_QUEUE = []
 artifact_location = {}
 
 # variable not implemented yet
-PROCESS_COUNT = multiprocessing.cpu_count()
+PROCESS_COUNT = multiprocessing.cpu_count() * 6
 # final result variable
 result = []
 
@@ -65,19 +65,32 @@ def index_branch(branch, helpers, use_blacklist=False):  # This is a target func
     return instance.directories
 
 
-def apply_filter(directories, silent):
+def apply_filter(directories, silent): # this is also a target function
     instance = Index(path='', use_blacklist=False, silent=silent)
     instance.directories = directories
     instance.apply_filter()
     return instance.directories
 
 
+def validate_directory_structure(paths, silent=False, max_instances=-1):
+    return Directory(paths).index_photo_directory(silent_mode=silent, max_instances=max_instances)
+
+
 def split_workload(results):
     return array_split(results, 10)  # TODO: replace `10` with `PROCESS_COUNT`
 
+def run_apply_filter(results, silent=False):
+    global JOB_QUEUE, PROCESS_COUNT
+    freeze_support()
+    chunks = split_workload(results)
+    JOB_QUEUE = form_filter_job_queue(chunks, silent)
+    pool = Pool(10)  # TODO: replace with PROCESS_COUNT
+    result = pool.map(filter_wrapper, JOB_QUEUE)
+    result = Utility().list_organiser(result)
+    pool.close(), pool.join()
+    return result
 
-def run_directory_index(root, silent=False, max_instances=-1, use_blacklist=False):
-    del max_instances # temporary, not implemented yet
+def run_directory_index(root, use_blacklist=False):
     global artifact_location, JOB_QUEUE, PROCESS_COUNT, result
     freeze_support()
     if use_blacklist:
@@ -88,35 +101,10 @@ def run_directory_index(root, silent=False, max_instances=-1, use_blacklist=Fals
     result = pool.map(index_wrapper, JOB_QUEUE)
     result = Utility().list_organiser(result)
     pool.close(), pool.join()
-    #--------------------------------------------------#
-    #             The Filter Process!
-    chunks = split_workload(result)
-    JOB_QUEUE = form_filter_job_queue(chunks, silent)
-    pool = Pool(10)  # TODO: replace with PROCESS_COUNT
-    result = pool.map(filter_wrapper, JOB_QUEUE)
-    pool.close(), pool.join()
-    result = Utility().list_organiser(result)
     return result
 
-
-if __name__ == '__main__':
-    # start = time.clock()
-    # directories = run_directory_index("C:\\", use_blacklist=True)
-    # print(directories)
-    # print(time.clock() - start)
-    pass
-"""
-def main(analyze_path):
-    queue = Queue()
-    branches = Task(analyze_path).branches()
-    main_list.append(Index.run_directory(Directory(analyze_path).get_current_directory()))
-    for x in range(multiprocessing.cpu_count()):
-        thread = Thread(queue)
-        thread.daemon = True
-        thread.start()
-    for branch in branches:
-        main_list.append(Index.run_directory(branch))
-        queue.put(branch)
-    queue.join()
-    return Utility().list_organiser(main_list)
-"""
+def run(path, silent=False, max_instances=-1, use_blacklist=False):
+    result = run_directory_index(path, use_blacklist)
+    result = run_apply_filter(result, silent)
+    photo_directories = validate_directory_structure(result, silent, max_instances)
+    return photo_directories

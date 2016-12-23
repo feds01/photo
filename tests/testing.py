@@ -1,6 +1,6 @@
 import unittest
 import time
-import src.thread_indexer
+# import src.thread_indexer
 from src.core.utils import *
 from src.data import Data
 from src.indexer import Index
@@ -47,6 +47,7 @@ class DataMethod(unittest.TestCase):
     def test_correct_data(self):
         Data(["G:\\Files\\Ana Felix Snow Queen", "G:\\Photo\\sandbox"]).export_data_on_directories()
         self.assertEqual(File(self.file_location).read("_dict"), self.expected_result)
+
 
 class IndexItemSize(unittest.TestCase):
 
