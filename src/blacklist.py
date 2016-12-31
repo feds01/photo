@@ -130,7 +130,7 @@ class Blacklist:
     def check_entry_existence(self, entries, inverted=False):
         entries = Utility().list_organiser([entries])
         verify_list = []
-        if self.blacklist is None:
+        if self.blacklist is []:
             self.blacklist = self.read_blacklist()
         for entry in entries:
             if entry in self.blacklist:

@@ -35,7 +35,7 @@ class DataMethod(unittest.TestCase):
         self.start = time.time()
         Data(["G:\\Files\\Ana Felix Snow Queen", "G:\\Photo\\sandbox"]).export_data_on_directories()
         self.end = time.time() - self.start
-        self.file_location = os.path.join(Config().get_key_value("application_root"), "temp\\size_data.txt")
+        self.file_location = os.path.join(Config.get_key_value("application_root"), "temp\\size_data.txt")
         self.expected_result = {1: ['G:\\Files\\Ana Felix Snow Queen', ['G:\\Files\\Ana Felix Snow Queen\\_GOOD', 'G:\\Files\\Ana Felix Snow Queen\\all', 'G:\\Files\\Ana Felix Snow Queen\\crt'], 0, 75, 38, 754, [7.08, 'Gb', 1073741824]], 2: ['G:\\Photo\\sandbox', ['G:\\Photo\\sandbox\\all', 'G:\\Photo\\sandbox\\crt', 'G:\\Photo\\sandbox\\good'], 1, 0, 0, 2, [0.0, 'bytes', 1]]}
 
     def test_time_on_creation(self):

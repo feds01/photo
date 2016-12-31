@@ -82,7 +82,7 @@ def enable_safe_mode():
         enable_safe = input("enable 'safe-mode' [Y/n]? ").lower()
         if enable_safe == "y":
             write_confirmation = {"safe-mode": True}
-            scan_vars_file = os.path.join(Config().get_key_value("application_root"), "temp\\scan_vars.txt")
+            scan_vars_file = os.path.join(Config.get_key_value("application_root"), "temp\\scan_vars.txt")
             old = dict(File(scan_vars_file).read("_dict"))
             try:
                 old.pop("safe-mode")
@@ -105,7 +105,7 @@ def confirm_disable_safe_mode():
         if confirm_disable == "n":
             return enable_safe_mode()
         if confirm_disable == ":info":
-            artifact_location = os.path.join(Config().get_key_value("application_root"), "artifact\\cli_entries\\safe_mode.txt")
+            artifact_location = os.path.join(Config.get_key_value("application_root"), "artifact\\cli_entries\\safe_mode.txt")
             print(File(artifact_location).read(specific=""))
         else:
             pass

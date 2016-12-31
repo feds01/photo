@@ -29,9 +29,12 @@ class BlacklistEntryError(Exception):
 
 
 class IndexingError(Exception):
-    def __init__(self, directory):
-        print("permissions: could not list directory -", directory)
-        pass
+    def __init__(self, directory, reason):
+        if reason == "permissions":
+            print("permissions: could not scan %s directory - passing." % directory)
+
+        elif reason == "leaf":
+            print('error: given directory(%s) is a leaf' % directory)
 
 
 class ByteOverflow(Exception):
@@ -39,15 +42,9 @@ class ByteOverflow(Exception):
         print("while converting bytes to units, the byte count overflowed 1024**5.")
         pass
 
-"""
-class Config(BaseException):
-    def __init__(self, error_code, old_definition):
-        self.error_code = error_code
-        self.old_definition = old_definition
-        self.correct_value = "\\"
 
-    def IncorrectVariableValue(self):
-            print("Config was not compiled correctly.")
-            print("Error Code: " + self.error_code)
-            print("variable definition " ,self.old_definition, " -> ", self.correct_value)
-"""
+def node_error(silent, directory):
+    if silent:
+        pass
+    else:
+        IndexingError(directory, "leaf")

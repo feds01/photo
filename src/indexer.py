@@ -44,20 +44,20 @@ class Index:
         self.use_blacklist = use_blacklist
         self.max_instances = max_instances
         self.photo_model_directories = []
-        self.first_layer_nodes = []
-        self.directory_index_data = []
         self.directories, self.directory_leaves = [], []
-        if self.thread_method:
-            self.big_job_data = args[0]
+        if self.thread_method and self.use_blacklist:
+            self.helpers = args[0]
         else:
-            self.big_job_data = {}
+            self.helpers = {}
 
     @staticmethod
     def validate_directory_structure(path, max_instances=-1, silent_mode=False):
         return Directory(path).index_photo_directory(max_instances=max_instances, silent_mode=silent_mode)
 
     def analyze_directories(self):
-        self.photo_model_directories.append(self.validate_directory_structure(self.directories, self.max_instances, silent_mode=self.silent_mode))
+        self.photo_model_directories.append(self.validate_directory_structure(self.directories,
+                                                                              self.max_instances,
+                                                                              self.silent_mode))
 
     def directory_filter(self):
         for directory in self.directory_leaves:
@@ -72,28 +72,25 @@ class Index:
 
     def find_leaves(self):
         for directory in self.directories:
-            if len(Directory.get_directory_branches(directory, handle_get_content(directory, silent_mode=self.silent_mode))) < 3:
+            if len(Directory.get_branches(directory)) < 3:
                 self.directory_leaves.append(directory)
         return self.directory_leaves
 
-    def blacklist_filter(self):
-        self.directories = certify_index_results(self.directories, helpers=self.big_job_data)
-
     def apply_filter(self, return_results=False):
-        if self.use_blacklist:
-            self.blacklist_filter()
-
         self.find_leaves(), self.directory_filter()
         if return_results:
             return self.directories
 
-    def node_count_check(self):
-        if len(self.first_layer_nodes) is 0:
-            if not self.silent_mode:
-                print("error: given directory is a leaf.")
-            return True
+    def run_directory_index(self):
+        if len(Directory.get_branches(self.path)) is 0:
+            node_error(self.path, self.silent_mode)
 
-    def run_directory_index(self, _return=False):
+        if self.use_blacklist:
+            self.directories = Directory(self.path).index_with_blacklist(self.helpers)
+        else:
+            self.directories = Directory(self.path).index_directory()
+
+        """
         if not self.thread_method:
             self.first_layer_nodes = Directory.get_directory_branches(self.path, os.listdir(self.path))
             if self.use_blacklist:
@@ -112,8 +109,10 @@ class Index:
             self.directories.append(self.directory_index_data)
         self.directories.append(self.first_layer_nodes)
         self.directories = Utility().list_organiser(self.directories)
+
         if _return:
             return [self.directories, self.big_job_data]
+        """
 
     def run(self, pipe=False):
         # start = time.clock()

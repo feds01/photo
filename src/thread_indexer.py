@@ -1,4 +1,4 @@
-# import time
+import time
 from numpy import array_split
 from src.indexer import Index
 from src.hooks.blacklist_hook import *
@@ -9,7 +9,7 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 """
 Module name: thread_indexer.py
-Usage:
+Usage: cli.py
 Description -
 
 """
@@ -23,12 +23,31 @@ PROCESS_COUNT = os.cpu_count() * 6
 result = []
 
 
-def get_nodes(root, use_blacklist=False):
+def get_nodes(root, use_blacklist=False, depth=0):
     global artifact_location
-    root_branches = Directory.get_directory_branches(root, os.listdir(root))
+    branches = Directory.get_branches(root)
     if use_blacklist:
-        root_branches = Blacklist(helpers=artifact_location).check_entry_existence(root_branches)
-    return root_branches
+        branches = Blacklist(helpers=artifact_location).check_entry_existence(branches)
+    while depth != 0:
+        final_result = []
+        for item in branches:
+            discovery = Directory.get_branches(item)
+            if len(discovery) >= 8:
+                final_result.append(item)
+                node_too_small = True
+            else:
+                node_too_small = False
+
+            if use_blacklist and not node_too_small:
+                discovery = Blacklist(helpers=artifact_location).check_entry_existence(discovery)
+
+            else:
+                final_result.append(discovery)
+
+        branches = Utility().list_organiser(final_result)
+        depth -= 1
+
+    return branches
 
 
 def form_job_queue(nodes, helpers, use_blacklist):
@@ -60,7 +79,7 @@ def index_branch(branch, helpers, use_blacklist=False):  # This is a target func
         instance = Index(helpers, path=branch, thread_method=True, use_blacklist=use_blacklist)
     else:
         instance = Index(path=branch, thread_method=True)
-    instance.run_directory_index(), instance.blacklist_filter()
+    instance.run_directory_index()
     return instance.directories
 
 
@@ -96,7 +115,7 @@ def run_directory_index(root, use_blacklist=False):
     freeze_support()
     if use_blacklist:
         artifact_location.update({"artifact-loc": str(Directory(__file__).get_artifact_file_location(filename="blacklist.txt"))})
-    nodes = get_nodes(root)
+    nodes = get_nodes(root, use_blacklist)
     JOB_QUEUE = form_job_queue(nodes, artifact_location, use_blacklist)
     pool = Pool(PROCESS_COUNT)
     result = pool.map(index_wrapper, JOB_QUEUE)
@@ -115,5 +134,5 @@ def run(path, silent=False, max_instances=-1, use_blacklist=False):
 if __name__ == '__main__':
     freeze_support()
     # start = time.clock()
-   # print(run('C:\\', use_blacklist=True))
-    #print(time.clock() - start)
+    # print(run('C:\\', use_blacklist=True))
+    # print(time.clock() - start)
