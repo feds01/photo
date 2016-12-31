@@ -1,5 +1,5 @@
 #!C:\Python\Python35-32\python.exe
-import time
+# import time
 from prettytable import PrettyTable
 from src.core.utils import *
 
@@ -26,8 +26,8 @@ class Data:
         self.extension_keys = []
 
     def fetch_data_destination_path(self):
-        self.destination_file = Config().get_specific_data("application_directories", "size_data")
-        self.destination_file = os.path.join(Config().get_key_value("application_root"), self.destination_file)
+        self.destination_file = Config.get_specific_data("application_directories", "size_data")
+        self.destination_file = os.path.join(Config.get_key_value("application_root"), self.destination_file)
         return self.destination_file
 
     def create_data_on_directory(self, given_path):
@@ -39,9 +39,9 @@ class Data:
             self.directory_data.append([0, 0, 0, 0])
             self.directory_data = Utility().list_organiser(self.directory_data)
         else:
-            self.extension_keys = Config().get_specific_keys("file_extensions")
+            self.extension_keys = Config.get_specific_keys("file_extensions")
             for specific_key in sorted(self.extension_keys):
-                for extension in Config().get_specific_data("file_extensions", specific_key):
+                for extension in Config.get_specific_data("file_extensions", specific_key):
                     if extension == ".jpg":
                         jpg_count_data = self.analysis_path.find_specific_file(extension, self.file_list, case_sensitive=False)
                         self.counter_data.append(jpg_count_data)
@@ -78,8 +78,8 @@ class Table:
         self.border_symbol = "-"
 
     def get_data_file_location(self):
-        self.file_origin = Config().get_specific_data("application_directories", "size_data")
-        self.application_root = Config().get_key_value("application_root")
+        self.file_origin = Config.get_specific_data("application_directories", "size_data")
+        self.application_root = Config.get_key_value("application_root")
         return os.path.join(self.application_root, self.file_origin)
 
     def import_table_data(self):
@@ -93,8 +93,8 @@ class Table:
         return self.table_import_data
 
     def export_table_data(self):
-        self.application_root = Config().get_key_value("application_root")
-        self.destination_file = os.path.join(self.application_root, (Config().get_specific_data("application_directories", "table_data")))
+        self.application_root = Config.get_key_value("application_root")
+        self.destination_file = os.path.join(self.application_root, (Config.get_specific_data("application_directories", "table_data")))
         File(self.destination_file).write(self.all_rows)
 
     def get_specific_data_from_import(self, sub_key):

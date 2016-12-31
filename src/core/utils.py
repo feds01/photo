@@ -70,7 +70,7 @@ def handle_get_content(path, silent_mode=False):
         if silent_mode:
             pass
         else:
-            IndexingError(path)
+            IndexingError(path, 'permissions')
         return ""
     return content
 
@@ -171,43 +171,73 @@ class Utility:
 
 
 class Directory:
-    def __init__(self, main_input):
-        self.main_input = main_input
+    def __init__(self, item):
+        self.directory_object = item
         self.byte_exponent_count = 1024
         self.directory_size = 0
-        self.byte_size = self.main_input
-        self.directory_count = 0
-        self.file_count = 0
-        self.folder_keys = []
-        self.all_keys = []
+        self.byte_size = self.directory_object
         self.directory_list = []
-        self.file_list = []
         self.file_extension_list = []
-        self.file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
         self.directories = []
-        self.result = []
+        self.file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
+        self.drive_letter = ""
         self.directory = ""
         self.path = ""
 
     def index_directory(self, count=False, file=False):
-            for directory, directories, files in os.walk(self.main_input):
+            directory_count, file_count = 0, 0
+            file_list = []
+            for directory, directories, files in os.walk(self.directory_object):
                 for sub_directory in directories:
-                    self.directory_count += 1
+                    directory_count += 1
                     self.directory_list.append(os.path.join(directory, sub_directory))
                 if file:
                     for _file in files:
-                        self.file_list.append(os.path.join(directory, _file))
-                        self.file_count += 1
+                        file_list.append(os.path.join(directory, _file))
+                        file_count += 1
                 else:
                     pass
             if file and count:
-                return self.file_count
+                return file_count
             if count:
-                return self.directory_count
+                return directory_count
             if file:
-                return self.file_list
-            if not count:
+                return file_list
+            else:
                 return self.directory_list
+
+    def index_with_blacklist(self, helpers):
+        # a smarter method to filter with blacklists, modifies what
+        # os.walk visits by removing from dirs necessary entries
+        if helpers:
+            artifact_location = dict(helpers).get('artifact-loc')
+        else:
+            artifact_location = os.path.join(Config.get_key_value('application_root'),
+                                             Config.get_specific_data('blacklist', 'location'))
+
+        self.drive_letter = self.get_directory_drive(self.directory_object)
+        self.directory_list = File(artifact_location).read(specific='list')
+
+        for entry in self.directory_list:
+            if self.get_directory_drive(entry) != self.drive_letter:
+                self.directory_list.remove(entry)
+            else:
+                continue
+        if self.directory_object in self.directory_list:
+            return []
+        for root, dirs, files in os.walk(self.directory_object, topdown=True):
+            del files
+            if len(self.directory_list) is 0:
+                pass
+            else:
+                for directory in dirs:
+                    if os.path.join(root, directory) in self.directory_list:
+                        self.directory_list.remove(os.path.join(root, directory))
+                        dirs.remove(directory)
+                        continue
+            for directory in dirs:
+                self.directories.append(os.path.join(root, directory))
+        return self.directories
 
     def find_specific_file(self, extension, files, case_sensitive=True):
         self.file_extension_list = []
@@ -226,54 +256,56 @@ class Directory:
         return self.file_extension_list
 
     def index_photo_directory(self, return_folders=False, silent_mode=False, max_instances=-1):
-        self.folder_keys = Config().get_specific_keys("folders")
-        self.main_input = Utility().list_organiser([self.main_input])
+        folder_keys = Config.get_specific_keys("folders")
+        all_keys = []
+        self.directory_object = Utility().list_organiser([self.directory_object])
         self.directories = []
-        for basename_key in self.folder_keys:
-            self.all_keys.append(Config().get_specific_data("folders", basename_key))
-        self.all_keys = Utility().list_organiser(self.all_keys)
+        for basename_key in folder_keys:
+            all_keys.append(Config.get_specific_data("folders", basename_key))
+        all_keys = Utility().list_organiser(all_keys)
 
         def method(path):
             directories = []
             content = handle_get_content(path, silent_mode=silent_mode)
             _validate_content_load(content)
-            for basename in self.all_keys:
+            for basename in all_keys:
                     if basename in content:
                         directories.append(os.path.join(path, basename))
                     else:
                         pass
             return directories
         if return_folders:
-            return method(self.main_input[0])
-        if len(self.main_input) == 1:
-            self.result = method(self.main_input[0])
-            if len(self.result) == 3:
-                return self.main_input[0]
+            return method(self.directory_object[0])
+        if len(self.directory_object) == 1:
+            result = method(self.directory_object[0])
+            if len(result) == 3:
+                return self.directory_object[0]
         else:
-            for directory in self.main_input:
-                self.result = method(directory)
+            for directory in self.directory_object:
+                result = method(directory)
                 if len(self.directories) == max_instances:
                     return self.directories
-                if len(self.result) == 3:
+                if len(result) == 3:
                     self.directories.append(directory)
                 else:
                     pass
             return self.directories
 
     def check_directory(self):
-        if os.path.exists(self.main_input):
+        if os.path.exists(self.directory_object):
             return True
         else:
             return False
 
     def check_file(self):
-        if os.path.isfile(self.main_input):
+        if os.path.isfile(self.directory_object):
             return True
         else:
             return False
 
     @staticmethod
-    def get_directory_branches(path, path_list):
+    def get_branches(path):
+        path_list = handle_get_content(path)
         _validate_content_load(path_list)
         branch_directories = []
         for directory in path_list:
@@ -283,23 +315,27 @@ class Directory:
                 branch_directories.append(os.path.join(path, directory))
         return branch_directories
 
-    def get_current_directory(self):
-        self.path = os.path.split(self.main_input)[0]
+    @staticmethod
+    def get_directory_drive(path):
+        return os.path.splitdrive(path)[0][0]
+
+    def get_parent_directory(self):
+        self.path = os.path.split(self.directory_object)[0]
         return self.path
 
     def get_directory_size(self, unit=1):
-        if not Directory(self.main_input).check_directory():
+        if not Directory(self.directory_object).check_directory():
             return 0
-        for directory, directories, files in os.walk(self.main_input):
+        for directory, directories, files in os.walk(self.directory_object):
             for file in files:
                 self.path = os.path.join(directory, file)
                 self.directory_size += os.path.getsize(self.path)
         return self.directory_size / unit
 
     def get_appropriate_units(self):
-        if self.main_input == 0:
-            return [self.main_input, "bytes", 1]
-        if self.main_input/1024**5 > 1:
+        if self.directory_object == 0:
+            return [self.directory_object, "bytes", 1]
+        if self.directory_object/1024**5 > 1:
             raise ByteOverflow
         else:
             for i in range(5):
@@ -307,15 +343,15 @@ class Directory:
                     self.byte_size /= self.byte_exponent_count
                     continue
                 if self.byte_size / self.byte_exponent_count < 1 and i == 0:
-                    return [self.main_input, self.file_sizes[0], 1]
+                    return [self.directory_object, self.file_sizes[0], 1]
                 if self.byte_size / self.byte_exponent_count < 1:
-                    return [round(self.main_input / self.byte_exponent_count**i, 2), self.file_sizes[i], self.byte_exponent_count**i]
+                    return [round(self.directory_object / self.byte_exponent_count ** i, 2), self.file_sizes[i], self.byte_exponent_count ** i]
 
     def get_file_size(self, unit=1):
-        return os.path.getsize(self.main_input) / unit
+        return os.path.getsize(self.directory_object) / unit
 
     def get_artifact_file_location(self, filename):
-        self.directory = Directory(self.main_input).get_current_directory()
+        self.directory = Directory(self.directory_object).get_parent_directory()
         if self.directory.endswith("src"):
             self.directories = Directory(os.path.split(self.directory)[0]).index_directory(file=True)
         else:
@@ -338,10 +374,10 @@ class Directory:
 
 class File:
     def __init__(self, file):
-        self.application_root = Config().get_key_value("application_root")
-        self.application_directories = sorted(Config().get_specific_data("application_directories","dirs"))
-        self.temp_files = Config().get_specific_data("application_directories", "temp")
-        self.artifact_files = Config().get_specific_data("application_directories", "artifact")
+        self.application_root = Config.get_key_value("application_root")
+        self.application_directories = sorted(Config.get_specific_data("application_directories","dirs"))
+        self.temp_files = Config.get_specific_data("application_directories", "temp")
+        self.artifact_files = Config.get_specific_data("application_directories", "artifact")
         self.file = file
         self.data = ""
 

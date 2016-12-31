@@ -21,9 +21,9 @@ class Analyse:
         self.crt_path_files = []
         self.directory_folders = []
         self.all_folder_files, self.good_folder_files, self.crt_folder_files = [], [], []
-        self.crt_folder_names = Config().get_specific_data("folders", "crt_folder_name")
-        self.all_folder_names = Config().get_specific_data("folders", "all_folder_name")
-        self.crt_extensions = Config().get_specific_data("file_extensions", "crt")
+        self.crt_folder_names = Config.get_specific_data("folders", "crt_folder_name")
+        self.all_folder_names = Config.get_specific_data("folders", "all_folder_name")
+        self.crt_extensions = Config.get_specific_data("file_extensions", "crt")
         self.directory_children = Directory(self.directory).index_photo_directory(return_folders=True)
         self.subdirectory_sorter()
 
