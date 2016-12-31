@@ -10,8 +10,9 @@ Description -
 
 
 class Fatal(Exception):
-    def __init__(self, message):
-        print(message)
+    def __init__(self, message, other=''):
+        print('fatal: %s' % message)
+        print(other)
         pass
 
 
@@ -48,3 +49,8 @@ def node_error(silent, directory):
         pass
     else:
         IndexingError(directory, "leaf")
+
+
+def yaml_error(error):
+    Fatal('While loading Config file something went wrong.\nHere is trace:\n', error)
+    exit()

@@ -90,34 +90,10 @@ class Index:
         else:
             self.directories = Directory(self.path).index_directory()
 
-        """
-        if not self.thread_method:
-            self.first_layer_nodes = Directory.get_directory_branches(self.path, os.listdir(self.path))
-            if self.use_blacklist:
-                self.first_layer_nodes = Blacklist().check_entry_existence(self.first_layer_nodes)
-        else:
-            self.first_layer_nodes = [self.path]
-        if self.node_count_check():
-            return []
-        self.directories = []
-        for node in self.first_layer_nodes:
-            self.directory_index_data = Directory(node).index_directory()
-            if len(self.directory_index_data) >= 2048:
-                self.big_job_data.update({node: self.directory_index_data})
-            else:
-                pass
-            self.directories.append(self.directory_index_data)
-        self.directories.append(self.first_layer_nodes)
-        self.directories = Utility().list_organiser(self.directories)
-
-        if _return:
-            return [self.directories, self.big_job_data]
-        """
-
     def run(self, pipe=False):
         # start = time.clock()
         if not Directory(self.path).check_directory():
-            raise Fatal("fatal: directory does not exist")
+            raise Fatal("directory does not exist")
         self.run_directory_index()
         self.apply_filter()
         self.analyze_directories()
