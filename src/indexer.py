@@ -50,14 +50,13 @@ class Index:
         else:
             self.helpers = {}
 
-    @staticmethod
-    def validate_directory_structure(path, max_instances=-1, silent_mode=False):
-        return Directory(path).index_photo_directory(max_instances=max_instances, silent_mode=silent_mode)
+    def validate_directory_structure(self, paths):
+        return Directory(paths).index_photo_directory(max_instances=self.max_instances,
+                                                      silent_mode=self.silent_mode)
 
     def analyze_directories(self):
-        self.photo_model_directories.append(self.validate_directory_structure(self.directories,
-                                                                              self.max_instances,
-                                                                              self.silent_mode))
+        self.photo_model_directories.append(
+            self.validate_directory_structure(self.directories))
 
     def directory_filter(self):
         for directory in self.directory_leaves:

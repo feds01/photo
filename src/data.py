@@ -67,7 +67,7 @@ class Table:
         self.data_packets = 0
         self.path_size = path_char_size
         self.table_import_data = {}
-        self.headers = ["ID", "Directory-Path", "crt", "dng", "tif", "jpg"]
+        self.headers = ["ID", "Path", "crt", "dng", "tif", "jpg"]
         self.table = PrettyTable()
         self.size_data = []
         self.border_data = []
@@ -90,7 +90,6 @@ class Table:
                 pass
             else:
                 dict(self.table_import_data).pop(i)
-        return self.table_import_data
 
     def export_table_data(self):
         self.application_root = Config.get_key_value("application_root")
@@ -104,10 +103,9 @@ class Table:
         return specific_data
 
     def make_row_data(self, key):
-        self.row = []
-        self.row.append(key)
+        self.row = [key]
         if self.path_size <= len(list(self.table_import_data[key+1][0])):
-            self.row.append(Utility().shorten_path(self.table_import_data[key][0]))
+            self.row.append(Utility().shorten_path(self.table_import_data[key+1][0]))
         else:
             self.row.append(self.table_import_data[key+1][0])
         for sub_key in range(2, 6):
@@ -133,6 +131,12 @@ class Table:
             self.border_data.append(border_size_by_data_length(get_largest_element(i)))
         for i in self.border_data:
             borders.append(self.border_symbol * int(i))
+        for i in reversed(range(self.path_size - 4)):
+            if get_largest_element(self.get_specific_data_from_import(0)) + i < self.path_size:
+                self.path_size -= i
+                break
+            else:
+                continue
         self.row = [border_size_by_data_length(self.max_rows, True) * self.border_symbol, (self.path_size + 1) * self.border_symbol]
         self.row.extend(borders)
         self.table.add_row(self.row)
@@ -142,7 +146,6 @@ class Table:
         self.import_table_data()
         for i in range(self.data_packets):
             self.all_rows.append(self.make_row_data(i))
-        return self.all_rows
 
     def define_table(self):
         self.table.border = False

@@ -9,7 +9,6 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 class _Config:
     def __init__(self):
         self._raw_data = self.retrieve_config()
-        self.config_raw_data = {}
         self.key_list = []
         self.data = {}
 
