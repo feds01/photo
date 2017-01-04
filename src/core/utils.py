@@ -14,6 +14,7 @@ Description -
 
 """
 
+
 def print_space(n):
     return n * "\n"
 

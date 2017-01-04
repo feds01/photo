@@ -1,4 +1,4 @@
-application_root: "G:\\\\Photo\\\\"
+application_root: "E:\\\\Photo\\\\"
 application_directories:
    dirs:
    - "temp"
@@ -41,6 +41,9 @@ folders:
 blacklist:
     enabled: true
     location: "artifact\\\\blacklist.txt"
+
+thread:
+    instance_multiplier: 2
 
 file_extensions:
    crt:

@@ -5,7 +5,7 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 """
 Module name: blacklist.py
-Usage: blacklist_hook.py, cli.py
+Usage: thread_indexer.py, cli.py
 Description -
 
 This module is used to manage and access the blacklist. The class 'Blacklist' is
@@ -85,11 +85,10 @@ class Blacklist:
 
     def read_blacklist(self):
         self.blacklist = File(file=self.file_location).read(specific="list")
-        return self.blacklist
 
     def get_child_entries(self):
         self.child_list = []
-        self.blacklist = self.read_blacklist()
+        self.read_blacklist()
         for entry in list(self.blacklist):
             if is_child(entry, self.directory):
                 self.child_list.append(entry)
@@ -98,7 +97,7 @@ class Blacklist:
 
     def get_root_entries(self):
         self.root_list = []
-        self.blacklist = self.read_blacklist()
+        self.read_blacklist()
         if os.path.split(self.directory)[1] == "":
             return []
 
@@ -109,12 +108,12 @@ class Blacklist:
                 pass
 
     def check_entry_duplication(self):
-        self.blacklist = self.read_blacklist()
+        self.read_blacklist()
         if self.directory in self.blacklist:
             return True
 
     def check_entry_recursive_duplication(self):
-        self.blacklist = self.read_blacklist()
+        self.read_blacklist()
         for entry in self.blacklist:
             if is_child(entry, self.directory) or is_child(self.directory, entry):
                 return True
@@ -130,8 +129,8 @@ class Blacklist:
     def check_entry_existence(self, entries, inverted=False):
         entries = Utility().list_organiser([entries])
         verify_list = []
-        if self.blacklist is []:
-            self.blacklist = self.read_blacklist()
+        if not self.blacklist:
+            self.read_blacklist()
         for entry in entries:
             if entry in self.blacklist:
                 verify_list.append(entry)
@@ -148,7 +147,7 @@ class Blacklist:
 
     def add_entry(self):
         self.blacklist = []
-        self.blacklist = self.read_blacklist()
+        self.read_blacklist()
         if self.directory in self.blacklist:
             raise BlacklistEntryError("present")
         for entry in self.blacklist:
@@ -162,7 +161,7 @@ class Blacklist:
     def remove_entry(self, roots=False, children=False):
         self.cycle_done = False
         self.bad_entries = []
-        self.blacklist = self.read_blacklist()
+        self.read_blacklist()
         if self.directory not in self.blacklist:
             raise BlacklistEntryError("not-present")
         else:
@@ -181,7 +180,7 @@ class Blacklist:
             self.purge_artifact(), File(self.file_location).write(self.blacklist)
 
     def run_blacklist_check(self):
-        self.blacklist = self.read_blacklist()
+        self.read_blacklist()
         if self.use_filter:
             self.entry_filter_by_volume()
         self.bad_entries = []

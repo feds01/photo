@@ -1,8 +1,8 @@
 #!C:\Python\Python35-32\python.exe
 # import time
 from src.data import Data
-from src.hooks.blacklist_hook import *
-
+from src.core.exceptions import *
+from src.core.utils import Directory, Utility
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -66,7 +66,7 @@ class Index:
     def run_directory(path):
         if Directory(path).index_directory(count=True) < 3:
             pass
-        if Index.validate_directory_structure(path):
+        if Index(path="").validate_directory_structure(paths=path):
             return path
 
     def find_leaves(self):
