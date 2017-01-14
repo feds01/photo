@@ -84,6 +84,8 @@ class ThreadIndex:
         pool.close(), pool.join()
 
     def safe_process_count(self):
+        if self.PROCESS_COUNT == 0:
+            Fatal('process count cannot be 0', True, 'incorrect config magic process number of %s' % 0)
         if type(self.PROCESS_COUNT) != int:
             try:
                 if round(self.PROCESS_COUNT, 0) == self.PROCESS_COUNT:
