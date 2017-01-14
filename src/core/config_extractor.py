@@ -1,6 +1,6 @@
 import yaml
 from src.config_manager import get_config_file_location
-from src.core.exceptions import yaml_error
+from src.core.exceptions import yml_error
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -17,7 +17,7 @@ class _Config:
         try:
             return yaml.load(open(get_config_file_location(), "r"))
         except Exception as exc:
-            yaml_error(exc)
+            yml_error(exc)
 
     def retrieve_data(self, key):
         for data_group_key in self.get_key_value(key):

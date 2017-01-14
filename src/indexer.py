@@ -71,7 +71,7 @@ class Index:
 
     def find_leaves(self):
         for directory in self.directories:
-            if len(Directory.get_branches(directory)) < 3:
+            if len(Directory.get_branches(directory, silent=self.silent_mode)) < 3:
                 self.directory_leaves.append(directory)
         return self.directory_leaves
 
@@ -81,7 +81,7 @@ class Index:
             return self.directories
 
     def run_directory_index(self):
-        if len(Directory.get_branches(self.path)) is 0:
+        if len(Directory.get_branches(self.path, silent=self.silent_mode)) is 0:
             node_error(self.path, self.silent_mode)
 
         if self.use_blacklist:

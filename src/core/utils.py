@@ -305,8 +305,8 @@ class Directory:
             return False
 
     @staticmethod
-    def get_branches(path):
-        path_list = handle_get_content(path)
+    def get_branches(path, silent=False):
+        path_list = handle_get_content(path, silent)
         _validate_content_load(path_list)
         branch_directories = []
         for directory in path_list:

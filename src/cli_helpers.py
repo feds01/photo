@@ -147,7 +147,8 @@ def safe_mode_file_deletion(files):
 
 
 def prepare_files(files):
-    """this function is only used if the method does not go through
-       safe_mode_file_deletion()
+    """
+    this function is only used if the method does not go through
+    safe_mode_file_deletion()
     """
     return sorted(files.values())

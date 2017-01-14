@@ -1,3 +1,4 @@
+import time
 import unittest
 from src.data import Data
 from src.thread_indexer import *
@@ -19,7 +20,7 @@ class IndexWithNormalMethod(unittest.TestCase):
         self.assertEqual(Index(path="E:\\Photo\\").run(pipe=False), ["E:\\Photo\\sandbox"])
 
     def test_index_thread_method(self):
-        self.assertEqual(run("E:\\Photo"), ["E:\\Photo\\sandbox"])
+        self.assertEqual(ThreadIndex("E:\\Photo").run(), ["E:\\Photo\\sandbox"])
 
     def test_index_with_fake_dir(self):
         self.assertRaises(Fatal, lambda: Index(path="F:\\Photo\\").run(pipe=False))

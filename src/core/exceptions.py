@@ -51,6 +51,6 @@ def node_error(silent, directory):
         IndexingError(directory, "leaf")
 
 
-def yaml_error(error):
+def yml_error(error):
     Fatal('While loading Config file something went wrong.\nHere is trace:\n', error)
     exit()
