@@ -10,10 +10,14 @@ Description -
 
 
 class Fatal(Exception):
-    def __init__(self, message, other=''):
+    def __init__(self, message, stop=False, *other):
         print('fatal: %s' % message)
-        print(other)
-        pass
+        self.line = 0
+        for information in other:
+            print([hex(self.line) + ':'][0], information)
+            self.line += 1
+        if stop:
+            exit()
 
 
 class BlacklistEntryError(Exception):
@@ -42,6 +46,10 @@ class ByteOverflow(Exception):
     def __init__(self):
         print("while converting bytes to units, the byte count overflowed 1024**5.")
         pass
+
+
+def config_warning(message):
+    print('config: %s' % message)
 
 
 def node_error(silent, directory):

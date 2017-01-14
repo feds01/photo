@@ -43,7 +43,7 @@ class Index:
         self.path = path
         self.use_blacklist = use_blacklist
         self.max_instances = max_instances
-        self.photo_model_directories = []
+        self.photo_directories = []
         self.directories, self.directory_leaves = [], []
         if self.thread_method and self.use_blacklist:
             self.helpers = args[0]
@@ -55,7 +55,7 @@ class Index:
                                                       silent_mode=self.silent_mode)
 
     def analyze_directories(self):
-        self.photo_model_directories.append(
+        self.photo_directories.append(
             self.validate_directory_structure(self.directories))
 
     def directory_filter(self):
@@ -92,15 +92,16 @@ class Index:
     def run(self, pipe=False):
         # start = time.clock()
         if not Directory(self.path).check_directory():
-            raise Fatal("directory does not exist")
+            # change to True, only for testing purposes
+            raise Fatal("directory does not exist", False, 'directory= %s' % self.path)
         self.run_directory_index()
         self.apply_filter()
         self.analyze_directories()
-        self.photo_model_directories = Utility().list_organiser(self.photo_model_directories)
+        self.photo_directories = Utility().list_organiser(self.photo_directories)
         if pipe:
-            Data(self.photo_model_directories).export_data_on_directories()
+            Data(self.photo_directories).export_data_on_directories()
         else:
             # print(time.clock() - start)
-            return self.photo_model_directories
+            return self.photo_directories
 
-# print(Index(path="C:\\", use_blacklist=True, silent=True).run())
+# print(Index(path="G:\\", use_blacklist=True, silent=True).run())

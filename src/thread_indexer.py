@@ -1,8 +1,8 @@
 # import time
-from numpy import array_split
-from src.indexer import Index
-from src.blacklist import Blacklist
+from src.indexer import *
 from src.core.utils import *
+from numpy import array_split
+from src.blacklist import Blacklist
 from multiprocessing import Pool, freeze_support
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -74,7 +74,8 @@ class ThreadIndex:
     def run_directory_index(self):
         if self.use_blacklist:
             self.artifact_location.update({"artifact-loc": os.path.join(Config.get_key_value("application_root"),
-                                                                        Config.get_specific_data('blacklist', 'location'))})
+                                                                        Config.get_specific_data('blacklist',
+                                                                                                 'location'))})
         self.get_nodes()
         self.form_job_queue()
         pool = Pool(self.PROCESS_COUNT)
@@ -82,14 +83,34 @@ class ThreadIndex:
         self.result = Utility().list_organiser(self.result)
         pool.close(), pool.join()
 
+    def safe_process_count(self):
+        if type(self.PROCESS_COUNT) != int:
+            try:
+                if round(self.PROCESS_COUNT, 0) == self.PROCESS_COUNT:
+                    self.PROCESS_COUNT = int(self.PROCESS_COUNT)
+                    if not self.silent:
+                        config_warning('magic process number was processed as float.')
+                    pass
+                else:
+                    Fatal('process count cannot be float.', True, 'incorrect config magic process number of %s' %
+                          (self.PROCESS_COUNT / os.cpu_count()))
+            except TypeError as error:
+                Fatal('process count cannot be float.', True, 'incorrect config magic process number of %s' %
+                      self.PROCESS_COUNT, 'incorrect type: %s' % type(self.PROCESS_COUNT), '%s' % error)
+
     def run(self, pipe=False):
+        if not Directory(self.path).check_directory():
+            raise Fatal("directory does not exist", False, 'directory=%s' % self.path)
+        self.safe_process_count()
         self.run_directory_index()
         self.run_apply_filter()
         self.photo_directories.append(self.validate_directory_structure(self.result))
+        self.photo_directories = Utility().list_organiser(self.photo_directories)
         if pipe:
-            pass
+            Data(self.photo_directories).export_data_on_directories()
         else:
-            return Utility().list_organiser(self.photo_directories)
+            return self.photo_directories
+
 
 if __name__ == '__main__':
     freeze_support()
