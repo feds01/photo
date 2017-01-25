@@ -3,6 +3,7 @@ from src.indexer import *
 from src.core.utils import *
 from numpy import array_split
 from src.blacklist import Blacklist
+from src.core.utils import handle_get_content
 from multiprocessing import Pool, freeze_support
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -35,6 +36,15 @@ class ThreadIndex:
         if self.use_blacklist:
             self.nodes = Blacklist(helpers=self.artifact_location).check_entry_existence(self.nodes)
         self.photo_directories.append(self.validate_directory_structure(paths=self.nodes))
+        self._node_permission_filter()
+
+    def _node_permission_filter(self):
+        for node in self.nodes:
+            # background check, user doesn't need to know second time
+            if handle_get_content(node, silent_mode=True) == '':
+                self.nodes.remove(node)
+            else:
+                pass
 
     def form_job_queue(self):
         self.JOB_QUEUE = []
@@ -84,8 +94,10 @@ class ThreadIndex:
         pool.close(), pool.join()
 
     def safe_process_count(self):
-        if self.PROCESS_COUNT == 0:
-            Fatal('process count cannot be 0', True, 'incorrect config magic process number of %s' % 0)
+        if self.PROCESS_COUNT <= 0:
+            Fatal('process count cannot be %s' % self.PROCESS_COUNT, True,
+                  'incorrect config magic process number of %s' % self.PROCESS_COUNT,
+                  'instance_multiplier=%s' % (self.PROCESS_COUNT / os.cpu_count()))
         if type(self.PROCESS_COUNT) != int:
             try:
                 if round(self.PROCESS_COUNT, 0) == self.PROCESS_COUNT:
@@ -99,6 +111,11 @@ class ThreadIndex:
             except TypeError as error:
                 Fatal('process count cannot be float.', True, 'incorrect config magic process number of %s' %
                       self.PROCESS_COUNT, 'incorrect type: %s' % type(self.PROCESS_COUNT), '%s' % error)
+        if self.PROCESS_COUNT > 32:
+            if not self.silent:
+                config_warning('magic process number extremely large.')
+            else:
+                pass
 
     def run(self, pipe=False):
         if not Directory(self.path).check_directory():
