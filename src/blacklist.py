@@ -9,17 +9,15 @@ Usage: thread_indexer.py, cli.py
 Description -
 
 This module is used to manage and access the blacklist. The class 'Blacklist' is
-used for checking and filtering the directory indexing results of indexer.py. If
-any of the results are children of an entry in the blacklist or are any entry in
-the blacklist, they are filtered out by blacklist_hook.py. The filtering of blacklist
-entries is also available for performance. The function "entry_filter_by_volume()"
-will filter any entries which do not have the same volume label as the index results.
-Also the entered directory to be scanned is also checked through the blacklist. The
-class also contains functions which are periodically run by 'blacklist_hook.py' to keep
-the blacklist clean. Remove child entries or root entries or duplicate entries are performed
-by the function 'redundancy_check()'. This module also contains the function 'is_child()'
-which returns if an a given directory is a child directory of another given directory.
-The function also has support for symbolic links.
+used for checking and filtering the directory indexing results of indexer.py and
+thread_indexer.py. The filtering of blacklist entries is available for performance.
+Functions such as check_entry_existence() and check_child_entry() are used to verify
+that if a given directory is or is under the blacklist. The modification of the blacklist
+can also be done here. The function add_entry() will add an entry to the blacklist, the
+function remove_entry() will remove an entry from a blacklist. Also the entered directory
+to be scanned is also checked through the blacklist. This module also contains the function
+'is_child()' which returns if an a given directory  is a child directory of another given
+directory. The function also has support for symbolic links.
 
 is_child():
 :argument child     (the expected child directory)                                       [default= ""   (necessary)]
@@ -32,16 +30,13 @@ Note: Linux and Windows filesystems work
 :returns directory= "/home/docs/html/" child="/home/docs/",            is_child(child, directory) -> False
 
 
-Blacklist():
-:exception if :arg directory is a child of a blacklist entry or another blacklist entry
+_Blacklist():
+:exception if :arg, entry is a child of a blacklist entry or another blacklist entry
 :raises BlacklistEntryError
 
-:exception if :arg directory is not present and is trying to be removed.
+:exception if :arg, entry is not present and is trying to be removed.
 :raises BlacklistEntryError
 
-:argument dirs       (a list of directories to run through run_blacklist_check())        [default= []            ]
-:argument directory  (check, remove or add an entry to the blacklist)                    [default= "" (necessary)]
-:argument use_filter (uses entry_filter_by_volume() to filter  blacklist entries)        [default= False         ]
 
 :returns blacklist= ["C:\\Users"]
          results=   ["C:\\Users\\Default", "C:\\photos\\projects"]
@@ -50,10 +45,10 @@ Blacklist():
                need to be removed.
 
 :returns blacklist= ["C:\\Users"]
-         Blacklist(directory="C:\\Windows").add_entry() -> blacklist= ["C:\\Users", "C:\\Windows"]
+         Blacklist.add_entry("C:\\Windows") -> blacklist= ["C:\\Users", "C:\\Windows"]
 
 :returns blacklist= ["C:\\Users\\Default", "C:\\photos\\projects"]
-         Blacklist(directory="C:\\photos\\projects").remove_entry() -> blacklist= ["C:\\Users\\Default"]
+         Blacklist.remove_entry("C:\\photos\\projects") -> blacklist= ["C:\\Users\\Default"]
 """
 
 
@@ -65,72 +60,35 @@ def is_child(child, directory, symlinks=False):
     return os.path.commonprefix([child, directory]) == directory
 
 
-class Blacklist:
-    def __init__(self, *dirs, directory="", use_filter=False, helpers=''):
-        self.helpers = dict(helpers)
-        self.dirs = list(*dirs)
-        self.use_filter = use_filter
-        self.directory = directory
-        self.disk = ""
-        self.new_blacklist = []
+class _Blacklist:
+    _REMOVE = 0x00
+    _INSERT = 0x01
+    _PURGE = 0x02
+
+    def __init__(self):
         self.blacklist = []
         self.bad_entries = []
-        self.child_list, self.root_list = [], []
-        self.cycle_done = False
-
-        if "artifact-loc" in list(self.helpers):
-            self.file_location = self.helpers.get("artifact-loc")
-        else:
-            self.file_location = Directory(__file__).get_artifact_file_location(filename="blacklist.txt")
+        self.file_location = os.path.join(Config.get_key_value('application_root'), Config.get_specific_data('blacklist', 'location'))
+        self.read_blacklist()
 
     def read_blacklist(self):
         self.blacklist = File(file=self.file_location).read(specific="list")
 
-    def get_child_entries(self):
-        self.child_list = []
-        self.read_blacklist()
-        for entry in list(self.blacklist):
-            if is_child(entry, self.directory):
-                self.child_list.append(entry)
-            else:
-                pass
+    def update_blacklist(self, instruction, *array):
+        array = Utility().list_organiser([array])
+        if instruction == self._INSERT:
+            self.blacklist.extend(array)
+        elif instruction == self._REMOVE:
+            for entry in array:
+                self.blacklist.remove(entry)
+        elif instruction == self._PURGE:
+            self.blacklist = []
 
-    def get_root_entries(self):
-        self.root_list = []
-        self.read_blacklist()
-        if os.path.split(self.directory)[1] == "":
-            return []
-
-        for entry in list(self.blacklist):
-            if is_child(self.directory, entry):
-                self.root_list.append(entry)
-            else:
-                pass
-
-    def check_entry_duplication(self):
-        self.read_blacklist()
-        if self.directory in self.blacklist:
-            return True
-
-    def check_entry_recursive_duplication(self):
-        self.read_blacklist()
-        for entry in self.blacklist:
-            if is_child(entry, self.directory) or is_child(self.directory, entry):
-                return True
-            else:
-                pass
-
-    def redundancy_check(self):
-        if self.check_entry_duplication() or self.check_entry_recursive_duplication():
-            self.remove_entry(roots=True, children=True)
-        else:
-            pass
+        File(self.file_location).write(self.blacklist)
 
     def check_entry_existence(self, entries, inverted=False):
         entries = Utility().list_organiser([entries])
         verify_list = []
-        if not self.blacklist:
-            self.read_blacklist()
         for entry in entries:
             if entry in self.blacklist:
                 verify_list.append(entry)
@@ -142,78 +100,47 @@ class Blacklist:
                 entries.remove(entry)
             return entries
         else:
-            # entries which did are in blacklist
+            # entries which are flagged as being in the blacklist
             return verify_list
 
-    def add_entry(self):
-        self.blacklist = []
-        self.read_blacklist()
-        if self.directory in self.blacklist:
-            raise BlacklistEntryError("present")
-        for entry in self.blacklist:
-            if is_child(self.directory, entry):
-                raise BlacklistEntryError("present")
-
-        self.blacklist.append(self.directory)
-        self.new_blacklist = self.blacklist
-        File(self.file_location).write(self.new_blacklist)
-
-    def remove_entry(self, roots=False, children=False):
-        self.cycle_done = False
-        self.bad_entries = []
-        self.read_blacklist()
-        if self.directory not in self.blacklist:
-            raise BlacklistEntryError("not-present")
-        else:
-            if roots and children:
-                self.cycle_done = True
-                self.get_child_entries(), self.get_root_entries()
-            if roots and not self.cycle_done:
-                self.get_root_entries()
-            if children and not self.cycle_done:
-                self.get_child_entries()
-            if self.directory in self.blacklist:
-                self.blacklist.remove(self.directory)
-            self.bad_entries = Utility().join_lists(self.child_list, self.root_list)
-            for entry in self.bad_entries:
-                self.blacklist.remove(entry)
-            self.purge_artifact(), File(self.file_location).write(self.blacklist)
-
-    def run_blacklist_check(self):
-        self.read_blacklist()
-        if self.use_filter:
-            self.entry_filter_by_volume()
-        self.bad_entries = []
-        for directory in self.dirs:
-            if len(self.check_entry_existence(directory, inverted=True)) > 0:
-                self.bad_entries.append(directory)
-                if self.helpers == {}:
-                    self.bad_entries.append(Directory(directory).index_directory())
-                    continue
-                else:
-                    if directory in list(dict(self.helpers).keys()):  # the more big job instances the faster
-                        self.bad_entries.append(dict(self.helpers).get(directory))
-                        self.bad_entries = Utility().list_organiser(self.bad_entries)
-                        continue
+    def check_child_entry(self, entries, inverted=False):
+        entries = Utility().list_organiser([entries])
+        verify_list = []
+        for item in self.blacklist:
+            for entry in entries:
+                if inverted:
+                    if is_child(item, entry):
+                        verify_list.append(item)
                     else:
-                        self.bad_entries.append(Directory(directory).index_directory())
-            else:
-                pass
-        return self.bad_entries
+                        continue
+                if not inverted:
+                    if is_child(entry, item):
+                        verify_list.append(item)
+                    else:
+                        continue
+        return verify_list
 
-    def purge_artifact(self):
-        File(self.file_location).remove(), File(self.file_location).create()
-
-    def entry_filter_by_volume(self):
-        self.disk = os.path.splitdrive(self.directory)
-        for entry in self.blacklist:
-            if os.path.splitdrive(entry) != self.disk:
-                self.blacklist.remove(entry)
-            else:
-                pass
-
-    def multi_volume_scan(self):
-        if self.directory == "*":
-            return True
+    def add_entry(self, entry):
+        if entry in self.blacklist:
+            raise BlacklistEntryError('present')
+        if len(self.check_child_entry(entry)) > 0:
+                raise BlacklistEntryError('present')
         else:
-            return False
+            self.update_blacklist(self._INSERT, entry)
+
+    def remove_entry(self, entry, by_child=False):
+        if entry not in self.blacklist and not by_child:
+            return BlacklistEntryError('not-present')
+        if entry in self.blacklist:
+            self.bad_entries.append(entry)
+        else:
+            for item in self.blacklist:
+                if is_child(item, entry):
+                    self.bad_entries.append(item)
+                else:
+                    pass
+
+        self.update_blacklist(self._REMOVE, self.bad_entries)
+
+Blacklist = _Blacklist()
+del _Blacklist

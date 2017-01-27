@@ -2,6 +2,7 @@
 # import time
 from src.data import Data
 from src.core.exceptions import *
+from src.hooks.blacklist_query import *
 from src.core.utils import Directory, Utility
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -37,7 +38,7 @@ Index():
 
 
 class Index:
-    def __init__(self, *args, path, thread_method=False, silent=False, use_blacklist=False, max_instances=-1):
+    def __init__(self, path, thread_method=False, silent=False, use_blacklist=False, max_instances=-1):
         self.silent_mode = silent
         self.thread_method = thread_method
         self.path = path
@@ -45,10 +46,6 @@ class Index:
         self.max_instances = max_instances
         self.photo_directories = []
         self.directories, self.directory_leaves = [], []
-        if self.thread_method and self.use_blacklist:
-            self.helpers = args[0]
-        else:
-            self.helpers = {}
 
     def validate_directory_structure(self, paths):
         return Directory(paths).index_photo_directory(max_instances=self.max_instances,
@@ -85,7 +82,7 @@ class Index:
             node_error(self.path, self.silent_mode)
 
         if self.use_blacklist:
-            self.directories = Directory(self.path).index_with_blacklist(self.helpers)
+            self.directories = Directory(self.path).index_with_blacklist()
         else:
             self.directories = Directory(self.path).index_directory()
 
@@ -94,6 +91,8 @@ class Index:
         if not Directory(self.path).check_directory():
             # change to True, only for testing purposes
             raise Fatal("directory does not exist", False, 'directory= %s' % self.path)
+        if run_blacklist_check(self.path):
+            raise Fatal("directory is blacklisted.", False, 'directory=%s' % self.path)
         self.run_directory_index()
         self.apply_filter()
         self.analyze_directories()

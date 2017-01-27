@@ -207,13 +207,11 @@ class Directory:
             else:
                 return self.directory_list
 
-    def index_with_blacklist(self, helpers):
+    def index_with_blacklist(self):
         # a smarter method to filter with blacklists, modifies what
         # os.walk visits by removing from dirs necessary entries
-        if helpers:
-            artifact_location = dict(helpers).get('artifact-loc')
-        else:
-            artifact_location = os.path.join(Config.get_key_value('application_root'),
+
+        artifact_location = os.path.join(Config.get_key_value('application_root'),
                                              Config.get_specific_data('blacklist', 'location'))
 
         self.drive_letter = self.get_directory_drive(self.directory_object)

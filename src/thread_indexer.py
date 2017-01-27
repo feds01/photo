@@ -1,9 +1,9 @@
 from src.indexer import *
 from src.core.utils import *
 from numpy import array_split
-from src.blacklist import Blacklist
-from src.core.utils import handle_get_content
 from multiprocessing import Pool
+from src.hooks.blacklist_query import *
+from src.core.utils import handle_get_content
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -25,7 +25,6 @@ class ThreadIndex:
         self.nodes = []
         self.chunks = []
         self.photo_directories = []
-        self.artifact_location = {}
         self.path = path
         self.use_blacklist = use_blacklist
         self.silent = silent
@@ -34,7 +33,7 @@ class ThreadIndex:
     def get_nodes(self):
         self.nodes = Directory.get_branches(self.path, silent=self.silent)
         if self.use_blacklist:
-            self.nodes = Blacklist(helpers=self.artifact_location).check_entry_existence(self.nodes)
+            self.nodes = Blacklist.check_entry_existence(self.nodes)
         self.photo_directories.append(self.validate_directory_structure(paths=self.nodes))
         self._node_permission_filter()
 
@@ -64,7 +63,7 @@ class ThreadIndex:
             self.JOB_QUEUE.append(list(block))
 
     def index_node(self, node):  # This is a target function!
-        instance = Index(self.artifact_location, path=node, thread_method=True, silent=self.silent, use_blacklist=self.use_blacklist)
+        instance = Index(path=node, thread_method=True, silent=self.silent, use_blacklist=self.use_blacklist)
         instance.run_directory_index()
         return instance.directories
 
@@ -90,10 +89,6 @@ class ThreadIndex:
 
     def run_directory_index(self):
         global pool
-        if self.use_blacklist:
-            self.artifact_location.update({"artifact-loc": os.path.join(Config.get_key_value("application_root"),
-                                                                        Config.get_specific_data('blacklist',
-                                                                                                 'location'))})
         self.get_nodes()
         self.form_job_queue()
         self.result = pool.map(self.index_node, self.JOB_QUEUE)
@@ -127,6 +122,8 @@ class ThreadIndex:
     def run(self, pipe=False):
         if not Directory(self.path).check_directory():
             raise Fatal("directory does not exist", False, 'directory=%s' % self.path)
+        if run_blacklist_check(self.path):
+            raise Fatal("directory is blacklisted.", False, 'directory=%s' % self.path)
         self.safe_process_count()
         self.photo_directories.append(self.validate_directory_structure(self.result))
         self.photo_directories = Utility().list_organiser(self.photo_directories)
