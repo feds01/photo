@@ -3,7 +3,7 @@ from src.core.utils import *
 from numpy import array_split
 from src.blacklist import Blacklist
 from src.core.utils import handle_get_content
-from multiprocessing import Pool, freeze_support
+from multiprocessing import Pool
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -46,7 +46,7 @@ class ThreadIndex:
             else:
                 pass
 
-    def start_process_pool(self):
+    def launch_process_pool(self):
         global pool
         with Pool(self.PROCESS_COUNT) as pool:
             self.run_directory_index()
@@ -109,9 +109,7 @@ class ThreadIndex:
                 if round(self.PROCESS_COUNT, 0) == self.PROCESS_COUNT:
                     self.PROCESS_COUNT = int(self.PROCESS_COUNT)
                     if not self.silent:
-                        config_warning('magic process number was processed as float.')
-                    pass
-                    self.start_process_pool()
+                        config_warning('magic process instance multiplier number was processed as float.')
                 else:
                     Fatal('process count cannot be float.', True, 'incorrect config magic process number of %s' %
                           (self.PROCESS_COUNT / os.cpu_count()))
@@ -120,11 +118,11 @@ class ThreadIndex:
                       self.PROCESS_COUNT, 'incorrect type: %s' % type(self.PROCESS_COUNT), '%s' % error)
         if self.PROCESS_COUNT > 32:
             if not self.silent:
-                config_warning('magic process number extremely large.')
+                config_warning('magic process number is extremely large.')
             else:
                 pass
         else:
-            self.start_process_pool()
+            self.launch_process_pool()
 
     def run(self, pipe=False):
         if not Directory(self.path).check_directory():
