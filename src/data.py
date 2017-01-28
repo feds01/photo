@@ -26,8 +26,7 @@ class Data:
         self.extension_keys = []
 
     def fetch_data_destination_path(self):
-        self.destination_file = Config.get_specific_data("application_directories", "size_data")
-        self.destination_file = os.path.join(Config.get_key_value("application_root"), self.destination_file)
+        self.destination_file = Config.join_specific_data('application_root', 'application_directories', 'size_data')
         return self.destination_file
 
     def create_data_on_directory(self, given_path):
@@ -92,8 +91,7 @@ class Table:
                 dict(self.table_import_data).pop(i)
 
     def export_table_data(self):
-        self.application_root = Config.get_key_value("application_root")
-        self.destination_file = os.path.join(self.application_root, (Config.get_specific_data("application_directories", "table_data")))
+        self.destination_file = Config.join_specific_data('application_root', 'application_directories', 'table_data')
         File(self.destination_file).write(self.all_rows)
 
     def get_specific_data_from_import(self, sub_key):
@@ -127,7 +125,7 @@ class Table:
     def make_border(self):
         borders = []
         for i in range(2, 6):
-            i = int_list_to_str(self.get_specific_data_from_import(i))
+            i = convert_list(self.get_specific_data_from_import(i))
             self.border_data.append(border_size_by_data_length(get_largest_element(i)))
         for i in self.border_data:
             borders.append(self.border_symbol * int(i))

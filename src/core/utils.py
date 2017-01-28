@@ -28,7 +28,7 @@ def find_element(_list, case):
                 if case in element or case is element:
                     return int(_list.index(element))
                 else:
-                    pass
+                    continue
 
 
 def extension_swapper(file, ext, remove_dot=False):
@@ -43,10 +43,11 @@ def border_size_by_data_length(data, use_str=False):
             return len(str(data)) + 2
         if data >= 4:
             return data + 1
-        else: return 4
+        else:
+            return 4
 
 
-def int_list_to_str(int_list):
+def convert_list(int_list):
         str_list = []
         for i in int_list:
             str_list.append(str(i))
@@ -211,8 +212,7 @@ class Directory:
         # a smarter method to filter with blacklists, modifies what
         # os.walk visits by removing from dirs necessary entries
 
-        artifact_location = os.path.join(Config.get_key_value('application_root'),
-                                             Config.get_specific_data('blacklist', 'location'))
+        artifact_location = Config.join_specific_data('application_root', 'blacklist', 'location')
 
         self.drive_letter = self.get_directory_drive(self.directory_object)
         self.directory_list = File(artifact_location).read(specific='list')

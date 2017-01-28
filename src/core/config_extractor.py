@@ -22,7 +22,6 @@ class _Config:
     def retrieve_data(self, key):
         for data_group_key in self.get_key_value(key):
             self.data.update({data_group_key: self.get_key_value(key)[data_group_key]})
-        return self.data
 
     def get_specific_data(self, key, specific):
         self.retrieve_data(key)
@@ -33,6 +32,9 @@ class _Config:
 
     def get_specific_keys(self, key):
         return list(self._raw_data.get(key).keys())
+
+    def join_specific_data(self, key1, key2, key_subset):
+        return self.get_key_value(key1) + self.get_specific_data(key2, key_subset)
 
 
 Config = _Config()
