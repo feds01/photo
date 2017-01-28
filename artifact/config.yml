@@ -43,7 +43,7 @@ blacklist:
     location: "artifact\\\\blacklist.txt"
 
 thread:
-    instance_multiplier: 2
+    instance_multiplier: 1
 
 file_extensions:
    crt:

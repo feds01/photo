@@ -109,11 +109,13 @@ class _Blacklist:
         for item in self.blacklist:
             for entry in entries:
                 if inverted:
+                    # is a blacklist entry a child of a given directory
                     if is_child(item, entry):
                         verify_list.append(item)
                     else:
                         continue
                 if not inverted:
+                    # is a given directory a child of a blacklist entry
                     if is_child(entry, item):
                         verify_list.append(item)
                     else:

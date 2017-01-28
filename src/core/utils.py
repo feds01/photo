@@ -25,7 +25,7 @@ def get_largest_element(_list):
 
 def find_element(_list, case):
         for element in _list:
-                if case in element or case is element:
+                if case in element or case == element:
                     return int(_list.index(element))
                 else:
                     continue
@@ -59,10 +59,7 @@ def get_command_path():
 
 
 def get_directory_separator():
-        if os.pathsep == ";":
-            return "\\"
-        else:
-            return "/"
+        return os.sep
 
 
 def handle_get_content(path, silent_mode=False):
