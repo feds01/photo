@@ -76,7 +76,6 @@ class Delete:
         self.silent = silent
         self.delete_list = delete
         self.total_size = 0
-        self.file_size = 0
         self.saved_space = ""
         self.file_path = ""
         self.file_info = ""
@@ -87,15 +86,15 @@ class Delete:
             self.total_size += Directory(file).get_file_size()
 
     def delete_file(self):
-        self.file_size = Directory(self.file_path).get_file_size()
+        file_size = Directory(self.file_path).get_file_size()
         if not self.silent:
-            self.file_info = Directory(self.file_size).get_appropriate_units()
+            self.file_info = Directory(file_size).get_appropriate_units()
             print("deleting: " + self.file_name, "size:", str(self.file_info[0]) + self.file_info[1])
         try:
             os.remove(self.file_path)
         except Exception as e:
             Fatal("could not remove file %s" % self.file_path, False, 'error=%s' % e)
-            self.total_size -= self.file_size
+            self.total_size -= file_size
 
     def deletion_manager(self):
         self.calculate()
