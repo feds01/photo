@@ -72,8 +72,8 @@ class Analyse:
 
 
 class Delete:
-    def __init__(self, delete, quite=False):
-        self.quite = quite
+    def __init__(self, delete, silent=False):
+        self.silent = silent
         self.delete_list = delete
         self.total_size = 0
         self.file_size = 0
@@ -88,13 +88,14 @@ class Delete:
 
     def delete_file(self):
         self.file_size = Directory(self.file_path).get_file_size()
-        if not self.quite:
+        if not self.silent:
             self.file_info = Directory(self.file_size).get_appropriate_units()
             print("deleting: " + self.file_name, "size:", str(self.file_info[0]) + self.file_info[1])
         try:
             os.remove(self.file_path)
         except Exception as e:
-            print("could not remove file: ", str(e))
+            Fatal("could not remove file %s" % self.file_path, False, 'error=%s' % e)
+            self.total_size -= self.file_size
 
     def deletion_manager(self):
         self.calculate()
@@ -103,5 +104,5 @@ class Delete:
             self.file_name = os.path.basename(self.file_path)
             self.delete_file()
         self.total_size = Directory(self.total_size).get_appropriate_units()
-        self.saved_space = str(self.total_size[0]) + self.total_size[1]
-        return "saved:", self.saved_space, "of print_space with operation."
+        self.saved_space = '%s%s' % (self.total_size[0], self.total_size[1])
+        return "saved: %s of disk space with operation." % self.saved_space

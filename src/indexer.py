@@ -1,9 +1,8 @@
 #!C:\Python\Python35-32\python.exe
 # import time
 from src.data import Data
-from src.core.exceptions import *
+from src.core.utils import *
 from src.hooks.blacklist_query import *
-from src.core.utils import Directory, Utility
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -93,10 +92,11 @@ class Index:
             raise Fatal("directory does not exist", False, 'directory= %s' % self.path)
         if run_blacklist_check(self.path, child=True):
             raise Fatal("directory is blacklisted.", False, 'directory=%s' % self.path)
-        self.run_directory_index()
-        self.apply_filter()
-        self.analyze_directories()
-        self.photo_directories = Utility().list_organiser(self.photo_directories)
+        else:
+            self.run_directory_index()
+            self.apply_filter()
+            self.analyze_directories()
+            self.photo_directories = Utility().list_organiser(self.photo_directories)
         if pipe:
             Data(self.photo_directories).export_data_on_directories()
         else:

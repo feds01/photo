@@ -14,6 +14,8 @@ Description -
 
 """
 
+file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
+
 
 def print_space(n):
     return n * "\n"
@@ -171,22 +173,21 @@ class Utility:
 
 class Directory:
     def __init__(self, item):
-        self.directory_object = item
+        self.directory = item
         self.byte_exponent_count = 1024
         self.directory_size = 0
-        self.byte_size = self.directory_object
+        self.byte_size = self.directory
         self.directory_list = []
         self.file_extension_list = []
         self.directories = []
-        self.file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
+        self.file_sizes = {0: " bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
         self.drive_letter = ""
-        self.directory = ""
         self.path = ""
 
     def index_directory(self, count=False, file=False):
             directory_count, file_count = 0, 0
             file_list = []
-            for directory, directories, files in os.walk(self.directory_object):
+            for directory, directories, files in os.walk(self.directory):
                 for sub_directory in directories:
                     directory_count += 1
                     self.directory_list.append(os.path.join(directory, sub_directory))
@@ -211,28 +212,34 @@ class Directory:
 
         artifact_location = Config.join_specific_data('application_root', 'blacklist', 'location')
 
-        self.drive_letter = self.get_directory_drive(self.directory_object)
-        self.directory_list = File(artifact_location).read(specific='list')
-
-        for entry in self.directory_list:
+        self.drive_letter = self.get_directory_drive(self.directory)
+        blacklist = File(artifact_location).read(specific='list')
+        for entry in blacklist:
             if self.get_directory_drive(entry) != self.drive_letter:
-                self.directory_list.remove(entry)
+                blacklist.remove(entry)
             else:
                 continue
-        if self.directory_object in self.directory_list:
-            return []
-        for root, dirs, files in os.walk(self.directory_object, topdown=True):
+        for root, dirs, files in os.walk(self.directory, topdown=True):
             del files
-            if len(self.directory_list) is 0:
-                pass
-            else:
+            print(root)
+            if blacklist is []:
                 for directory in dirs:
-                    if os.path.join(root, directory) in self.directory_list:
-                        self.directory_list.remove(os.path.join(root, directory))
-                        dirs.remove(directory)
+                    self.directories.append(os.path.join(directory))
+            else:
+                remove = []
+                for directory in dirs:
+                    directory = os.path.join(root, directory)
+                    if directory in blacklist:
+                        blacklist.remove(directory)
+                        remove.append(os.path.split(directory)[1])
+                    else:
+                        self.directories.append(directory)
                         continue
-            for directory in dirs:
-                self.directories.append(os.path.join(root, directory))
+                if len(remove) > 0:
+                    for removable in remove:
+                        dirs.remove(removable)
+                else:
+                    continue
         return self.directories
 
     def find_specific_file(self, extension, files, case_sensitive=True):
@@ -254,7 +261,7 @@ class Directory:
     def index_photo_directory(self, return_folders=False, silent_mode=False, max_instances=-1):
         folder_keys = Config.get_specific_keys("folders")
         all_keys = []
-        self.directory_object = Utility().list_organiser([self.directory_object])
+        self.directory = Utility().list_organiser([self.directory])
         self.directories = []
         for basename_key in folder_keys:
             all_keys.append(Config.get_specific_data("folders", basename_key))
@@ -271,13 +278,13 @@ class Directory:
                         pass
             return directories
         if return_folders:
-            return method(self.directory_object[0])
-        if len(self.directory_object) == 1:
-            result = method(self.directory_object[0])
+            return method(self.directory[0])
+        if len(self.directory) == 1:
+            result = method(self.directory[0])
             if len(result) == 3:
-                return self.directory_object[0]
+                return self.directory[0]
         else:
-            for directory in self.directory_object:
+            for directory in self.directory:
                 result = method(directory)
                 if len(self.directories) == max_instances:
                     return self.directories
@@ -288,16 +295,10 @@ class Directory:
             return self.directories
 
     def check_directory(self):
-        if os.path.exists(self.directory_object):
-            return True
-        else:
-            return False
+        return os.path.exists(self.directory)
 
     def check_file(self):
-        if os.path.isfile(self.directory_object):
-            return True
-        else:
-            return False
+        return os.path.isfile(self.directory)
 
     @staticmethod
     def get_branches(path, silent=False):
@@ -313,25 +314,23 @@ class Directory:
 
     @staticmethod
     def get_directory_drive(path):
-        return os.path.splitdrive(path)[0][0]
+        return os.path.splitdrive(path)[0]
 
     def get_parent_directory(self):
-        self.path = os.path.split(self.directory_object)[0]
-        return self.path
+        return os.path.split(self.directory)[0]
 
     def get_directory_size(self, unit=1):
-        if not Directory(self.directory_object).check_directory():
+        if not self.check_directory():
             return 0
-        for directory, directories, files in os.walk(self.directory_object):
-            for file in files:
-                self.path = os.path.join(directory, file)
-                self.directory_size += os.path.getsize(self.path)
+        self.directory = self.index_directory(file=True)
+        for file in self.directory:
+            self.directory_size += os.path.getsize(file)
         return self.directory_size / unit
 
     def get_appropriate_units(self):
-        if self.directory_object == 0:
-            return [self.directory_object, "bytes", 1]
-        if self.directory_object/1024**5 > 1:
+        if self.directory == 0:
+            return [self.directory, "bytes", 1]
+        if self.directory/1024**5 > 1:
             raise ByteOverflow
         else:
             for i in range(5):
@@ -339,15 +338,15 @@ class Directory:
                     self.byte_size /= self.byte_exponent_count
                     continue
                 if self.byte_size / self.byte_exponent_count < 1 and i == 0:
-                    return [self.directory_object, self.file_sizes[0], 1]
+                    return [self.directory, file_sizes[0], 1]
                 if self.byte_size / self.byte_exponent_count < 1:
-                    return [round(self.directory_object / self.byte_exponent_count ** i, 2), self.file_sizes[i], self.byte_exponent_count ** i]
+                    return [round(self.directory / self.byte_exponent_count ** i, 2), file_sizes[i], self.byte_exponent_count ** i]
 
     def get_file_size(self, unit=1):
-        return os.path.getsize(self.directory_object) / unit
+        return os.path.getsize(self.directory) / unit
 
     def get_artifact_file_location(self, filename):
-        self.directory = Directory(self.directory_object).get_parent_directory()
+        self.directory = self.get_parent_directory()
         if self.directory.endswith("src"):
             self.directories = Directory(os.path.split(self.directory)[0]).index_directory(file=True)
         else:
