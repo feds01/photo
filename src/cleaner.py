@@ -17,9 +17,6 @@ class Analyse:
         self.directories = {}
         self.report = {}
         self.files = []
-        self.all_files = []
-        self.good_files = []
-        self.crt_extensions = Config.get_specific_data("file_extensions", "crt")
         self.organise_nodes()
 
     def organise_nodes(self):
@@ -34,25 +31,24 @@ class Analyse:
                     self.directories.update({'good': directories.get(key)})
 
     def find_files(self):
-        self.all_files = Directory(self.directories.get('all')).index_directory(file=True)
-        self.good_files = Directory(self.directories.get('good')).index_directory(file=True)
-        for file in self.all_files:
-            if file not in self.good_files:
+        all_files = Directory(self.directories.get('all')).index_directory(file=True)
+        good_files = Directory(self.directories.get('good')).index_directory(file=True)
+        for file in all_files:
+            if file not in good_files:
                 self.files.append(file)
             else:
                 pass
 
     def find_crt_files(self):
         crt_files = Directory(self.directories.get('crt')).index_directory(file=True)
+        crt_extensions = Config.get_specific_data("file_extensions", "crt")
         for file in self.files:
             crt_version = []
-            for extension in self.crt_extensions:
+            for extension in crt_extensions:
                 crt_version.append(extension_swapper(self.path_converter(file), extension, remove_dot=True))
-            for version in crt_version:
-                if version in crt_files:
-                    self.report.update({file: version})
-                else:
-                    continue
+            for crt_file in crt_version:
+                if crt_file in crt_files:
+                    self.report.update({file: crt_file})
 
     def path_converter(self, path):
             return os.path.join(self.directories.get('crt'), os.path.basename(path))
@@ -68,32 +64,27 @@ class Delete:
         self.silent = silent
         self.delete_list = delete
         self.total_size = 0
-        self.saved_space = ""
         self.file_path = ""
-        self.file_info = ""
-        self.file_name = ""
 
-    def calculate(self):
+    def calculate_size(self):
         for file in self.delete_list:
             self.total_size += Directory(file).get_file_size()
 
     def delete_file(self):
         file_size = Directory(self.file_path).get_file_size()
         if not self.silent:
-            self.file_info = Directory(file_size).get_appropriate_units()
-            print("deleting: " + self.file_name, "size:", str(self.file_info[0]) + self.file_info[1])
+            file_info = Directory(file_size).get_appropriate_units()
+            print(f"deleting: {os.path.basename(self.file_path)} size: {file_info[0] + file_info[1]}")
         try:
             os.remove(self.file_path)
         except Exception as e:
-            Fatal("could not remove file %s" % self.file_path, False, 'error=%s' % e)
+            Fatal(f"could not remove file {self.file_path}", False, 'error=%s' % e)
             self.total_size -= file_size
 
     def deletion_manager(self):
-        self.calculate()
+        self.calculate_size()
         for file in self.delete_list:
             self.file_path = file
-            self.file_name = os.path.basename(self.file_path)
             self.delete_file()
         self.total_size = Directory(self.total_size).get_appropriate_units()
-        self.saved_space = '%s%s' % (self.total_size[0], self.total_size[1])
-        return "saved: %s of disk space with operation." % self.saved_space
+        return f"saved: {self.total_size[0]}{self.total_size[1]} of disk space with operation."
