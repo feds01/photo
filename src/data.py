@@ -48,7 +48,7 @@ class Data:
                         self.counter_data.append(self.analysis_path.find_specific_file(extension, self.file_list, case_sensitive=False))
             for specific_files_list in self.counter_data:
                 self.directory_data.append(len(specific_files_list))
-        self.directory_data.insert(1, sorted(self.analysis_path.index_photo_directory(return_folders=True)))
+        self.directory_data.insert(1, sorted(self.analysis_path.index_photo_directory(return_folders=True).values()))
         self.directory_data.append(Directory(Directory(given_path).get_directory_size()).get_appropriate_units())
         return self.directory_data
 

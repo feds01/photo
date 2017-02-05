@@ -12,63 +12,55 @@ Description -
 
 
 class Analyse:
-    def __init__(self, directory, safe=False):
+    def __init__(self, directory):
         self.directory = directory
-        self.safe = safe
+        self.directories = {}
+        self.report = {}
         self.files = []
-        self.constructed_report = {}
-        self.crt_file_version = []
-        self.crt_path_files = []
-        self.directory_folders = []
-        self.all_folder_files, self.good_folder_files, self.crt_folder_files = [], [], []
-        self.crt_folder_names = Config.get_specific_data("folders", "crt_folder_name")
-        self.all_folder_names = Config.get_specific_data("folders", "all_folder_name")
+        self.all_files = []
+        self.good_files = []
         self.crt_extensions = Config.get_specific_data("file_extensions", "crt")
-        self.directory_children = Directory(self.directory).index_photo_directory(return_folders=True)
-        self.subdirectory_sorter()
+        self.organise_nodes()
 
-    def subdirectory_sorter(self):
-            # TODO: clean-up
-            for directory in self.directory_children:
-                for folder_name in self.crt_folder_names:
-                    if os.path.basename(directory) == folder_name:
-                        self.directory_folders.append(directory)
-                        self.directory_children.remove(directory)
-                for folder_name in self.all_folder_names:
-                    if os.path.basename(directory) == folder_name:
-                        self.directory_folders.append(directory)
-                        self.directory_children.remove(directory)
-            self.directory_folders = Utility().join_lists(self.directory_folders, self.directory_children)
-            del self.directory_children
+    def organise_nodes(self):
+            directories = Directory(self.directory).index_photo_directory(return_folders=True)
+            keys = list(directories.keys())
+            for key in keys:
+                if key in Config.get_specific_data("folders", "crt_folder_name"):
+                    self.directories.update({'crt': directories.get(key)})
+                if key in Config.get_specific_data("folders", "all_folder_name"):
+                    self.directories.update({'all': directories.get(key)})
+                else:
+                    self.directories.update({'good': directories.get(key)})
 
-    def file_finder(self):
-        self.all_folder_files = Directory(self.directory_folders[1]).index_directory(file=True)
-        self.good_folder_files = Directory(self.directory_folders[2]).index_directory(file=True)
-        for file in self.all_folder_files:
-            if file not in self.good_folder_files:
+    def find_files(self):
+        self.all_files = Directory(self.directories.get('all')).index_directory(file=True)
+        self.good_files = Directory(self.directories.get('good')).index_directory(file=True)
+        for file in self.all_files:
+            if file not in self.good_files:
                 self.files.append(file)
             else:
                 pass
 
-    def path_converter(self, path):
-            return os.path.join(self.directory_folders[0], os.path.basename(path))
-
-    def crt_file_finder(self):
-        self.crt_folder_files = Directory(self.directory_folders[0]).index_directory(file=True)
+    def find_crt_files(self):
+        crt_files = Directory(self.directories.get('crt')).index_directory(file=True)
         for file in self.files:
-            self.crt_file_version = []
+            crt_version = []
             for extension in self.crt_extensions:
-                self.crt_file_version.append(extension_swapper(self.path_converter(file), extension, remove_dot=True))
-            for version in self.crt_file_version:
-                if version in self.crt_folder_files:
-                    self.constructed_report.update({file: version})
+                crt_version.append(extension_swapper(self.path_converter(file), extension, remove_dot=True))
+            for version in crt_version:
+                if version in crt_files:
+                    self.report.update({file: version})
                 else:
-                    pass
+                    continue
+
+    def path_converter(self, path):
+            return os.path.join(self.directories.get('crt'), os.path.basename(path))
 
     def run_analysis(self):
-        self.file_finder()
-        self.crt_file_finder()
-        return self.constructed_report
+        self.find_files()
+        self.find_crt_files()
+        return self.report
 
 
 class Delete:
