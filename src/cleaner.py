@@ -74,7 +74,7 @@ class Delete:
         file_size = Directory(self.file_path).get_file_size()
         if not self.silent:
             file_info = Directory(file_size).get_appropriate_units()
-            print(f"deleting: {os.path.basename(self.file_path)} size: {file_info[0] + file_info[1]}")
+            print(f"deleting: {os.path.basename(self.file_path)} size: {str(file_info[0]) + file_info[1]}")
         try:
             os.remove(self.file_path)
         except Exception as e:
@@ -87,4 +87,4 @@ class Delete:
             self.file_path = file
             self.delete_file()
         self.total_size = Directory(self.total_size).get_appropriate_units()
-        return f"saved: {self.total_size[0]}{self.total_size[1]} of disk space with operation."
+        print(f"saved: {self.total_size[0]}{self.total_size[1]} of disk space with operation.")

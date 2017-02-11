@@ -1,5 +1,7 @@
 import argparse
 from src.cli_helpers import *
+from src.cleaner import *
+from src.data import Table
 from src.thread_indexer import *
 from multiprocessing import freeze_support
 
@@ -8,6 +10,7 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
 CLI_INPUT_BLOCK = "~$ "
+
 
 class Arguments:
     path = ''
@@ -19,7 +22,9 @@ class Arguments:
 
 
 def prepare(directory):
-    pass
+    files = Analyse(directory).run_analysis()
+    Delete(select_files(files), arguments.silent).deletion_manager()
+    print()
 
 arguments = Arguments()
 parser = argparse.ArgumentParser(description="Remove redundant photo backup's")
@@ -74,6 +79,8 @@ else:
                         if directory_input[1:] == "paths":
                             for path in dirs:
                                 print(path)
+                        if directory_input[1:] == 'exit':
+                            exit()
                         continue
                 except IndexError:
                     pass
@@ -87,4 +94,5 @@ else:
                     if confirm_selection():
                         prepare(directory_input)
                     else:
+                        print()
                         continue

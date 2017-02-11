@@ -43,13 +43,13 @@ blacklist:
     location: "artifact\\\\blacklist.txt"
 
 thread:
-    instance_multiplier: 1
+    instance_multiplier: 1.25
 
 file_extensions:
    crt:
    - ".CR2"
    - ".dng"
-   - ".TIF"
+   - ".tif"
    good:
    - ".jpg"
 

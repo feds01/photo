@@ -1,6 +1,6 @@
 import time
+import subprocess
 from src.core.utils import *
-from src.data import Table
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -60,28 +60,31 @@ def loader(data):
     table_instance_display(data)
 
 
+def open_file(file):
+    subprocess.Popen(['C:\\Windows\\explorer.exe', file], shell=True)
+
+
 def select_files(files):
-    crt_files = sorted(files.values())
-    cancel_delete_files = []
-    for file in crt_files:
+    files = sorted(files.values())
+    blocked_files = []
+    for file in files:
         current_file = True
         while current_file:
-            confirm_delete_input = input("Are you sure you want to delete '" + file + "' [Y/n]?").lower()
-            if confirm_delete_input == "y":
+            delete_confirmation = input("Are you sure you want to delete '" + file + "' [Y/n]?").lower()
+            if delete_confirmation == "y":
                 current_file = False
-            elif confirm_delete_input == "n":
-                    cancel_delete_files.append(file)
+            elif delete_confirmation == "n":
+                    blocked_files.append(file)
                     print("canceled deletion")
                     current_file = False
-            elif confirm_delete_input.isspace() or confirm_delete_input == "":
+            elif delete_confirmation.isspace() or delete_confirmation == "":
                 pass
-            elif confirm_delete_input == ":open":
-                command = "explorer.exe " + file
-                os.popen(command)
-            elif confirm_delete_input == ":info":
+            elif delete_confirmation == ":open":
+                open_file(file)
+            elif delete_confirmation == ":info":
                 load_file_info(file)
-            elif confirm_delete_input == ":stop":
+            elif delete_confirmation == ":stop":
                 return "stop"
-    for file in cancel_delete_files:
-        crt_files.pop(crt_files.index(file))
-    return crt_files
+    for file in blocked_files:
+        files.remove(file)
+    return files
