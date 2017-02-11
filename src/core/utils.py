@@ -211,7 +211,6 @@ class Directory:
         # os.walk visits by removing from dirs necessary entries
 
         artifact_location = Config.join_specific_data('application_root', 'blacklist', 'location')
-
         self.drive_letter = self.get_directory_drive(self.directory)
         blacklist = File(artifact_location).read(specific='list')
         for entry in blacklist:
@@ -221,7 +220,6 @@ class Directory:
                 continue
         for root, dirs, files in os.walk(self.directory, topdown=True):
             del files
-            print(root)
             if blacklist is []:
                 for directory in dirs:
                     self.directories.append(os.path.join(directory))
@@ -316,6 +314,10 @@ class Directory:
     def get_directory_drive(path):
         return os.path.splitdrive(path)[0]
 
+    def standardise_drive(self):
+        drive = self.get_directory_drive(self.directory).capitalize()
+        return drive + os.path.splitdrive(self.directory)[1]
+
     def get_parent_directory(self):
         return os.path.split(self.directory)[0]
 
@@ -370,7 +372,7 @@ class Directory:
 class File:
     def __init__(self, file):
         self.application_root = Config.get_key_value("application_root")
-        self.application_directories = sorted(Config.get_specific_data("application_directories","dirs"))
+        self.application_directories = sorted(Config.get_specific_data("application_directories", "dirs"))
         self.temp_files = Config.get_specific_data("application_directories", "temp")
         self.artifact_files = Config.get_specific_data("application_directories", "artifact")
         self.file = file
