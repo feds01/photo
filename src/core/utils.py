@@ -266,24 +266,27 @@ class Directory:
         all_keys = Utility().list_organiser(all_keys)
 
         def method(path):
-            directories = []
+            directories = {}
             content = handle_get_content(path, silent_mode=silent_mode)
             _validate_content_load(content)
             for basename in all_keys:
                     if basename in content:
-                        directories.append(os.path.join(path, basename))
+                        directories.update({basename: os.path.join(path, basename)})
                     else:
                         pass
             return directories
         if return_folders:
             return method(self.directory[0])
+
         if len(self.directory) == 1:
-            result = method(self.directory[0])
+            result = list(method(self.directory[0]).values())
             if len(result) == 3:
                 return self.directory[0]
+            else:
+                pass
         else:
             for directory in self.directory:
-                result = method(directory)
+                result = list(method(directory).values())
                 if len(self.directories) == max_instances:
                     return self.directories
                 if len(result) == 3:
