@@ -42,84 +42,25 @@ def table_instance_display(instance_data):
     for i in range(1, 5):
         file_count += instance_data[i]
     print("Total files:", file_count)
-    print(fancy_tree_display(list(instance_leaves.keys()), list(instance_leaves.values())),)
+    print(fancy_tree_display(list(instance_leaves.keys()), list(instance_leaves.values())))
     print("Total directory size: " + str(instance_data[-1][0]) + " " + instance_data[-1][1])
 
 
-def table_selector(max_id, prefix="~$ "):
-    print("Enter the ID of the directory or enter the path of the directory to continue: ")
-    dirs = []
-    for i in range(1, max_id+1):
-        dirs.append(Table().load_instance_by_id(i)[0])
-    while True:
-        scan_dir_input = input(prefix)
-        try:
-            scan_dir_input = int(scan_dir_input)
-            if max_id < scan_dir_input or scan_dir_input < 0:
-                print("The entered ID is too high or too low.")
-            else:
-                print(dirs[scan_dir_input-1])
-                return safe_mode_prompt(scan_dir_input, "")
-        except ValueError:
-            try:
-                if scan_dir_input[0] is ":":
-                    if scan_dir_input[1:] == "paths":
-                        for path in dirs:
-                            print(path)
-                    continue
-            except IndexError:
-                pass
-            if scan_dir_input.isspace() or scan_dir_input == "":
-                continue
-            if scan_dir_input not in dirs:
-                print("Entered directory path not present.")
-            else:
-                return safe_mode_prompt(scan_dir_input, "path")
-
-
-def enable_safe_mode():
-    while True:
-        enable_safe = input("enable 'safe-mode' [Y/n]? ").lower()
-        if enable_safe == "y":
-            write_confirmation = {"safe-mode": True}
-            scan_vars_file = os.path.join(Config.get_key_value("application_root"), "temp\\scan_vars.txt")
-            old = dict(File(scan_vars_file).read("_dict"))
-            try:
-                old.pop("safe-mode")
-                old.update(write_confirmation)
-            except KeyError:
-                old.update(write_confirmation)
-            File(scan_vars_file).write(old)
-            return "safe"
-        if enable_safe == "n":
-            return "unsafe"
-        else:
-            pass
-
-
-def confirm_disable_safe_mode():
-    while True:
-        confirm_disable = input("Are you sure you want to proceed without 'safe-mode' enabled [Y/n]?").lower()
-        if confirm_disable == "y":
-            return "unsafe"
-        if confirm_disable == "n":
-            return enable_safe_mode()
-        if confirm_disable == ":info":
-            artifact_location = os.path.join(Config.get_key_value("application_root"), "artifact\\cli_entries\\safe_mode.txt")
-            print(File(artifact_location).read(specific=""))
-        else:
-            pass
-
-
-def safe_mode_prompt(directory, pid):
-    if pid == "path":
-        pass
+def confirm_selection():
+    confirmation = ''
+    while confirmation not in ['y', 'n']:
+        confirmation = input('Are you sure you want to continue? [Y/n] ').lower()
+    if confirmation == 'y':
+        return True
     else:
-        directory = Table().load_instance_by_id(directory)
-    return [directory, confirm_disable_safe_mode()]
+        return False
 
 
-def safe_mode_file_deletion(files):
+def loader(data):
+    table_instance_display(data)
+
+
+def select_files(files):
     crt_files = sorted(files.values())
     cancel_delete_files = []
     for file in crt_files:
@@ -144,11 +85,3 @@ def safe_mode_file_deletion(files):
     for file in cancel_delete_files:
         crt_files.pop(crt_files.index(file))
     return crt_files
-
-
-def prepare_files(files):
-    """
-    this function is only used if the method does not go through
-    safe_mode_file_deletion()
-    """
-    return sorted(files.values())

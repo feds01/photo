@@ -61,11 +61,12 @@ class Data:
 
 
 class Table:
-    def __init__(self, max_instances=5, path_char_size=30):
+    def __init__(self, max_instances=5, max_size=30):
         self.max_rows = max_instances
         self.data_packets = 0
-        self.path_size = path_char_size
-        self.table_import_data = {}
+        self.path_size = max_size
+        self.file_location = Config.join_specific_data('application_root', 'application_directories', 'size_data')
+        self.import_data = File(self.file_location).read("_dict")
         self.headers = ["ID", "Path", "crt", "dng", "tif", "jpg"]
         self.table = PrettyTable()
         self.size_data = []
@@ -73,22 +74,16 @@ class Table:
         self.size_data_final = []
         self.all_rows = []
         self.row = []
-        self.destination_file, self.application_root, self.file_origin = "", "", ""
+        self.destination_file = ''
         self.border_symbol = "-"
 
-    def get_data_file_location(self):
-        self.file_origin = Config.get_specific_data("application_directories", "size_data")
-        self.application_root = Config.get_key_value("application_root")
-        return os.path.join(self.application_root, self.file_origin)
-
     def import_table_data(self):
-        self.table_import_data = File(self.get_data_file_location()).read("_dict")
-        self.data_packets = int(len(self.table_import_data.keys()))
+        self.data_packets = int(len(self.import_data.keys()))
         for i in range(self.data_packets):
             if i+1 <= self.max_rows:
                 pass
             else:
-                dict(self.table_import_data).pop(i)
+                dict(self.import_data).pop(i)
 
     def export_table_data(self):
         self.destination_file = Config.join_specific_data('application_root', 'application_directories', 'table_data')
@@ -97,18 +92,18 @@ class Table:
     def get_specific_data_from_import(self, sub_key):
         specific_data = []
         for key in range(self.data_packets):
-            specific_data.append(self.table_import_data[key+1][sub_key])
+            specific_data.append(self.import_data[key + 1][sub_key])
         return specific_data
 
     def make_row_data(self, key):
         self.row = [key]
-        if self.path_size <= len(list(self.table_import_data[key+1][0])):
-            self.row.append(Utility().shorten_path(self.table_import_data[key+1][0]))
+        if self.path_size <= len(list(self.import_data[key][0])):
+            self.row.append(Utility().shorten_path(self.import_data[key][0]))
         else:
-            self.row.append(self.table_import_data[key+1][0])
+            self.row.append(self.import_data[key][0])
         for sub_key in range(2, 6):
-            self.row.append(self.table_import_data[key+1][sub_key])
-        self.size_data = self.table_import_data[key+1][-1]
+            self.row.append(self.import_data[key][sub_key])
+        self.size_data = self.import_data[key][-1]
         if self.size_data[0] == 0:
             self.size_data_final.append("0Kb")
         else:
@@ -118,9 +113,9 @@ class Table:
         return self.row
 
     def load_instance_by_id(self, _id):
-        if self.table_import_data == {}:
+        if self.import_data == {}:
             self.import_table_data()
-        return self.table_import_data.get(_id)
+        return self.import_data.get(_id)
 
     def make_border(self):
         borders = []
@@ -143,7 +138,7 @@ class Table:
     def converge_row_data(self):
         self.import_table_data()
         for i in range(self.data_packets):
-            self.all_rows.append(self.make_row_data(i))
+            self.all_rows.append(self.make_row_data(i+1))
 
     def define_table(self):
         self.table.border = False
