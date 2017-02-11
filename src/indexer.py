@@ -1,7 +1,7 @@
 #!C:\Python\Python35-32\python.exe
 # import time
 from src.data import Data
-from src.core.utils import *
+from src.core.core import *
 from src.hooks.blacklist_query import *
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"

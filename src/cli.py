@@ -81,6 +81,9 @@ else:
                                 print(path)
                         if directory_input[1:] == 'exit':
                             exit()
+                        if directory_input[1:] == 'table':
+                            Table().display_table()
+                            print()
                         continue
                 except IndexError:
                     pass

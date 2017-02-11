@@ -1,7 +1,7 @@
-#!C:\Python\Python35-32\python.exe
+#!C:\Python\Python36\python.exe
 # import time
+from src.core.core import *
 from prettytable import PrettyTable
-from src.core.utils import *
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -155,3 +155,8 @@ class Table:
         self.table.add_column("size", self.size_data_final, align="r")
         self.export_table_data()
         print(self.table)
+
+
+    def display_table(self):
+        # TODO: temporary
+        return Table().make_table()

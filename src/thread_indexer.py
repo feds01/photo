@@ -1,5 +1,5 @@
 from src.indexer import *
-from src.core.utils import *
+from src.core.core import *
 from numpy import array_split
 from multiprocessing import Pool
 from src.hooks.blacklist_query import *
