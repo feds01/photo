@@ -1,6 +1,6 @@
 import yaml
 from src.config_manager import get_config_file_location
-from src.core.exceptions import yml_error
+from src.core.exceptions import *
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -20,18 +20,24 @@ class _Config:
             yml_error(exc)
 
     def retrieve_data(self, key):
-        for data_group_key in self.get_key_value(key):
-            self.data.update({data_group_key: self.get_key_value(key)[data_group_key]})
+        for group_key in self.get_key_value(key):
+            self.data.update({group_key: self.get_key_value(key)[group_key]})
 
     def get_specific_data(self, key, specific):
         self.retrieve_data(key)
-        return self.data[specific]
+        try:
+            return self.data[specific]
+        except Exception as exc:
+            Fatal('config is unreadable', True, 'key was not found, but expected', 'key=%s' % exc)
 
     def get_key_value(self, key):
         return self._raw_data.get(key)
 
     def get_specific_keys(self, key):
-        return list(self._raw_data.get(key).keys())
+        try:
+            return list(self._raw_data.get(key).keys())
+        except Exception as exc:
+            Fatal('config is unreadable', True, 'key was not found, but expected', 'key=%s' % exc)
 
     def join_specific_data(self, key1, key2, key_subset):
         return self.get_key_value(key1) + self.get_specific_data(key2, key_subset)

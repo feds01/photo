@@ -10,12 +10,12 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
 CLI_INPUT_BLOCK = "~$ "
-
+blacklist_default = Config.get_specific_data('blacklist', 'enabled')
 
 class Arguments:
     path = ''
     safe = ''
-    blacklist = ''
+    blacklist = blacklist_default
     silent = ''
     thread = ''
     pass
@@ -26,20 +26,25 @@ def prepare(directory):
     Delete(select_files(files), arguments.silent).deletion_manager()
     print()
 
+
 arguments = Arguments()
 parser = argparse.ArgumentParser(description="Remove redundant photo backup's")
 
 parser.add_argument('-p', '--path', help='specify a specific starting path, leaving blank will index the current directory.')
 parser.add_argument('-t', '--thread', default=False, action='store_true', help='use threads to increase indexing speeds')
-parser.add_argument('-b', '--blacklist', default=False, action='store_true', help='use the blacklist to filter out unwanted directories')
+parser.add_argument('-b', '--blacklist', default=blacklist_default, action='store_true', help='use the blacklist to filter out unwanted directories')
 parser.add_argument('-s', '--silent', default=False, action='store_true', help="don't display mild error messages or warnings.")
 parser.add_argument('--safe', default=True, action='store_true', help='inform user of any file operations')
 
 
 parser.parse_args(namespace=arguments)
-
 if arguments.path == '':
     arguments.path = get_command_path()
+
+if arguments.blacklist and not blacklist_default:
+    if not arguments.silent:
+        if __name__ == '__main__':
+            config_warning('blacklist is not enabled in config, but is being used.')
 
 if not Directory(arguments.path).check_directory():
     Fatal("directory does not exist", True, 'directory=%s' % arguments.path)
@@ -56,7 +61,7 @@ else:
         print("Enter ID of directory or enter path of directory to continue")
         dirs = []
         max_id = len(
-            File(Config.join_specific_data('application_root', 'application_directories', 'table_data')).read('_dict'))
+            File(Config.join_specific_data('application_root', 'application_directories', 'table_data')).read('dict'))
         for i in range(1, max_id+1):
             dirs.append(Table().load_instance_by_id(i)[0])
         while True:

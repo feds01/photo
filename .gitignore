@@ -1,7 +1,9 @@
 #pycharm IDE project files
 .idea/
-#test directory
+#tests
 sandbox/
+#tests
+/tests/*
 #python execution files
 src/__pycache__/
 src/core/__pycache__/
@@ -10,5 +12,6 @@ __pycache__/
 #temporary files
 /temp/*
 #articafts
-/artifact/blacklist.txt
-artifact/cli_entries/
+/artifact/*
+#documents
+docs/

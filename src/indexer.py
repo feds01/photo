@@ -1,5 +1,4 @@
 #!C:\Python\Python35-32\python.exe
-# import time
 from src.data import Data
 from src.core.core import *
 from src.hooks.blacklist_query import *
@@ -86,12 +85,10 @@ class Index:
             self.directories = Directory(self.path).index_directory()
 
     def run(self, pipe=False):
-        # start = time.clock()
         if not Directory(self.path).check_directory():
-            # change to True, only for testing purposes
-            raise Fatal("directory does not exist", False, 'directory= %s' % self.path)
+            Fatal("directory does not exist", True, 'directory= %s' % self.path)
         if run_blacklist_check(self.path, child=True):
-            raise Fatal("directory is blacklisted.", False, 'directory=%s' % self.path)
+            Fatal("directory is blacklisted.", True, 'directory=%s' % self.path)
         else:
             self.run_directory_index()
             self.apply_filter()
@@ -100,7 +97,4 @@ class Index:
         if pipe:
             Data(self.photo_directories).export_data_on_directories()
         else:
-            # print(time.clock() - start)
             return self.photo_directories
-
-# print(Index(path="G:\\", use_blacklist=True, silent=True).run())

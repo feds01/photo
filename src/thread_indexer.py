@@ -121,9 +121,9 @@ class ThreadIndex:
 
     def run(self, pipe=False):
         if not Directory(self.path).check_directory():
-            raise Fatal("directory does not exist", False, 'directory=%s' % self.path)
+            Fatal("directory does not exist", True, 'directory=%s' % self.path)
         if run_blacklist_check(self.path, child=True):
-            raise Fatal("directory is blacklisted.", False, 'directory=%s' % self.path)
+            Fatal("directory is blacklisted.", True, 'directory=%s' % self.path)
         self.safe_process_count()
         self.photo_directories.append(self.validate_directory_structure(self.result))
         self.photo_directories = Utility().list_organiser(self.photo_directories)

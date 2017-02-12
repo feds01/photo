@@ -66,7 +66,7 @@ class Table:
         self.data_packets = 0
         self.path_size = max_size
         self.file_location = Config.join_specific_data('application_root', 'application_directories', 'size_data')
-        self.import_data = File(self.file_location).read("_dict")
+        self.import_data = File(self.file_location).read("dict")
         self.headers = ["ID", "Path", "crt", "dng", "tif", "jpg"]
         self.table = PrettyTable()
         self.size_data = []
@@ -121,7 +121,7 @@ class Table:
         borders = []
         for i in range(2, 6):
             i = convert_list(self.get_specific_data_from_import(i))
-            self.border_data.append(border_size_by_data_length(get_largest_element(i)))
+            self.border_data.append(generate_border(get_largest_element(i)))
         for i in self.border_data:
             borders.append(self.border_symbol * int(i))
         for i in reversed(range(self.path_size - 4)):
@@ -130,7 +130,7 @@ class Table:
                 break
             else:
                 continue
-        self.row = [border_size_by_data_length(self.max_rows, True) * self.border_symbol, (self.path_size + 1) * self.border_symbol]
+        self.row = [generate_border(self.max_rows, True) * self.border_symbol, (self.path_size + 1) * self.border_symbol]
         self.row.extend(borders)
         self.table.add_row(self.row)
         del self.row
@@ -151,7 +151,7 @@ class Table:
         self.make_border()
         for row in self.all_rows:
             self.table.add_row(row)
-        self.size_data_final.insert(0, self.border_symbol * border_size_by_data_length(get_largest_element(self.size_data_final)))
+        self.size_data_final.insert(0, self.border_symbol * generate_border(get_largest_element(self.size_data_final)))
         self.table.add_column("size", self.size_data_final, align="r")
         self.export_table_data()
         print(self.table)

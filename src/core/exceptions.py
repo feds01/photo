@@ -60,5 +60,5 @@ def node_error(silent, directory):
 
 
 def yml_error(error):
-    Fatal('While loading Config file something went wrong.\nHere is trace:\n', error)
+    Fatal('config file is unreadable.', True, 'Here is trace:\n\n%s' % error)
     exit()

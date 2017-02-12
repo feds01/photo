@@ -1,9 +1,6 @@
 import ast
-import shutil
 from src.core.utils import *
 from src.core.config_extractor import *
-from src.core.exceptions import *
-
 
 file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
 
@@ -180,7 +177,7 @@ class Directory:
         if self.directory == 0:
             return [self.directory, "bytes", 1]
         if self.directory/1024**5 > 1:
-            raise ByteOverflow
+            ByteOverflow()
         else:
             for i in range(5):
                 if self.byte_size / self.byte_exponent_count >= 1:
@@ -219,41 +216,31 @@ class Directory:
 class File:
     def __init__(self, file):
         self.application_root = Config.get_key_value("application_root")
-        self.application_directories = sorted(Config.get_specific_data("application_directories", "dirs"))
-        self.temp_files = Config.get_specific_data("application_directories", "temp")
-        self.artifact_files = Config.get_specific_data("application_directories", "artifact")
+        self.application_dirs = Config.get_specific_data("application_directories", "dirs")
+        self.files = Config.get_specific_data("application_directories", "temp")
         self.file = file
         self.data = ""
 
     def setup_directories(self):
-        for directory in self.application_directories:
+        for directory in self.application_dirs:
             try:
                 os.mkdir(os.path.join(self.application_root, directory))
             except FileExistsError:
                 pass
 
     def setup_files(self):
-        for application_dir in self.application_directories:
+        for application_dir in self.application_dirs:
             if application_dir == "temp":
-                for _file in self.temp_files:
+                for _file in self.files:
                     self.file = os.path.join(self.application_root, application_dir, _file)
                     self.create()
-            else:
-                for _file in self.artifact_files:
-                    self.file = os.path.join(self.application_root, application_dir, _file)
-                    self.create()
+        self.file = Config.join_specific_data('application_root', 'blacklist', 'location')
+        self.create()
 
-    def clean_files(self, file, specific, general=False):
-        file_list = Utility().join_lists(self.artifact_files, self.temp_files)
-        if file in file_list:
-            with open(os.path.join(specific, file), "w") as f:
+    def clean_files(self):
+        for file in self.files:
+            with open(os.path.join(file), "w") as f:
                 f.flush(), f.truncate(), f.close()
-        if general:
-            for directory in self.application_directories:
-                if directory == self.application_directories[1]:
-                    pass
-                else:
-                    shutil.rmtree(os.path.join(self.application_root, directory))
 
     def write(self, data):
         if not Directory(self.file).check_file():
@@ -276,7 +263,7 @@ class File:
                         return {}
                 finally:
                     f.close()
-                if specific in ["_dict", "list"]:
+                if specific in ["dict", "list"]:
                     return ast.literal_eval(self.data)
                 else:
                     return self.data
@@ -285,9 +272,4 @@ class File:
         os.remove(self.file)
 
     def create(self):
-        with open(self.file, "w") as f:
-            f.close()
-
-    def run_setup(self):
-        self.setup_directories()
-        self.setup_files()
+        open(self.file, mode='w')

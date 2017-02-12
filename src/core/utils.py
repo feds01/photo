@@ -12,18 +12,14 @@ Description -
 """
 
 
-def print_space(n):
-    return n * "\n"
+def get_largest_element(arr):
+    return len(max(arr, key=len))
 
 
-def get_largest_element(_list):
-    return len(max(_list, key=len))
-
-
-def find_element(_list, case):
-        for element in _list:
+def find_element(arr, case):
+        for element in arr:
                 if case in element or case == element:
-                    return int(_list.index(element))
+                    return int(arr.index(element))
                 else:
                     continue
 
@@ -35,7 +31,7 @@ def extension_swapper(file, ext, remove_dot=False):
         return file[:-3] + ext
 
 
-def border_size_by_data_length(data, use_str=False):
+def generate_border(data, use_str=False):
         if use_str:
             return len(str(data)) + 2
         if data >= 4:
@@ -77,8 +73,6 @@ class Utility:
         self.input_list = []
         self.construct = []
         self.path_construct_list = []
-        self.char_size = 0
-        self.overflow_chars = 0
         self.block_pos = 0
         self.old_block = ""
         self.cur_block = ""
@@ -101,28 +95,27 @@ class Utility:
                 self.final_list.extend(element_list)
             return self.final_list
 
-    def shorten_path(self, path, char_size=30, count_separator_char=False):
-        self.char_size = char_size
-        self.overflow_chars = len(path) - (self.char_size + 1)
+    def shorten_path(self, path, max_chars=30, count_separator_char=False):
+        overflow_chars = len(path) - (max_chars + 1)
         self.construct, self.input_list = path.split(os.sep), path.split(os.sep)
         if count_separator_char:
             for _ in self.input_list[:-1]:
-                self.overflow_chars += 1
-        if len(path) >= self.char_size:
+                overflow_chars += 1
+        if len(path) >= max_chars:
             self.input_list.pop(-1)
             self.final_list.append({self.input_list[-1]: len(self.input_list[-1])})
-            if int(self.final_list[0][self.input_list[-1]]) < self.overflow_chars:
+            if int(self.final_list[0][self.input_list[-1]]) < overflow_chars:
                 self.input_list.pop(-1)
-                self.overflow_chars -= int(self.final_list[0][self.construct[-2]])
+                overflow_chars -= int(self.final_list[0][self.construct[-2]])
                 for component in reversed(self.input_list):
-                    if len(component) >= self.overflow_chars:
+                    if len(component) >= overflow_chars:
                         self.final_list.append({component: len(component)})
-                        self.overflow_chars -= len(component)
-                        if self.overflow_chars <= 0:
+                        overflow_chars -= len(component)
+                        if overflow_chars <= 0:
                             break
-                    if len(component) < self.overflow_chars:
+                    if len(component) < overflow_chars:
                         self.final_list.append({component: len(component)})
-                        self.overflow_chars -= len(component)
+                        overflow_chars -= len(component)
                         continue
             self.input_list = list()
             for key in list(reversed(self.final_list)):
@@ -132,18 +125,17 @@ class Utility:
             for element in self.input_list:
                 self.construct.remove(element)
             self.construct.insert(int(self.path_construct_list[0]), "...")
-            while len("".join(self.construct)) + int(len(self.construct))-1 > char_size:
-                self.overflow_chars = len("".join(self.construct)) + int(len(self.construct)) - 1
-                if self.overflow_chars-3 <= char_size:
+            while len("".join(self.construct)) + int(len(self.construct))-1 > max_chars:
+                overflow_chars = len("".join(self.construct)) + int(len(self.construct)) - 1
+                if overflow_chars-3 <= max_chars:
                     self.block_pos = (find_element(list(self.construct), "...")) - 1
                     if len(self.construct[self.block_pos]) is 3:
                         self.slicing = True
                         self.cur_block = self.construct[self.block_pos][0] + "..."
                         break
-                    if self.overflow_chars - 2 == char_size + 1:
+                    if overflow_chars - 2 <= max_chars + 1:
                         self.cur_block = str("".join(list(self.construct[self.block_pos])[:2])) + "..."
-                    continue
-                if self.overflow_chars > char_size:
+                if overflow_chars > max_chars:
                     self.construct.pop(self.construct.index("...")-1)
                 else:
                     self.slicing = True
