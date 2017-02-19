@@ -10,7 +10,11 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
 CLI_INPUT_BLOCK = "~$ "
+finished_jobs = 0
 blacklist_default = Config.get_specific_data('blacklist', 'enabled')
+dirs = []
+max_id = 0
+
 
 class Arguments:
     path = ''
@@ -21,10 +25,35 @@ class Arguments:
     pass
 
 
+def run_scan(mode):
+    if mode == 'thread':
+        ThreadIndex(arguments.path, arguments.blacklist, arguments.silent).run(pipe=True)
+    else:
+        Index(arguments.path, arguments.blacklist, arguments.silent).run(pipe=True)
+
+
+def load_table():
+    global max_id, dirs
+    dirs = []
+    max_id = len(File(Config.join_specific_data('application_root', 'application_directories', 'table_data')).read('dict'))
+    for i in range(1, max_id + 1):
+        dirs.append(Table().load_instance_by_id(i)[0])
+
+
+def refresh():
+    if finished_jobs > 0:
+        if bool(prompt_user('Refresh index results? [Y/n] ', ['y', 'n']) == 'y'):
+            run_scan(get_scan_type(arguments.thread))
+            return True
+        else:
+            return False
+    else:
+        return False
+
+
 def prepare(directory):
     files = Analyse(directory).run_analysis()
-    Delete(select_files(files), arguments.silent).deletion_manager()
-    print()
+    return Delete(select_files(files), arguments.silent).deletion_manager()
 
 
 arguments = Arguments()
@@ -52,43 +81,45 @@ else:
     if __name__ == '__main__':
         freeze_support()
         arguments.path = Directory(arguments.path).standardise_drive()
-        if arguments.thread:
-            ThreadIndex(path=arguments.path, use_blacklist=arguments.blacklist, silent=arguments.silent).run(pipe=True)
-        else:
-            Index(path=arguments.path, use_blacklist=arguments.blacklist, silent=arguments.silent).run(pipe=True)
+        run_scan(get_scan_type(arguments.thread))
         Table().make_table()
         print()
         print("Enter ID of directory or enter path of directory to continue")
-        dirs = []
-        max_id = len(
-            File(Config.join_specific_data('application_root', 'application_directories', 'table_data')).read('dict'))
-        for i in range(1, max_id+1):
-            dirs.append(Table().load_instance_by_id(i)[0])
         while True:
             directory_input = input(CLI_INPUT_BLOCK)
             try:
+                load_table()
                 directory_input = int(directory_input)
                 if max_id < directory_input or directory_input < 0:
                     print("The entered ID is too high or too low.")
                 else:
                     print('loading - %s' % dirs[directory_input-1])
                     loader(Table().load_instance_by_id(directory_input))
-                    if confirm_selection():
-                        prepare(Table().load_instance_by_id(directory_input)[0])
+                    if bool(prompt_user('Are you sure you want to continue? [Y/n] ', ['y', 'n']) == 'y'):
+                        if prepare(Table().load_instance_by_id(directory_input)[0]):
+                            print()
                     else:
                         print()
                         continue
             except ValueError:
+                load_table()
                 try:
                     if directory_input[0] is ":":
+                        print()
                         if directory_input[1:] == "paths":
+                            if refresh():
+                                finished_jobs -= 1
+                                load_table()
                             for path in dirs:
                                 print(path)
                         if directory_input[1:] == 'exit':
                             exit()
                         if directory_input[1:] == 'table':
-                            Table().display_table()
-                            print()
+                            if refresh():
+                                finished_jobs -= 1
+                                load_table()
+                            Table().make_table()
+                        print()
                         continue
                 except IndexError:
                     pass
@@ -98,9 +129,10 @@ else:
                     print("Entered directory path not present.")
                 else:
                     print('loading - %s' % directory_input)
-                    loader(Table().load_instance_by_id(directory_input))
-                    if confirm_selection():
-                        prepare(directory_input)
+                    loader(Table().load_instance_by_id(dirs.index(directory_input)+1))
+                    if bool(prompt_user('Are you sure you want to continue? [Y/n] ', ['y', 'n']) == 'y'):
+                        if prepare(directory_input):
+                            finished_jobs += 1
                     else:
                         print()
                         continue

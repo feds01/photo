@@ -220,7 +220,7 @@ class File:
 
     def clean_files(self):
         for file in self.files:
-            with open(os.path.join(file), "w") as f:
+            with open(os.path.join(self.application_root, 'temp', file), "w") as f:
                 f.flush(), f.truncate(), f.close()
 
     def write(self, data):

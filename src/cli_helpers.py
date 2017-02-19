@@ -1,6 +1,6 @@
 import time
 import subprocess
-from src.core.core import *
+from src.thread_indexer import *
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -30,38 +30,30 @@ def fancy_tree_display(roots, values):
     return full_string
 
 
-def table_instance_display(instance_data):
+def loader(data):
     instance_leaves = {}
     file_count = 0
-    for directory in instance_data[1]:
-        instance_leaves.update({os.path.basename(directory): Directory(directory).index_directory(count=True,
-                                                                                                  file=True)})
-    instance_data.pop(1)
-    print("More detail about the photo directory - '" + os.path.basename(instance_data[0]) + "' :\n")
-    print("Full directory path: ", instance_data[0])
+    for directory in data[1]:
+        instance_leaves.update({os.path.basename(directory): Directory(directory).index_directory(count=True, file=True)})
+    data.pop(1)
+    print("More detail about the photo directory - '" + os.path.basename(data[0]) + "' :\n")
+    print("Full directory path: ", data[0])
     for i in range(1, 5):
-        file_count += instance_data[i]
+        file_count += data[i]
     print("Total files:", file_count)
     print(fancy_tree_display(list(instance_leaves.keys()), list(instance_leaves.values())))
-    print("Total directory size: " + str(instance_data[-1][0]) + " " + instance_data[-1][1])
-
-
-def confirm_selection():
-    confirmation = ''
-    while confirmation not in ['y', 'n']:
-        confirmation = input('Are you sure you want to continue? [Y/n] ').lower()
-    if confirmation == 'y':
-        return True
-    else:
-        return False
-
-
-def loader(data):
-    table_instance_display(data)
+    print("Total directory size: " + str(data[-1][0]) + " " + data[-1][1])
 
 
 def open_file(file):
     subprocess.Popen(['C:\\Windows\\explorer.exe', file], shell=True)
+
+
+def prompt_user(message, excepted_input):
+    user_input = ''
+    while user_input not in excepted_input:
+        user_input = input(message).lower()
+    return user_input
 
 
 def select_files(files):

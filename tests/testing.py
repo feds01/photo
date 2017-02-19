@@ -30,7 +30,6 @@ class IndexWithThreadMethod(unittest.TestCase):
         self.assertRaises(Fatal, lambda: ThreadIndex(path='C:\\Windows').run(pipe=False))
 
 
-
 class DataMethod(unittest.TestCase):
     def setUp(self):
         self.start = time.time()
@@ -57,7 +56,7 @@ class IndexItemSize(unittest.TestCase):
         self.assertEqual(str(results[0]) + results[1], "0bytes")
 
     def test_kilobyte(self):
-        results =  get_appropriate_units(1024)
+        results = get_appropriate_units(1024)
         self.assertEqual(str(int(results[0])) + results[1], "1Kb")
 
     def test_negative_byte(self):

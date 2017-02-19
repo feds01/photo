@@ -57,7 +57,12 @@ class Data:
         self.packaged_data = {}
         for directory in self.path:
             self.packaged_data.update({self.path.index(directory)+1: self.create_data_on_directory(directory)})
-        File(self.destination_file).write(self.packaged_data)
+        if self.packaged_data == {}:
+            print('zero instances of photo directories found.')
+            File(self.destination_file).clean_files()
+            exit()
+        else:
+            File(self.destination_file).write(self.packaged_data)
 
 
 class Table:
@@ -155,8 +160,3 @@ class Table:
         self.table.add_column("size", self.size_data_final, align="r")
         self.export_table_data()
         print(self.table)
-
-    @staticmethod
-    def display_table():
-        # TODO: temporary
-        return Table().make_table()

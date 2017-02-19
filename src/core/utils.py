@@ -13,6 +13,10 @@ Description -
 
 file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
 
+
+def get_scan_type(var):
+    return 'thread' if var else 'normal'
+
 def get_largest_element(arr):
     return len(max(arr, key=len))
 

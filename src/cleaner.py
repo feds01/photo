@@ -88,3 +88,4 @@ class Delete:
             self.delete_file()
         self.total_size = get_appropriate_units(self.total_size)
         print(f"saved: {self.total_size[0]}{self.total_size[1]} of disk space with operation.")
+        return True
