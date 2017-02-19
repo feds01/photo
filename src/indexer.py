@@ -1,7 +1,6 @@
 #!C:\Python\Python35-32\python.exe
 from src.data import Data
-from src.core.core import *
-from src.hooks.blacklist_query import *
+from src.hooks.checks import *
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -85,15 +84,11 @@ class Index:
             self.directories = Directory(self.path).index_directory()
 
     def run(self, pipe=False):
-        if not Directory(self.path).check_directory():
-            raise Fatal("directory does not exist", False, 'directory= %s' % self.path)
-        if run_blacklist_check(self.path, child=True):
-            raise Fatal("directory is blacklisted.", False, 'directory=%s' % self.path)
-        else:
-            self.run_directory_index()
-            self.apply_filter()
-            self.analyze_directories()
-            self.photo_directories = Utility().list_organiser(self.photo_directories)
+        check_directory(self.path)
+        self.run_directory_index()
+        self.apply_filter()
+        self.analyze_directories()
+        self.photo_directories = Utility().list_organiser(self.photo_directories)
         if pipe:
             Data(self.photo_directories).export_data_on_directories()
         else:

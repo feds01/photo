@@ -8,14 +8,27 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 class IndexWithNormalMethod(unittest.TestCase):
 
-    def test_index_method(self):
+    def test_method(self):
         self.assertEqual(Index(path="E:\\Photo\\").run(pipe=False), ["E:\\Photo\\sandbox"])
 
-    def test_index_thread_method(self):
+    def test_fake_dir(self):
+        self.assertRaises(Fatal, lambda: Index(path="F:\\Photo\\").run(pipe=False))
+
+    def test_blacklisted_dir(self):
+        self.assertRaises(Fatal, lambda: Index(path='C:\\Windows').run(pipe=False))
+
+
+class IndexWithThreadMethod(unittest.TestCase):
+
+    def test_method(self):
         self.assertEqual(ThreadIndex("E:\\Photo").run(), ["E:\\Photo\\sandbox"])
 
-    def test_index_with_fake_dir(self):
-        self.assertRaises(Fatal, lambda: Index(path="F:\\Photo\\").run(pipe=False))
+    def test_fake_dir(self):
+        self.assertRaises(Fatal, lambda: ThreadIndex(path="F:\\Photo\\").run(pipe=False))
+
+    def test_blacklisted_dir(self):
+        self.assertRaises(Fatal, lambda: ThreadIndex(path='C:\\Windows').run(pipe=False))
+
 
 
 class DataMethod(unittest.TestCase):

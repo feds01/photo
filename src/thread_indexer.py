@@ -1,8 +1,7 @@
 from src.indexer import *
-from src.core.core import *
 from numpy import array_split
 from multiprocessing import Pool
-from src.hooks.blacklist_query import *
+from src.hooks.checks import *
 from src.core.utils import handle_get_content
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -120,10 +119,7 @@ class ThreadIndex:
             self.launch_process_pool()
 
     def run(self, pipe=False):
-        if not Directory(self.path).check_directory():
-            raise Fatal("directory does not exist", False, 'directory=%s' % self.path)
-        if run_blacklist_check(self.path, child=True):
-            raise Fatal("directory is blacklisted.", False, 'directory=%s' % self.path)
+        check_directory(self.path)
         self.safe_process_count()
         self.photo_directories.append(self.validate_directory_structure(self.result))
         self.photo_directories = Utility().list_organiser(self.photo_directories)
