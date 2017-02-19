@@ -1,17 +1,9 @@
 import time
 import unittest
-from src.data import Data
 from src.thread_indexer import *
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
-
-"""
-Module name: testing.py
-Usage:
-Description -
-
-"""
 
 
 class IndexWithNormalMethod(unittest.TestCase):
@@ -42,25 +34,22 @@ class DataMethod(unittest.TestCase):
 
     def test_correct_data(self):
         Data(["E:\\Files\\Ana Felix Snow Queen", "E:\\Photo\\sandbox"]).export_data_on_directories()
-        self.assertEqual(File(self.file_location).read("_dict"), self.expected_result)
+        self.assertEqual(File(self.file_location).read("dict"), self.expected_result)
 
 
 class IndexItemSize(unittest.TestCase):
 
     def test_zero_bytes(self):
-        results = Directory(0).get_appropriate_units()
+        results = get_appropriate_units(0)
         self.assertEqual(str(results[0]) + results[1], "0bytes")
 
     def test_kilobyte(self):
-        results = Directory(1024).get_appropriate_units()
+        results =  get_appropriate_units(1024)
         self.assertEqual(str(int(results[0])) + results[1], "1Kb")
 
     def test_negative_byte(self):
-        results = Directory(-1).get_appropriate_units()
+        results = get_appropriate_units(-1)
         self.assertEqual(str(results[0]) + results[1], "-1bytes")
-
-    def test_overflow_byte(self):
-        self.assertRaises(ByteOverflow, lambda:  Directory(3871283728371238172382).get_appropriate_units())
 
 if __name__ == "__main__":
     unittest.main()

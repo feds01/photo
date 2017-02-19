@@ -11,6 +11,7 @@ Description -
 
 """
 
+file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
 
 def get_largest_element(arr):
     return len(max(arr, key=len))
@@ -53,6 +54,25 @@ def get_command_path():
 
 def get_directory_separator():
         return os.sep
+
+
+def get_appropriate_units(size):
+    _size = size
+    byte_exponent = 1024
+    if size == 0:
+        return [size, "bytes", 1]
+    else:
+        for i in range(20):
+            if size / byte_exponent >= 1:
+                size /= byte_exponent
+                continue
+            elif size / byte_exponent < 1 and i == 0:
+                return [size, file_sizes[0], 1]
+            elif size / byte_exponent < 1:
+                try:
+                    return [round(_size / byte_exponent ** i, 2), file_sizes[i], byte_exponent ** i]
+                except KeyError:
+                    return [round(_size / byte_exponent **i, 2), i, byte_exponent**i]
 
 
 def handle_get_content(path, silent_mode=False):

@@ -73,7 +73,7 @@ class Delete:
     def delete_file(self):
         file_size = Directory(self.file_path).get_file_size()
         if not self.silent:
-            file_info = Directory(file_size).get_appropriate_units()
+            file_info = get_appropriate_units(file_size)
             print(f"deleting: {os.path.basename(self.file_path)} size: {str(file_info[0]) + file_info[1]}")
         try:
             os.remove(self.file_path)
@@ -86,5 +86,5 @@ class Delete:
         for file in self.delete_list:
             self.file_path = file
             self.delete_file()
-        self.total_size = Directory(self.total_size).get_appropriate_units()
+        self.total_size = get_appropriate_units(self.total_size)
         print(f"saved: {self.total_size[0]}{self.total_size[1]} of disk space with operation.")

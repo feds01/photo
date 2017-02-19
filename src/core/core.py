@@ -2,8 +2,6 @@ import ast
 from src.core.utils import *
 from src.core.config_extractor import *
 
-file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
-
 
 def _validate_content_load(content):
     if content is "":
@@ -15,13 +13,11 @@ def _validate_content_load(content):
 class Directory:
     def __init__(self, item):
         self.directory = item
-        self.byte_exponent_count = 1024
         self.directory_size = 0
         self.byte_size = self.directory
         self.directory_list = []
         self.file_extension_list = []
         self.directories = []
-        self.file_sizes = {0: " bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
         self.drive_letter = ""
         self.path = ""
 
@@ -172,21 +168,6 @@ class Directory:
         for file in self.directory:
             self.directory_size += os.path.getsize(file)
         return self.directory_size / unit
-
-    def get_appropriate_units(self):
-        if self.directory == 0:
-            return [self.directory, "bytes", 1]
-        if self.directory/1024**5 > 1:
-            ByteOverflow()
-        else:
-            for i in range(5):
-                if self.byte_size / self.byte_exponent_count >= 1:
-                    self.byte_size /= self.byte_exponent_count
-                    continue
-                if self.byte_size / self.byte_exponent_count < 1 and i == 0:
-                    return [self.directory, file_sizes[0], 1]
-                if self.byte_size / self.byte_exponent_count < 1:
-                    return [round(self.directory / self.byte_exponent_count ** i, 2), file_sizes[i], self.byte_exponent_count ** i]
 
     def get_file_size(self, unit=1):
         return os.path.getsize(self.directory) / unit

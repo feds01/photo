@@ -9,8 +9,6 @@ application_directories:
    - "instance_data.txt"
    - "removed_files_data.txt"
    - "completed_directories.txt"
-   artifact:
-   - "blacklist.txt"
    size_data      : "temp\\\\size_data.txt"
    table_data     : "temp\\\\table_data.txt"
    photo_data     : "temp\\\\instance_data.txt"
@@ -39,7 +37,7 @@ folders:
    - "Crt"
    - "_CRT"
 blacklist:
-    enabled: true
+    enabled: false
     location: "artifact\\\\blacklist.txt"
 
 thread:

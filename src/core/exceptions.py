@@ -41,13 +41,6 @@ class IndexingError(Exception):
         elif reason == "leaf":
             print('error: given directory(%s) is a leaf' % directory)
 
-
-class ByteOverflow(Exception):
-    def __init__(self):
-        print("while converting bytes to units, the byte count overflowed 1024**5.")
-        pass
-
-
 def config_warning(message):
     print('config: %s' % message)
 

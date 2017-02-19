@@ -1,5 +1,6 @@
 import time
 from matplotlib import pyplot as plt
+from multiprocessing import freeze_support
 from src.thread_indexer import *
 
 timings = []

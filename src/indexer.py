@@ -86,9 +86,9 @@ class Index:
 
     def run(self, pipe=False):
         if not Directory(self.path).check_directory():
-            Fatal("directory does not exist", True, 'directory= %s' % self.path)
+            raise Fatal("directory does not exist", False, 'directory= %s' % self.path)
         if run_blacklist_check(self.path, child=True):
-            Fatal("directory is blacklisted.", True, 'directory=%s' % self.path)
+            raise Fatal("directory is blacklisted.", False, 'directory=%s' % self.path)
         else:
             self.run_directory_index()
             self.apply_filter()
