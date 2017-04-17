@@ -119,7 +119,7 @@ class ThreadIndex:
             self.launch_process_pool()
 
     def run(self, pipe=False):
-        check_directory(self.path)
+        check_directory(self.path, self.use_blacklist)
         self.safe_process_count()
         self.photo_directories.append(self.validate_directory_structure(self.result))
         self.photo_directories = Utility().list_organiser(self.photo_directories)
