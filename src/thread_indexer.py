@@ -1,8 +1,8 @@
-from src.indexer import *
+from multiprocessing import Pool, Manager
 from numpy import array_split
-from multiprocessing import Pool
-from src.hooks.checks import *
-from src.core.utils import handle_get_content
+from src.indexer import *
+from src.thread.manager import Process
+from src.thread.protection import check_process_count
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -17,26 +17,29 @@ pool: str
 
 
 class ThreadIndex:
-    def __init__(self, path, use_blacklist=False, silent=False, max_instances=-1):
-        self.PROCESS_COUNT = os.cpu_count() * Config.get_specific_data('thread', 'instance_multiplier')
+    def __init__(self, path, use_blacklist=False, silent=False, max_instances=-1, no_check=False):
+        self.PROCESS_COUNT = check_process_count(True, True)
         self.JOB_QUEUE = []
         self.result = []
         self.nodes = []
         self.chunks = []
         self.photo_directories = []
+        self.interrupt_count = 0
         self.path = path
         self.use_blacklist = use_blacklist
         self.silent = silent
         self.max_instances = max_instances
+        self.no_check = no_check
+
 
     def get_nodes(self):
         self.nodes = Directory.get_branches(self.path, silent=self.silent)
         if self.use_blacklist:
             self.nodes = Blacklist.check_entry_existence(self.nodes)
         self.photo_directories.append(self.validate_directory_structure(paths=self.nodes))
-        self._node_permission_filter()
+        self._node_filter()
 
-    def _node_permission_filter(self):
+    def _node_filter(self):
         for node in self.nodes:
             # background check, user doesn't need to know second time
             if handle_get_content(node, silent_mode=True) == '':
@@ -46,9 +49,23 @@ class ThreadIndex:
 
     def launch_process_pool(self):
         global pool
-        with Pool(self.PROCESS_COUNT) as pool:
-            self.run_directory_index()
-            self.run_apply_filter()
+
+        try:
+            with Pool(self.PROCESS_COUNT) as pool:
+                if not self.no_check:
+                    for _process in pool._pool[:]:
+                        if not Process.register(_process.pid, 'thread'):
+                            Fatal('Process authentication error', True, 'there was a problem authorising a process launch')
+
+                self.run_directory_index()
+                self.run_apply_filter()
+
+        except KeyboardInterrupt:
+            self.interrupt_count += 1
+            print('interrupt, aborting!')
+            pass
+
+        finally:
             pool.close(), pool.join()
 
     def form_job_queue(self):
@@ -62,15 +79,28 @@ class ThreadIndex:
             self.JOB_QUEUE.append(list(block))
 
     def index_node(self, node):  # This is a target function!
-        instance = Index(path=node, thread_method=True, silent=self.silent, use_blacklist=self.use_blacklist)
-        instance.run_directory_index()
-        return instance.directories
+        if not Config.get_key_value('debug'):
+            sys.excepthook = exception_handler
+
+        try:
+            instance = Index(path=node, thread_method=True, silent=self.silent, use_blacklist=self.use_blacklist)
+            instance.run_directory_index()
+            return instance.directories
+        except KeyboardInterrupt:
+            print('interrupt, aborting!')
+            pass
 
     def apply_filter(self, directories):  # this is also a target function
-        instance = Index(path='', silent=self.silent)
-        instance.directories = directories
-        instance.apply_filter()
-        return instance.directories
+        try:
+            instance = Index(path='', silent=self.silent)
+            instance.directories = directories
+            instance.apply_filter()
+            return instance.directories
+
+        except KeyboardInterrupt:
+            self.interrupt_count += 1
+            print('cannot interrupt!')
+            pass
 
     def validate_directory_structure(self, paths):
         return Directory(paths).index_photo_directory(silent_mode=self.silent, max_instances=self.max_instances)
@@ -80,47 +110,26 @@ class ThreadIndex:
 
     def run_apply_filter(self):
         global pool
-        self.chunks = self.split_workload(self.result)
-        self.form_filter_job_queue()
-        self.result = pool.map(self.apply_filter, self.JOB_QUEUE)
-        self.result = Utility().list_organiser(self.result)
-        pool.close(), pool.join()
+        try:
+            self.chunks = self.split_workload(self.result)
+            self.form_filter_job_queue()
+            self.result = Utility().list_organiser(pool.map(self.apply_filter, self.JOB_QUEUE))
+            if not self.no_check:
+                Process.get_frame()
+
+        finally:
+            if not self.no_check:
+                Process.truncate(os.getpid())
 
     def run_directory_index(self):
         global pool
         self.get_nodes()
         self.form_job_queue()
-        self.result = pool.map(self.index_node, self.JOB_QUEUE)
-        self.result = Utility().list_organiser(self.result)
-
-    def safe_process_count(self):
-        if self.PROCESS_COUNT <= 0:
-            Fatal('process count cannot be %s' % self.PROCESS_COUNT, True,
-                  'incorrect config magic process number of %s' % self.PROCESS_COUNT,
-                  'instance_multiplier=%s' % (self.PROCESS_COUNT / os.cpu_count()))
-        if type(self.PROCESS_COUNT) != int:
-            try:
-                if round(self.PROCESS_COUNT, 0) == self.PROCESS_COUNT:
-                    self.PROCESS_COUNT = int(self.PROCESS_COUNT)
-                    if not self.silent:
-                        config_warning('magic process instance multiplier number was processed as float.')
-                else:
-                    Fatal('process count cannot be float.', True, 'incorrect config magic process number of %s' %
-                          (self.PROCESS_COUNT / os.cpu_count()))
-            except TypeError as error:
-                Fatal('process count cannot be float.', True, 'incorrect config magic process number of %s' %
-                      self.PROCESS_COUNT, 'incorrect type: %s' % type(self.PROCESS_COUNT), '%s' % error)
-        if self.PROCESS_COUNT > 32:
-            if not self.silent:
-                config_warning('magic process number is extremely large.')
-            else:
-                pass
-        else:
-            self.launch_process_pool()
+        self.result = Utility().list_organiser(pool.map(self.index_node, self.JOB_QUEUE))
 
     def run(self, pipe=False):
-        check_directory(self.path, self.use_blacklist)
-        self.safe_process_count()
+        check_directory(self.path)
+        self.launch_process_pool()
         self.photo_directories.append(self.validate_directory_structure(self.result))
         self.photo_directories = Utility().list_organiser(self.photo_directories)
         if pipe:

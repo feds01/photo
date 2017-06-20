@@ -36,7 +36,7 @@ def get_config_file_location():
         directories = file_index(os.path.dirname(directory))
     else:
         directories = file_index(directory)
-    # TODO: remove code in main build, just for finder to run quicker on this method
+    # TODO: remove hard-code in main build, just for finder to run quicker on this method
     for file in list(directories):
         if ".git" in file:
             directories.remove(file)

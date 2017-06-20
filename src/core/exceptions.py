@@ -1,3 +1,6 @@
+import sys
+import traceback
+
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -7,6 +10,17 @@ Usage:
 Description -
 
 """
+
+debug = True  # temporary value
+
+
+def exception_handler(type, value, tb):
+    if debug:
+        print(''.join(traceback.format_exception(type, value, tb)))
+    else:
+        pass
+
+sys.excepthook = exception_handler
 
 
 class Fatal(Exception):

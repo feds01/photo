@@ -84,7 +84,7 @@ class Index:
             self.directories = Directory(self.path).index_directory()
 
     def run(self, pipe=False):
-        check_directory(self.path, self.use_blacklist)
+        check_directory(self.path)
         self.run_directory_index()
         self.apply_filter()
         self.analyze_directories()

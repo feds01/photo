@@ -1,4 +1,4 @@
-application_root: "E:\\\\Photo\\\\"
+application_root: "F:\\\\projects\\\\Photo\\\\"
 application_directories:
    dirs:
    - "temp"
@@ -37,7 +37,7 @@ folders:
    - "Crt"
    - "_CRT"
 blacklist:
-    enabled: false
+    enabled: true
     location: "artifact\\\\blacklist.txt"
 
 thread:

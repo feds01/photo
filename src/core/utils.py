@@ -30,19 +30,14 @@ def find_element(arr, case):
 
 
 def extension_swapper(file, ext, remove_dot=False):
-    if remove_dot:
-        return file[:-4] + ext
-    else:
-        return file[:-3] + ext
+    return file[:-4] + ext if remove_dot else file[:-3] + ext
 
 
 def generate_border(data, use_str=False):
-        if use_str:
-            return len(str(data)) + 2
         if data >= 4:
             return data + 1
-        else:
-            return 4
+
+        return len(str(data)) + 2 if use_str else 4
 
 
 def convert_list(int_list):
@@ -81,15 +76,18 @@ def get_appropriate_units(size):
 
 def handle_get_content(path, silent_mode=False):
     try:
-        content = os.listdir(path)
-    except PermissionError:
+        return list(os.listdir(path))
+
+    except Exception as e:
         if silent_mode:
             pass
         else:
-            IndexingError(path, 'permissions')
-        return ""
-    return content
+            if e is PermissionError:
+                IndexingError(path, 'permissions')
+            if e is FileNotFoundError:
+                IndexingError(path, 'un-loadable')
 
+        return ""
 
 class Utility:
     def __init__(self):

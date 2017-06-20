@@ -3,6 +3,7 @@ from src.cli_helpers import *
 from src.cleaner import *
 from src.data import Table
 from src.thread_indexer import *
+from src.thread.manager import Process
 from multiprocessing import freeze_support
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -18,18 +19,18 @@ max_id = 0
 
 class Arguments:
     path = ''
-    safe = ''
+    safe = True
     blacklist = blacklist_default
-    silent = ''
-    thread = ''
+    silent = False
+    thread = False
     pass
 
 
 def run_scan(mode):
     if mode == 'thread':
-        ThreadIndex(arguments.path, arguments.blacklist, arguments.silent).run(pipe=True)
+        ThreadIndex(path=arguments.path, use_blacklist=arguments.blacklist, silent=arguments.silent).run(pipe=True)
     else:
-        Index(arguments.path, arguments.blacklist, arguments.silent).run(pipe=True)
+        Index(path=arguments.path, use_blacklist=arguments.blacklist, silent=arguments.silent).run(pipe=True)
 
 
 def load_table():
@@ -64,22 +65,25 @@ parser.add_argument('-t', '--thread', default=False, action='store_true', help='
 parser.add_argument('-b', '--blacklist', default=blacklist_default, action='store_true', help='use the blacklist to filter out unwanted directories')
 parser.add_argument('-s', '--silent', default=False, action='store_true', help="don't display mild error messages or warnings.")
 parser.add_argument('--safe', default=True, action='store_true', help='inform user of any file operations')
-
-
 parser.parse_args(namespace=arguments)
-if arguments.path == '':
-    arguments.path = get_command_path()
 
-if arguments.blacklist and not blacklist_default:
-    if not arguments.silent:
-        if __name__ == '__main__':
-            config_warning('blacklist is not enabled in config, but is being used.')
+if __name__ == '__main__':
+        if arguments.path == '':
+            arguments.path = get_command_path()
 
-if not Directory(arguments.path).check_directory():
-    Fatal("directory does not exist", True, 'directory=%s' % arguments.path)
-else:
-    if __name__ == '__main__':
+        if not Directory(arguments.path).check_directory():
+            Fatal("directory does not exist", True, 'directory=%s' % arguments.path)
+
+        if arguments.blacklist and not blacklist_default:
+            if not arguments.silent:
+                config_warning('blacklist is not enabled in config, but is being used.')
+
+        if arguments.thread:
+            check_process_count(silent=arguments.silent, return_pnum=True)
+
+
         freeze_support()
+        Process.register(os.getpid(), 'parent')
         arguments.path = Directory(arguments.path).standardise_drive()
         run_scan(get_scan_type(arguments.thread))
         Table().make_table()
