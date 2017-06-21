@@ -79,7 +79,7 @@ class ThreadIndex:
             self.JOB_QUEUE.append(list(block))
 
     def index_node(self, node):  # This is a target function!
-        if not Config.get_key_value('debug'):
+        if not Config.get('debug'):
             sys.excepthook = exception_handler
 
         try:

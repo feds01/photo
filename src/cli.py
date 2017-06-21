@@ -12,7 +12,7 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 CLI_INPUT_BLOCK = "~$ "
 finished_jobs = 0
-blacklist_default = Config.get_specific_data('blacklist', 'enabled')
+blacklist_default = Config.get('blacklist.enabled')
 dirs = []
 max_id = 0
 
@@ -36,7 +36,7 @@ def run_scan(mode):
 def load_table():
     global max_id, dirs
     dirs = []
-    max_id = len(File(Config.join_specific_data('application_root', 'application_directories', 'table_data')).read('dict'))
+    max_id = len(File(Config.join_specific_data('application_root', 'application_directories.table_data')).read('dict'))
     for i in range(1, max_id + 1):
         dirs.append(Table().load_instance_by_id(i)[0])
 

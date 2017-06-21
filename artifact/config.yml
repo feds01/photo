@@ -51,3 +51,4 @@ file_extensions:
    good:
    - ".jpg"
 
+debug: true

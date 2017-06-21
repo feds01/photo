@@ -9,7 +9,7 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 class IndexWithNormalMethod(unittest.TestCase):
 
     def test_method(self):
-        self.assertEqual(Index(path="C:\\Temp").run(pipe=False), ["C:\\Temp\\test"])
+        self.assertEqual(Index(path="C:\\Temp").run(pipe=False), ["C:\\Temp\\test", 'C:\\Temp\\test2\\Ana Felix Snow Queen'])
 
     def test_fake_dir(self):
         self.assertRaises(Fatal, lambda: Index(path="E:\\Photo\\").run(pipe=False))
@@ -21,7 +21,7 @@ class IndexWithNormalMethod(unittest.TestCase):
 class IndexWithThreadMethod(unittest.TestCase):
 
     def test_method(self):
-        self.assertEqual(ThreadIndex("C:\\Temp", no_check=True).run(), ["C:\\Temp\\test"])
+        self.assertEqual(ThreadIndex("C:\\Temp", no_check=True).run(), ["C:\\Temp\\test", 'C:\\Temp\\test2\\Ana Felix Snow Queen'])
 
     def test_fake_dir(self):
         self.assertRaises(Fatal, lambda: ThreadIndex(path="E:\\Photo\\").run(pipe=False))
