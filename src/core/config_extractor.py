@@ -19,28 +19,22 @@ class _Config:
         except Exception as exc:
             yml_error(exc)
 
-    def retrieve_data(self, key):
-        for group_key in self.get_key_value(key):
-            self.data.update({group_key: self.get_key_value(key)[group_key]})
+    def join_specific_data(self, key1, key2):
+        return self.get(key1) + self.get(key2)
 
-    def get_specific_data(self, key, specific):
-        self.retrieve_data(key)
+    def get(self, req):
+        keys = req.split('.')
+        data = self._raw_data
+        for key in keys:
+            if key in data.keys():
+                data = data.get(key)
+                continue
+            else:
+                Fatal('config is unreadable', True, 'key was not found, but expected', 'key=%s' % req)
         try:
-            return self.data[specific]
-        except Exception as exc:
-            Fatal('config is unreadable', True, 'key was not found, but expected', 'key=%s' % exc)
-
-    def get_key_value(self, key):
-        return self._raw_data.get(key)
-
-    def get_specific_keys(self, key):
-        try:
-            return list(self._raw_data.get(key).keys())
-        except Exception as exc:
-            Fatal('config is unreadable', True, 'key was not found, but expected', 'key=%s' % exc)
-
-    def join_specific_data(self, key1, key2, key_subset):
-        return self.get_key_value(key1) + self.get_specific_data(key2, key_subset)
+            return data.keys()
+        except Exception:
+            return data
 
 
 Config = _Config()

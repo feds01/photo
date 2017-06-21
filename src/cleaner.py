@@ -23,9 +23,9 @@ class Analyse:
             directories = Directory(self.directory).index_photo_directory(return_folders=True)
             keys = list(directories.keys())
             for key in keys:
-                if key in Config.get_specific_data("folders", "crt_folder_name"):
+                if key in Config.get("folders.crt_folder_name"):
                     self.directories.update({'crt': directories.get(key)})
-                if key in Config.get_specific_data("folders", "all_folder_name"):
+                if key in Config.get("folders.all_folder_name"):
                     self.directories.update({'all': directories.get(key)})
                 else:
                     self.directories.update({'good': directories.get(key)})
@@ -41,7 +41,7 @@ class Analyse:
 
     def find_crt_files(self):
         crt_files = Directory(self.directories.get('crt')).index_directory(file=True)
-        crt_extensions = Config.get_specific_data("file_extensions", "crt")
+        crt_extensions = Config.get("file_extensions.crt")
         for file in self.files:
             crt_version = []
             for extension in crt_extensions:

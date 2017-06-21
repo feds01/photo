@@ -47,7 +47,7 @@ class Directory:
         # a smarter method to filter with blacklists, modifies what
         # os.walk visits by removing from dirs necessary entries
 
-        artifact_location = Config.join_specific_data('application_root', 'blacklist', 'location')
+        artifact_location = Config.join_specific_data('application_root', 'blacklist.location')
         self.drive_letter = self.get_directory_drive(self.directory)
         blacklist = File(artifact_location).read(specific='list')
         for entry in blacklist:
@@ -94,12 +94,12 @@ class Directory:
         return self.file_extension_list
 
     def index_photo_directory(self, return_folders=False, silent_mode=False, max_instances=-1):
-        folder_keys = Config.get_specific_keys("folders")
+        folder_keys = Config.get("folders")
         all_keys = []
         self.directory = Utility().list_organiser([self.directory])
         self.directories = []
         for basename_key in folder_keys:
-            all_keys.append(Config.get_specific_data("folders", basename_key))
+            all_keys.append(Config.get("folders." + basename_key))
         all_keys = Utility().list_organiser(all_keys)
 
         def method(path):
@@ -196,9 +196,9 @@ class Directory:
 
 class File:
     def __init__(self, file):
-        self.application_root = Config.get_key_value("application_root")
-        self.application_dirs = Config.get_specific_data("application_directories", "dirs")
-        self.files = Config.get_specific_data("application_directories", "temp")
+        self.application_root = Config.get("application_root")
+        self.application_dirs = Config.get("application_directories.dirs")
+        self.files = Config.get("application_directories.temp")
         self.file = file
         self.data = ""
 
@@ -215,7 +215,7 @@ class File:
                 for _file in self.files:
                     self.file = os.path.join(self.application_root, application_dir, _file)
                     self.create()
-        self.file = Config.join_specific_data('application_root', 'blacklist', 'location')
+        self.file = Config.join_specific_data('application_root', 'blacklist.location')
         self.create()
 
     def clean_files(self):

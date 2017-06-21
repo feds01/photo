@@ -68,7 +68,7 @@ class _Blacklist:
     def __init__(self):
         self.blacklist = []
         self.bad_entries = []
-        self.file_location = Config.join_specific_data('application_root', 'blacklist', 'location')
+        self.file_location = Config.join_specific_data('application_root', 'blacklist.location')
         self.read_blacklist()
 
     def read_blacklist(self):

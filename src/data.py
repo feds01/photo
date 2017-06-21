@@ -26,7 +26,7 @@ class Data:
         self.extension_keys = []
 
     def fetch_data_destination_path(self):
-        self.destination_file = Config.join_specific_data('application_root', 'application_directories', 'size_data')
+        self.destination_file = Config.join_specific_data('application_root', 'application_directories.size_data')
         return self.destination_file
 
     def create_data_on_directory(self, given_path):
@@ -38,9 +38,9 @@ class Data:
             self.directory_data.append([0, 0, 0, 0])
             self.directory_data = Utility().list_organiser(self.directory_data)
         else:
-            self.extension_keys = Config.get_specific_keys("file_extensions")
+            self.extension_keys = Config.get("file_extensions")
             for specific_key in sorted(self.extension_keys):
-                for extension in Config.get_specific_data("file_extensions", specific_key):
+                for extension in Config.get("file_extensions." + specific_key):
                     if extension == ".jpg":
                         jpg_count_data = self.analysis_path.find_specific_file(extension, self.file_list, case_sensitive=False)
                         self.counter_data.append(jpg_count_data)
@@ -70,7 +70,7 @@ class Table:
         self.max_rows = max_instances
         self.data_packets = 0
         self.path_size = max_size
-        self.file_location = Config.join_specific_data('application_root', 'application_directories', 'size_data')
+        self.file_location = Config.join_specific_data('application_root', 'application_directories.size_data')
         self.import_data = File(self.file_location).read("dict")
         self.headers = ["ID", "Path", "crt", "dng", "tif", "jpg"]
         self.table = PrettyTable()
@@ -91,7 +91,7 @@ class Table:
                 dict(self.import_data).pop(i)
 
     def export_table_data(self):
-        self.destination_file = Config.join_specific_data('application_root', 'application_directories', 'table_data')
+        self.destination_file = Config.join_specific_data('application_root', 'application_directories.table_data')
         File(self.destination_file).write(self.all_rows)
 
     def get_specific_data_from_import(self, sub_key):

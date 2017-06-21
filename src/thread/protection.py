@@ -3,7 +3,7 @@ import random
 from src.core.config_extractor import *
 
 def check_process_count(silent=False, return_pnum=False):
-    _raw_value = os.cpu_count() * Config.get_specific_data('thread', 'instance_multiplier')
+    _raw_value = os.cpu_count() * Config.get('thread.instance_multiplier')
 
     if _raw_value <= 0:
         Fatal('process count cannot be %s' % _raw_value, True,
