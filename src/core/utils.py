@@ -14,9 +14,6 @@ Description -
 file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
 
 
-def get_scan_type(var):
-    return 'thread' if var else 'normal'
-
 def get_largest_element(arr):
     return len(max(arr, key=len))
 
@@ -40,11 +37,8 @@ def generate_border(data, use_str=False):
         return len(str(data)) + 2 if use_str else 4
 
 
-def convert_list(int_list):
-        str_list = []
-        for i in int_list:
-            str_list.append(str(i))
-        return str_list
+def to_string(int_list):
+        return [str(i) for i in int_list]
 
 
 def get_command_path():
@@ -88,6 +82,7 @@ def handle_get_content(path, silent_mode=False):
                 IndexingError(path, 'un-loadable')
 
         return ""
+
 
 class Utility:
     def __init__(self):

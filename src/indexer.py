@@ -83,7 +83,7 @@ class Index:
         else:
             self.directories = Directory(self.path).index_directory()
 
-    def run(self, pipe=False):
+    def run(self, pipe=True):
         check_directory(self.path)
         self.run_directory_index()
         self.apply_filter()

@@ -125,7 +125,7 @@ class Table:
     def make_border(self):
         borders = []
         for i in range(2, 6):
-            i = convert_list(self.get_specific_data_from_import(i))
+            i = to_string(self.get_specific_data_from_import(i))
             self.border_data.append(generate_border(get_largest_element(i)))
         for i in self.border_data:
             borders.append(self.border_symbol * int(i))

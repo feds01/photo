@@ -1,4 +1,4 @@
-from multiprocessing import Pool, Manager
+from multiprocessing import Pool
 from numpy import array_split
 from src.indexer import *
 from src.thread.manager import Process
@@ -127,12 +127,13 @@ class ThreadIndex:
         self.form_job_queue()
         self.result = Utility().list_organiser(pool.map(self.index_node, self.JOB_QUEUE))
 
-    def run(self, pipe=False):
+    def run(self, pipe=True):
         check_directory(self.path)
         self.launch_process_pool()
         self.photo_directories.append(self.validate_directory_structure(self.result))
         self.photo_directories = Utility().list_organiser(self.photo_directories)
         if pipe:
+            print('hello!')
             Data(self.photo_directories).export_data_on_directories()
         else:
             return self.photo_directories

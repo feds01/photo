@@ -26,11 +26,13 @@ class Arguments:
     pass
 
 
-def run_scan(mode):
-    if mode == 'thread':
-        ThreadIndex(path=arguments.path, use_blacklist=arguments.blacklist, silent=arguments.silent).run(pipe=True)
+def run_scan():
+    if arguments.thread:
+        ThreadIndex(path=arguments.path, use_blacklist=arguments.blacklist, silent=arguments.silent).run()
     else:
-        Index(path=arguments.path, use_blacklist=arguments.blacklist, silent=arguments.silent).run(pipe=True)
+        Index(path=arguments.path, use_blacklist=arguments.blacklist, silent=arguments.silent).run()
+
+    Table().make_table()
 
 
 def load_table():
@@ -43,11 +45,7 @@ def load_table():
 
 def refresh():
     if finished_jobs > 0:
-        if bool(prompt_user('Refresh index results? [Y/n] ', ['y', 'n']) == 'y'):
-            run_scan(get_scan_type(arguments.thread))
-            return True
-        else:
-            return False
+        return True, run_scan() if bool(prompt_user('Refresh index results? [Y/n] ', ['y', 'n']) == 'y') else False
     else:
         return False
 
@@ -56,6 +54,9 @@ def prepare(directory):
     files = Analyse(directory).run_analysis()
     return Delete(select_files(files), arguments.silent).deletion_manager()
 
+
+def setup():
+    arguments.path = Directory(arguments.path).standardise_drive()
 
 arguments = Arguments()
 parser = argparse.ArgumentParser(description="Remove redundant photo backup's")
@@ -79,15 +80,14 @@ if __name__ == '__main__':
                 config_warning('blacklist is not enabled in config, but is being used.')
 
         if arguments.thread:
+            Process.register(os.getpid(), 'parent')
             check_process_count(silent=arguments.silent, return_pnum=True)
-
-
-        freeze_support()
-        Process.register(os.getpid(), 'parent')
-        arguments.path = Directory(arguments.path).standardise_drive()
-        run_scan(get_scan_type(arguments.thread))
-        Table().make_table()
-        print()
+        # environment setup
+        print('beginning scan of %s ' % arguments.path)
+        freeze_support(), setup()
+        # actual scan function calls
+        run_scan()
+        # user interface
         print("Enter ID of directory or enter path of directory to continue")
         while True:
             directory_input = input(CLI_INPUT_BLOCK)
