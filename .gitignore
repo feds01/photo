@@ -1,17 +1,17 @@
-#pycharm IDE project files
+#
+pycharm IDE project files
 .idea/
 #tests
-sandbox/
+/sandbox/
 #tests
 /tests/*
 #python execution files
-src/__pycache__/
-src/core/__pycache__/
-src/hooks/__pycache__/
-__pycache__/
+
+*__pycache__/
 #temporary files
 /temp/*
 #articafts
 /artifact/*
 #documents
-docs/
+/docs/
+/dev/

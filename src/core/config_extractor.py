@@ -1,4 +1,5 @@
 import yaml
+from src.core.utils import global_get
 from src.config_manager import get_config_file_location
 from src.core.exceptions import *
 
@@ -23,19 +24,7 @@ class _Config:
         return self.get(key1) + self.get(key2)
 
     def get(self, req):
-        keys = req.split('.')
-        data = self._raw_data
-        for key in keys:
-            if key in data.keys():
-                data = data.get(key)
-                continue
-            else:
-                Fatal('config is unreadable', True, 'key was not found, but expected', 'key=%s' % req)
-        try:
-            return data.keys()
-        except Exception:
-            return data
-
+        return global_get(self._raw_data, req)
 
 Config = _Config()
 del _Config

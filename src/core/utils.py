@@ -84,6 +84,72 @@ def handle_get_content(path, silent_mode=False):
         return ""
 
 
+def global_get(data_structure, req):
+    keys = []
+    pos = 0
+    found_dot = False
+    while True:
+        if pos > len(req) - 1:
+            break
+        else:
+            symbol = req[pos]
+
+        if req[0] == "'" and not found_dot:
+            pos = (req[1:]).index("'")
+            keys.append(req[1: pos + 1])
+            found_dot = True
+
+        if symbol == '.':
+            if not found_dot:
+                keys.append(req[0: pos])
+                found_dot = True
+
+            if req[pos + 1] == "'":
+                pos += 2
+                o_pos = pos
+                symbol = ''
+                while symbol != "'":
+                    if pos > len(req) - 1:
+                        keys.append(req[o_pos: pos])
+                        break
+                    else:
+                        symbol = req[pos]
+                        if symbol == "'":
+                            keys.append(req[o_pos: pos])
+                    pos += 1
+
+            else:
+                symbol = ''
+                pos += 1
+                o_pos = pos
+                while symbol != '.':
+                    if pos > len(req) - 1:
+                        keys.append(req[o_pos: pos])
+                        break
+                    else:
+                        symbol = req[pos]
+                        if symbol == '.':
+                            keys.append(req[o_pos: pos])
+                    pos += 1
+                pos -= 1
+        else:
+            pos += 1
+
+    if len(keys) == 0:
+        keys.append(req)
+
+    for key in keys:
+        if key in data_structure.keys():
+            data_structure = data_structure.get(key)
+            continue
+        else:
+            Fatal('Unreadable information', True, 'key was not found, but expected', 'key=%s' % req)
+    try:
+        return data_structure.keys()
+    except:
+        return data_structure
+
+
 class Utility:
     def __init__(self):
         self.final_list = []
