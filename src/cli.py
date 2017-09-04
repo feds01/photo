@@ -1,4 +1,8 @@
+# setup to extent to system paths
+import sys, os
 import argparse
+
+sys.path.extend(os.pardir)
 from src.cli_helpers import *
 from src.cleaner import *
 from src.data import Table
@@ -40,7 +44,7 @@ def load_table():
     dirs = []
     max_id = len(File(Config.join_specific_data('application_root', 'application_directories.table_data')).read('dict'))
     for i in range(1, max_id + 1):
-        dirs.append(Table().load_instance_by_id(i)[0])
+        dirs.append(Table().load_instance_by_id(i).get('path'))
 
 
 def refresh():
@@ -100,7 +104,7 @@ if __name__ == '__main__':
                     print('loading - %s' % dirs[directory_input-1])
                     loader(Table().load_instance_by_id(directory_input))
                     if bool(prompt_user('Are you sure you want to continue? [Y/n] ', ['y', 'n']) == 'y'):
-                        if prepare(Table().load_instance_by_id(directory_input)[0]):
+                        if prepare(Table().load_instance_by_id(directory_input).get('path')):
                             print()
                     else:
                         print()

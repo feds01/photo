@@ -23,9 +23,9 @@ class Analyse:
             directories = Directory(self.directory).index_photo_directory(return_folders=True)
             keys = list(directories.keys())
             for key in keys:
-                if key in Config.get("folders.crt_folder_name"):
+                if re.fullmatch(Config.get("folders.crt.pattern"), key):
                     self.directories.update({'crt': directories.get(key)})
-                if key in Config.get("folders.all_folder_name"):
+                if re.fullmatch(Config.get("folders.all.pattern"), key):
                     self.directories.update({'all': directories.get(key)})
                 else:
                     self.directories.update({'good': directories.get(key)})

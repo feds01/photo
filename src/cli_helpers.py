@@ -1,6 +1,7 @@
 import time
 import subprocess
 from src.thread_indexer import *
+from src.utilities.manipulation import get_largest_element
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -33,16 +34,17 @@ def fancy_tree_display(roots, values):
 def loader(data):
     instance_leaves = {}
     file_count = 0
-    for directory in data[1]:
+    for directory in data.get('photo'):
         instance_leaves.update({os.path.basename(directory): Directory(directory).index_directory(count=True, file=True)})
-    data.pop(1)
-    print("More detail about the photo directory - '" + os.path.basename(data[0]) + "' :\n")
-    print("Full directory path: ", data[0])
-    for i in range(1, 5):
-        file_count += data[i]
+    data.pop('photo')
+    print("More detail about the photo directory - '" + os.path.basename(data.get('path')) + "' :\n")
+    print("Full directory path: ", data.get('path'))
+    for i in data.get('file_list').values():
+        file_count += i[0]
+
     print("Total files:", file_count)
     print(fancy_tree_display(list(instance_leaves.keys()), list(instance_leaves.values())))
-    print("Total directory size: " + str(data[-1][0]) + " " + data[-1][1])
+    print("Total directory size: %s%s" % (data.get('size')[0], data.get('size')[1]))
 
 
 def open_file(file):

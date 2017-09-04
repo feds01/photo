@@ -1,6 +1,7 @@
-from multiprocessing import Pool
-from numpy import array_split
+import signal
 from src.indexer import *
+from numpy import array_split
+from multiprocessing import Pool
 from src.thread.manager import Process
 from src.thread.protection import check_process_count
 
@@ -24,13 +25,11 @@ class ThreadIndex:
         self.nodes = []
         self.chunks = []
         self.photo_directories = []
-        self.interrupt_count = 0
         self.path = path
         self.use_blacklist = use_blacklist
         self.silent = silent
         self.max_instances = max_instances
         self.no_check = no_check
-
 
     def get_nodes(self):
         self.nodes = Directory.get_branches(self.path, silent=self.silent)
@@ -55,15 +54,14 @@ class ThreadIndex:
                 if not self.no_check:
                     for _process in pool._pool[:]:
                         if not Process.register(_process.pid, 'thread'):
-                            Fatal('Process authentication error', True, 'there was a problem authorising a process launch')
+                            Fatal('Process authentication error', True,
+                                  'there was a problem authorising a process launch')
 
                 self.run_directory_index()
                 self.run_apply_filter()
 
         except KeyboardInterrupt:
-            self.interrupt_count += 1
-            print('interrupt, aborting!')
-            pass
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         finally:
             pool.close(), pool.join()
@@ -79,7 +77,7 @@ class ThreadIndex:
             self.JOB_QUEUE.append(list(block))
 
     def index_node(self, node):  # This is a target function!
-        if not Config.get('debug'):
+        if Config.get('debug'):
             sys.excepthook = exception_handler
 
         try:
@@ -87,8 +85,7 @@ class ThreadIndex:
             instance.run_directory_index()
             return instance.directories
         except KeyboardInterrupt:
-            print('interrupt, aborting!')
-            pass
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     def apply_filter(self, directories):  # this is also a target function
         try:
@@ -98,9 +95,7 @@ class ThreadIndex:
             return instance.directories
 
         except KeyboardInterrupt:
-            self.interrupt_count += 1
-            print('cannot interrupt!')
-            pass
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
 
     def validate_directory_structure(self, paths):
         return Directory(paths).index_photo_directory(silent_mode=self.silent, max_instances=self.max_instances)
@@ -113,7 +108,7 @@ class ThreadIndex:
         try:
             self.chunks = self.split_workload(self.result)
             self.form_filter_job_queue()
-            self.result = Utility().list_organiser(pool.map(self.apply_filter, self.JOB_QUEUE))
+            self.result = organise_list(pool.map(self.apply_filter, self.JOB_QUEUE))
             if not self.no_check:
                 Process.get_frame()
 
@@ -125,15 +120,14 @@ class ThreadIndex:
         global pool
         self.get_nodes()
         self.form_job_queue()
-        self.result = Utility().list_organiser(pool.map(self.index_node, self.JOB_QUEUE))
+        self.result = organise_list(pool.map(self.index_node, self.JOB_QUEUE))
 
     def run(self, pipe=True):
         check_directory(self.path)
         self.launch_process_pool()
         self.photo_directories.append(self.validate_directory_structure(self.result))
-        self.photo_directories = Utility().list_organiser(self.photo_directories)
+        self.photo_directories = organise_list(self.photo_directories)
         if pipe:
-            print('hello!')
-            Data(self.photo_directories).export_data_on_directories()
+            Data(self.photo_directories).export()
         else:
             return self.photo_directories

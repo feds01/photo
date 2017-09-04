@@ -1,6 +1,7 @@
-import ast
-from src.core.utils import *
+import re
+from src.core.fileio import *
 from src.core.config_extractor import *
+from src.utilities.simple import organise_list
 
 
 def _validate_content_load(content):
@@ -94,24 +95,40 @@ class Directory:
         return self.file_extension_list
 
     def index_photo_directory(self, return_folders=False, silent_mode=False, max_instances=-1):
-        folder_keys = Config.get("folders")
-        all_keys = []
-        self.directory = Utility().list_organiser([self.directory])
+        crt_pattern  = re.compile(Config.get('folders.crt.pattern'))
+        all_pattern  = re.compile(Config.get('folders.all.pattern'))
+        good_pattern = re.compile(Config.get('folders.good.pattern'))
+        self.directory = organise_list([self.directory])
         self.directories = []
-        for basename_key in folder_keys:
-            all_keys.append(Config.get("folders." + basename_key))
-        all_keys = Utility().list_organiser(all_keys)
 
         def method(path):
             directories = {}
             content = handle_get_content(path, silent_mode=silent_mode)
             _validate_content_load(content)
-            for basename in all_keys:
-                    if basename in content:
-                        directories.update({basename: os.path.join(path, basename)})
-                    else:
-                        pass
+
+            def _find_item(directory):
+                if crt_pattern.fullmatch(directory):
+                    return directory
+                if all_pattern.fullmatch(directory):
+                    return directory
+                if good_pattern.fullmatch(directory):
+                    return directory
+                else:
+                    return False
+
+            for item in content:
+                check = _find_item(item)
+                if bool(check):
+                    directories.update({check: os.path.join(path, check)})
+
+                if len(directories.keys()) == 3:
+                    break
+
+                else:
+                    continue
+
             return directories
+
         if return_folders:
             return method(self.directory[0])
 
@@ -135,19 +152,17 @@ class Directory:
     def check_directory(self):
         return os.path.exists(self.directory)
 
-    def check_file(self):
-        return os.path.isfile(self.directory)
-
     @staticmethod
     def get_branches(path, silent=False):
         path_list = handle_get_content(path, silent)
         _validate_content_load(path_list)
         branch_directories = []
         for directory in path_list:
-            if Directory(os.path.join(path, directory)).check_file():
+            if check_file(os.path.join(path, directory)):
                 pass
             else:
                 branch_directories.append(os.path.join(path, directory))
+
         return branch_directories
 
     @staticmethod
@@ -192,65 +207,3 @@ class Directory:
                 return file
             else:
                 pass
-
-
-class File:
-    def __init__(self, file):
-        self.application_root = Config.get("application_root")
-        self.application_dirs = Config.get("application_directories.dirs")
-        self.files = Config.get("application_directories.temp")
-        self.file = file
-        self.data = ""
-
-    def setup_directories(self):
-        for directory in self.application_dirs:
-            try:
-                os.mkdir(os.path.join(self.application_root, directory))
-            except FileExistsError:
-                pass
-
-    def setup_files(self):
-        for application_dir in self.application_dirs:
-            if application_dir == "temp":
-                for _file in self.files:
-                    self.file = os.path.join(self.application_root, application_dir, _file)
-                    self.create()
-        self.file = Config.join_specific_data('application_root', 'blacklist.location')
-        self.create()
-
-    def clean_files(self):
-        for file in self.files:
-            with open(os.path.join(self.application_root, 'temp', file), "w") as f:
-                f.flush(), f.truncate(), f.close()
-
-    def write(self, data):
-        if not Directory(self.file).check_file():
-            return 0
-        else:
-            with open(self.file, "w") as f:
-                f.write(str(data)), f.close()
-
-    def read(self, specific):
-        if not Directory(self.file).check_file():
-            return None
-        else:
-            with open(self.file, "r") as f:
-                try:
-                    self.data = f.read()
-                except SyntaxError:
-                    if specific is "list":
-                        return []
-                    else:
-                        return {}
-                finally:
-                    f.close()
-                if specific in ["dict", "list"]:
-                    return ast.literal_eval(self.data)
-                else:
-                    return self.data
-
-    def remove(self):
-        os.remove(self.file)
-
-    def create(self):
-        open(self.file, mode='w')

@@ -1,13 +1,14 @@
 import logging
+from src.core.config_extractor import Config
 
 # set up logging to file - see previous section for more details
 logging.basicConfig(level=logging.DEBUG,
                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                     datefmt='%m-%d %H:%M',
-                    filename='C:\\temp\\photo.log',
+                    filename=Config.get('log_file'),
                     filemode='w')
 
-logger = logging.FileHandler('C:\\temp\\photo.log')
+logger = logging.FileHandler(Config.get('log_file'))
 logger.setLevel(logging.DEBUG)
 
 # Now, we can log to the root logger, or any other logger. First the root...

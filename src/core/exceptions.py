@@ -1,5 +1,6 @@
 import sys
 import traceback
+from src.utilities.simple import query_user
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -15,12 +16,38 @@ debug = True  # temporary value
 
 
 def exception_handler(type, value, tb):
+    print(type)
+    if type == KeyboardInterrupt:
+        print('w_root.kernel.system.process.exception.keyboard_i= True')
+        pass
+
     if debug:
         print(''.join(traceback.format_exception(type, value, tb)))
     else:
         pass
 
 sys.excepthook = exception_handler
+
+
+class simple_error(Exception):
+    def __init__(self, message, try_recovery, info):
+        print('error: %s' % message)
+        self.info = info
+
+        if try_recovery:
+            self.recovery()
+        else:
+            pass
+
+    def recovery(self):
+        e_description = self.info.get('e_type').split('.')
+
+        if e_description[0] == 'file':
+            print('file operation on object - %s' % self.info.get('object'))
+
+        elif e_description[0] == 'process':
+            if e_description[1] == 'kb_error':
+                return bool(query_user('Perform a re-scan? [y/n]', ('y', 'n')) == 'y')
 
 
 class Fatal(Exception):

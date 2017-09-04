@@ -83,6 +83,11 @@ class _Process:
 
         return False if instability_level > 0 else True
 
+    def alert(self, e_code):
+        if e_code == 0x1:
+            self._process_list = []
+            return simple_error('Keyboard interrupt caused for process threads to be destroyed', True, 'process.kb_error')
+
 
 Process = _Process()
 del _Process

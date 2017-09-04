@@ -1,4 +1,5 @@
 from src.core.core import *
+from src.utilities.simple import organise_list
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -74,8 +75,14 @@ class _Blacklist:
     def read_blacklist(self):
         self.blacklist = File(file=self.file_location).read(specific="list")
 
+        if self.blacklist is None:
+            check_blacklist_existence(self.file_location)
+            self.read_blacklist()
+
+
+
     def update_blacklist(self, instruction, *array):
-        array = Utility().list_organiser([array])
+        array = organise_list([array])
         if instruction == self._INSERT:
             self.blacklist.extend(array)
         elif instruction == self._REMOVE:
@@ -87,7 +94,7 @@ class _Blacklist:
         File(self.file_location).write(self.blacklist)
 
     def check_entry_existence(self, entries, inverted=False):
-        entries = Utility().list_organiser([entries])
+        entries = organise_list([entries])
         verify_list = []
         for entry in entries:
             if entry in self.blacklist:
@@ -104,7 +111,7 @@ class _Blacklist:
             return verify_list
 
     def check_child_entry(self, entries, inverted=False):
-        entries = Utility().list_organiser([entries])
+        entries = organise_list([entries])
         verify_list = []
         for item in self.blacklist:
             for entry in entries:

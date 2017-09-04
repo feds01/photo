@@ -16,39 +16,27 @@ application_directories:
    completed_dirs : "temp\\\\completed_directories.txt"
 
 folders:
-   good_folder_name:
-   - "_Good"
-   - "_GOOD"
-   - "_good"
-   - "Good"
-   - "GOOD"
-   - "good"
-   all_folder_name:
-   - "_all"
-   - "_ALL"  
-   - "all"
-   - "All"
-   - "ALL"
-   crt_folder_name:
-   - "_DNG"
-   - "DNG"
-   - "crt"
-   - "CRT"
-   - "Crt"
-   - "_CRT"
+    good:
+        pattern: "(_|)[gG][oO]{2}[dD]"
+    all:
+        pattern: "(_|)[aA][lL]{2}"
+    crt:
+        pattern: "(_|)[dDcC][nNrR][gGtT]"
+
 blacklist:
-    enabled: true
+    enabled: false
     location: "artifact\\\\blacklist.txt"
 
 thread:
     instance_multiplier: 1.25
 
 file_extensions:
-   crt:
-   - ".CR2"
-   - ".dng"
-   - ".tif"
-   good:
-   - ".jpg"
+    crt:
+    - ".CR2"
+    - ".dng"
+    - ".tif"
+    good:
+    - ".jpg"
 
 debug: true
+log_file: "F:\\\\projects\\\\Photo\\\\temp\\\\photo.log"

@@ -1,6 +1,7 @@
 #!C:\Python\Python35-32\python.exe
 from src.data import Data
 from src.hooks.checks import *
+from src.utilities.simple import organise_list
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -65,7 +66,8 @@ class Index:
 
     def find_leaves(self):
         for directory in self.directories:
-            if len(Directory.get_branches(directory, silent=self.silent_mode)) < 3:
+            branches = Directory.get_branches(directory, silent=self.silent_mode)
+            if len(branches) < 3:
                 self.directory_leaves.append(directory)
         return self.directory_leaves
 
@@ -75,7 +77,7 @@ class Index:
             return self.directories
 
     def run_directory_index(self):
-        if len(Directory.get_branches(self.path, silent=self.silent_mode)) is 0:
+        if len(Directory.get_branches(self.path, silent=self.silent_mode)) == 0:
             node_error(self.path, self.silent_mode)
 
         if self.use_blacklist:
@@ -88,8 +90,8 @@ class Index:
         self.run_directory_index()
         self.apply_filter()
         self.analyze_directories()
-        self.photo_directories = Utility().list_organiser(self.photo_directories)
+        self.photo_directories = organise_list(self.photo_directories)
         if pipe:
-            Data(self.photo_directories).export_data_on_directories()
+            Data(self.photo_directories).export()
         else:
             return self.photo_directories

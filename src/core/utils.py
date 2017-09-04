@@ -13,17 +13,12 @@ Description -
 
 file_sizes = {0: "bytes", 1: "Kb", 2: "Mb", 3: "Gb", 4: "Tb"}
 
-
-def get_largest_element(arr):
-    return len(max(arr, key=len))
-
-
-def find_element(arr, case):
-        for element in arr:
-                if case in element or case == element:
-                    return int(arr.index(element))
-                else:
-                    continue
+def _find_element(arr, case):
+    for element in arr:
+        if case in element or case == element:
+            return int(arr.index(element))
+        else:
+            continue
 
 
 def extension_swapper(file, ext, remove_dot=False):
@@ -31,22 +26,18 @@ def extension_swapper(file, ext, remove_dot=False):
 
 
 def generate_border(data, use_str=False):
-        if data >= 4:
-            return data + 1
+    if data >= 4:
+        return data + 1
 
-        return len(str(data)) + 2 if use_str else 4
-
-
-def to_string(int_list):
-        return [str(i) for i in int_list]
+    return len(str(data)) + 2 if use_str else 4
 
 
 def get_command_path():
-        return os.getcwd()
+    return os.getcwd()
 
 
 def get_directory_separator():
-        return os.sep
+    return os.sep
 
 
 def get_appropriate_units(size):
@@ -65,7 +56,7 @@ def get_appropriate_units(size):
                 try:
                     return [round(_size / byte_exponent ** i, 2), file_sizes[i], byte_exponent ** i]
                 except KeyError:
-                    return [round(_size / byte_exponent **i, 2), i, byte_exponent**i]
+                    return [round(_size / byte_exponent ** i, 2), i, byte_exponent ** i]
 
 
 def handle_get_content(path, silent_mode=False):
@@ -82,6 +73,13 @@ def handle_get_content(path, silent_mode=False):
                 IndexingError(path, 'un-loadable')
 
         return ""
+
+
+def check_blacklist_existence(location):
+    if os.path.exists(location):
+        pass
+    else:
+        open(location, 'w').write('[]')
 
 
 def global_get(data_structure, req):
@@ -143,7 +141,7 @@ def global_get(data_structure, req):
             data_structure = data_structure.get(key)
             continue
         else:
-            Fatal('Unreadable information', True, 'key was not found, but expected', 'key=%s' % req)
+            Fatal('Unreadable information', True, 'key was not found, but expected', 'key=%s' % req, 'given_data=%s' % data_structure)
     try:
         return data_structure.keys()
     except:
@@ -169,14 +167,6 @@ class Utility:
             else:
                 self.final_list.append(element)
         return self.final_list
-
-    def join_lists(self, *lists):
-        if len(lists) == 1:
-            return lists[0]
-        else:
-            for element_list in lists:
-                self.final_list.extend(element_list)
-            return self.final_list
 
     def shorten_path(self, path, max_chars=30, count_separator_char=False):
         overflow_chars = len(path) - (max_chars + 1)
@@ -208,10 +198,10 @@ class Utility:
             for element in self.input_list:
                 self.construct.remove(element)
             self.construct.insert(int(self.path_construct_list[0]), "...")
-            while len("".join(self.construct)) + int(len(self.construct))-1 > max_chars:
+            while len("".join(self.construct)) + int(len(self.construct)) - 1 > max_chars:
                 overflow_chars = len("".join(self.construct)) + int(len(self.construct)) - 1
-                if overflow_chars-3 <= max_chars:
-                    self.block_pos = (find_element(list(self.construct), "...")) - 1
+                if overflow_chars - 3 <= max_chars:
+                    self.block_pos = (_find_element(list(self.construct), "...")) - 1
                     if len(self.construct[self.block_pos]) is 3:
                         self.slicing = True
                         self.cur_block = self.construct[self.block_pos][0] + "..."
@@ -219,7 +209,7 @@ class Utility:
                     if overflow_chars - 2 <= max_chars + 1:
                         self.cur_block = str("".join(list(self.construct[self.block_pos])[:2])) + "..."
                 if overflow_chars > max_chars:
-                    self.construct.pop(self.construct.index("...")-1)
+                    self.construct.pop(self.construct.index("...") - 1)
                 else:
                     self.slicing = True
                     break
