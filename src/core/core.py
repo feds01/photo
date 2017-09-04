@@ -130,7 +130,11 @@ class Directory:
             return directories
 
         if return_folders:
-            return method(self.directory[0])
+            try:
+                return method(self.directory[0])
+
+            except IndexError:
+                return method(self.directory)
 
         if len(self.directory) == 1:
             result = list(method(self.directory[0]).values())

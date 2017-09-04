@@ -76,11 +76,12 @@ class File:
 
             return None
 
-        if open(self.file).read() == '':
-            return None
+        with open(self.file, 'r') as f:
+            if f.read() == '':
+                f.close()
+                return None
 
-        else:
-            with open(self.file, "r") as f:
+        with open(self.file, "r") as f:
                 try:
                     self.data = f.read()
                 except SyntaxError:

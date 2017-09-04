@@ -5,11 +5,35 @@ from src.thread_indexer import *
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
+root:     str = os.path.split(__file__)[0]
+main_dir: str = ''
+test_dir: str = ''
+dirs:    list = ['crt', 'good', 'all']
+
+
+def setup():
+    global root, main_dir, test_dir, dirs
+
+    main_dir = os.path.join(root, 'output')
+    test_dir = os.path.join(main_dir, 'test_0')
+    try:
+        os.mkdir(main_dir)
+        os.mkdir(test_dir)
+
+        for d in dirs:
+            os.mkdir(os.path.join(test_dir, d))
+
+    except FileExistsError:
+        return
+
 
 class IndexWithNormalMethod(unittest.TestCase):
 
+    def setUp(self):
+        setup()
+
     def test_method(self):
-        self.assertEqual(Index(path="C:\\Temp").run(pipe=False), ["C:\\Temp\\test", 'C:\\Temp\\test2\\Ana Felix Snow Queen'])
+        self.assertEqual(Index(path=main_dir).run(pipe=False), [test_dir])
 
     def test_fake_dir(self):
         self.assertRaises(Fatal, lambda: Index(path="E:\\Photo\\").run(pipe=False))
@@ -20,8 +44,11 @@ class IndexWithNormalMethod(unittest.TestCase):
 
 class IndexWithThreadMethod(unittest.TestCase):
 
+    def setUp(self):
+        setup()
+
     def test_method(self):
-        self.assertEqual(ThreadIndex("C:\\Temp", no_check=True).run(), ["C:\\Temp\\test", 'C:\\Temp\\test2\\Ana Felix Snow Queen'])
+        self.assertEqual(ThreadIndex(main_dir, no_check=True).run(pipe=False),  [test_dir])
 
     def test_fake_dir(self):
         self.assertRaises(Fatal, lambda: ThreadIndex(path="E:\\Photo\\").run(pipe=False))
@@ -30,14 +57,13 @@ class IndexWithThreadMethod(unittest.TestCase):
         self.assertRaises(Fatal, lambda: ThreadIndex(path='C:\\Windows').run(pipe=False))
 
 
-'''
 class DataMethod(unittest.TestCase):
     def setUp(self):
         self.start = time.time()
-        Data(["C:\\Temp\\"]).export_data_on_directories()
+        Data(test_dir).export()
         self.end = time.time() - self.start
-        self.file_location = Config.join_specific_data("application_root", "application_directories", 'size_data')
-        self.expected_result = {1: ['E:\\Files\\Ana Felix Snow Queen', ['E:\\Files\\Ana Felix Snow Queen\\_GOOD', 'E:\\Files\\Ana Felix Snow Queen\\all', 'E:\\Files\\Ana Felix Snow Queen\\crt'], 0, 75, 38, 754, [7.08, 'Gb', 1073741824]], 2: ['E:\\Photo\\sandbox', ['E:\\Photo\\sandbox\\all', 'E:\\Photo\\sandbox\\crt', 'E:\\Photo\\sandbox\\good'], 1, 0, 0, 2, [0.0, 'bytes', 1]]}
+        self.file_location = Config.join_specific_data("application_root", "application_directories.size_data")
+        self.expected_result = {1: {'path': '', 'file_list': {'.CR2': (0, []), '.dng': (0, []), '.tif': (0, []), '.jpg': (0, [])}, 'photo': [], 'size': [0, 'bytes', 1]}}
 
     def test_time_on_creation(self):
         if self.end < 1:
@@ -46,9 +72,8 @@ class DataMethod(unittest.TestCase):
             self.assertEqual(1, 0)
 
     def test_correct_data(self):
-        Data(["C:\\Files\\Ana Felix Snow Queen", "E:\\Photo\\sandbox"]).export_data_on_directories()
+        Data(test_dir).export()
         self.assertEqual(File(self.file_location).read("dict"), self.expected_result)
-'''
 
 class IndexItemSize(unittest.TestCase):
 
