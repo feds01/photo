@@ -1,7 +1,7 @@
 import time
 import subprocess
 from src.thread_indexer import *
-from src.utilities.manipulation import get_largest_element, sizeof_fmt
+from src.utilities.manipulation import largest_element, sizeof_fmt
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -22,7 +22,7 @@ def load_file_info(path):
 
 def fancy_tree_display(roots, values):
     full_string, tree_symbol = "", "|_ "
-    max_root = get_largest_element(roots)
+    max_root = largest_element(roots)
     for i in range(len(roots)):
         align = ""
         if len(roots[i]) < 5:

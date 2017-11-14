@@ -3,7 +3,7 @@
 from src.core.core import *
 from prettytable import PrettyTable
 from src.utilities.shorts import *
-from src.utilities.manipulation import to_string, get_largest_element, sizeof_fmt
+from src.utilities.manipulation import to_string, largest_element, sizeof_fmt
 
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -150,13 +150,13 @@ class Table:
             file_stats.update({item[0]: [x[0] for x in self.get_specific_data_from_import("file_list.'%s'" % item[0])]})
 
         for item in file_stats.values():
-            border_data.append(self.__calculate_border_size(get_largest_element(to_string(item))))
+            border_data.append(self.__calculate_border_size(largest_element(to_string(item))))
 
         for i in border_data:
             borders.append(self.border_symbol * int(i))
 
         for i in reversed(range(self.path_size - 4)):
-            if get_largest_element(self.get_specific_data_from_import('path')) + i < self.path_size:
+            if largest_element(self.get_specific_data_from_import('path')) + i < self.path_size:
                 self.path_size -= i
                 break
 
@@ -185,7 +185,7 @@ class Table:
         for row in self.all_rows:
             self.table.add_row(row)
 
-        self.readable_size.insert(0, self.border_symbol * self.__calculate_border_size(get_largest_element(self.readable_size)))
+        self.readable_size.insert(0, self.border_symbol * self.__calculate_border_size(largest_element(self.readable_size)))
         self.table.add_column("size", self.readable_size, align="r")
         self.export_table_data()
         print(self.table)

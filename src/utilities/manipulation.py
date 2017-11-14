@@ -1,4 +1,4 @@
-def get_largest_element(arr):
+def largest_element(arr):
     return len(max(arr, key=len))
 
 
