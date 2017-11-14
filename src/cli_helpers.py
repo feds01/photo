@@ -1,7 +1,7 @@
 import time
 import subprocess
 from src.thread_indexer import *
-from src.utilities.manipulation import get_largest_element
+from src.utilities.manipulation import get_largest_element, sizeof_fmt
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -15,9 +15,9 @@ Description -
 
 
 def load_file_info(path):
-    size = get_appropriate_units(Directory(path).get_file_size())
+    size = sizeof_fmt(Directory(path).get_file_size())
     change_date = time.ctime(os.path.getctime(path))
-    print("size:", str(size[0]) + size[1], " last modification:", change_date)
+    print("size:", str(size[1], " last modification:", change_date))
 
 
 def fancy_tree_display(roots, values):
@@ -44,7 +44,7 @@ def loader(data):
 
     print("Total files:", file_count)
     print(fancy_tree_display(list(instance_leaves.keys()), list(instance_leaves.values())))
-    print("Total directory size: %s%s" % (data.get('size')[0], data.get('size')[1]))
+    print("Total directory size: %s" % (data.get('size')[1]))
 
 
 def open_file(file):

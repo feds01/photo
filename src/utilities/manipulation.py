@@ -21,3 +21,24 @@ def to_integer(str_list):
     except ValueError:
         return str_list
 
+
+def sizeof_fmt(num, suffix="b"):
+    if num < 1024.0:
+        return [num, "0bytes"]
+    for unit in [" ", "K", "M", "G", "T", "P"]:
+        if abs(num) < 1024.0:
+            return [num,"%3.1f%s%s" % (num, unit, suffix)]
+
+        num /= 1024.0
+    return [num ,"%.1f%s%s" % (num, 'E', suffix)]
+
+
+def query_user(message, options):
+    user_input = ''
+    while user_input not in options:
+        user_input = input(message).lower()
+    return user_input
+
+
+def swap_extension(file, ext, remove_dot=False):
+    return file[:-4] + ext if remove_dot else file[:-3] + ext

@@ -1,14 +1,8 @@
 import re
 from src.core.fileio import *
 from src.core.config_extractor import *
-from src.utilities.simple import organise_list
-
-
-def _validate_content_load(content):
-    if content is "":
-        return ""
-    else:
-        pass
+from src.utilities.arrays import organise_array
+from src.utilities.infrequents import handle_fdreq
 
 
 class Directory:
@@ -95,16 +89,18 @@ class Directory:
         return self.file_extension_list
 
     def index_photo_directory(self, return_folders=False, silent_mode=False, max_instances=-1):
+        # the patterns are loaded from the config.yml file and complied,
+        # further on they are used to quickly identify matching folder names
+        # rather than relying on hard coded folder example names
         crt_pattern  = re.compile(Config.get('folders.crt.pattern'))
         all_pattern  = re.compile(Config.get('folders.all.pattern'))
         good_pattern = re.compile(Config.get('folders.good.pattern'))
-        self.directory = organise_list([self.directory])
+        self.directory = organise_array([self.directory])
         self.directories = []
 
         def method(path):
             directories = {}
-            content = handle_get_content(path, silent_mode=silent_mode)
-            _validate_content_load(content)
+            content = handle_fdreq(path, silent_mode=silent_mode)
 
             def _find_item(directory):
                 if crt_pattern.fullmatch(directory):
@@ -115,6 +111,9 @@ class Directory:
                     return directory
                 else:
                     return False
+
+            if len(content) == 0:
+                return directories
 
             for item in content:
                 check = _find_item(item)
@@ -158,8 +157,8 @@ class Directory:
 
     @staticmethod
     def get_branches(path, silent=False):
-        path_list = handle_get_content(path, silent)
-        _validate_content_load(path_list)
+        path_list = handle_fdreq(path, silent)
+
         branch_directories = []
         for directory in path_list:
             if check_file(os.path.join(path, directory)):

@@ -1,5 +1,5 @@
 from src.core.core import *
-from src.utilities.simple import organise_list
+from src.utilities.arrays import organise_array
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -76,13 +76,17 @@ class _Blacklist:
         self.blacklist = File(file=self.file_location).read(specific="list")
 
         if self.blacklist is None:
-            check_blacklist_existence(self.file_location)
-            self.read_blacklist()
+            if os.path.exists(self.file_location):
+                self.read_blacklist()
+            else:
+                # open the file and write the initial blacklist
+                open(self.file_location, "w").write("[]")
+
 
 
 
     def update_blacklist(self, instruction, *array):
-        array = organise_list([array])
+        array = organise_array([array])
         if instruction == self._INSERT:
             self.blacklist.extend(array)
         elif instruction == self._REMOVE:
@@ -94,7 +98,7 @@ class _Blacklist:
         File(self.file_location).write(self.blacklist)
 
     def check_entry_existence(self, entries, inverted=False):
-        entries = organise_list([entries])
+        entries = organise_array([entries])
         verify_list = []
         for entry in entries:
             if entry in self.blacklist:
@@ -111,7 +115,7 @@ class _Blacklist:
             return verify_list
 
     def check_child_entry(self, entries, inverted=False):
-        entries = organise_list([entries])
+        entries = organise_array([entries])
         verify_list = []
         for item in self.blacklist:
             for entry in entries:
@@ -150,6 +154,7 @@ class _Blacklist:
                     pass
 
         self.update_blacklist(self._REMOVE, self.bad_entries)
+
 
 Blacklist = _Blacklist()
 del _Blacklist

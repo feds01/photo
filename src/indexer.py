@@ -1,7 +1,7 @@
 #!C:\Python\Python35-32\python.exe
 from src.data import Data
 from src.hooks.checks import *
-from src.utilities.simple import organise_list
+from src.utilities.arrays import organise_array
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -90,7 +90,7 @@ class Index:
         self.run_directory_index()
         self.apply_filter()
         self.analyze_directories()
-        self.photo_directories = organise_list(self.photo_directories)
+        self.photo_directories = organise_array(self.photo_directories)
         if pipe:
             Data(self.photo_directories).export()
         else:

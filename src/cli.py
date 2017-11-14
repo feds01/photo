@@ -74,7 +74,7 @@ parser.parse_args(namespace=arguments)
 
 if __name__ == '__main__':
         if arguments.path == '':
-            arguments.path = get_command_path()
+            arguments.path = os.getcwd()
 
         if not Directory(arguments.path).check_directory():
             Fatal("directory does not exist", True, 'directory=%s' % arguments.path)

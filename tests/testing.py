@@ -1,7 +1,7 @@
 import time
 import unittest
 from src.thread_indexer import *
-
+from src.utilities.manipulation import sizeof_fmt
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -63,7 +63,7 @@ class DataMethod(unittest.TestCase):
         Data(test_dir).export()
         self.end = time.time() - self.start
         self.file_location = Config.join_specific_data("application_root", "application_directories.size_data")
-        self.expected_result = {1: {'path': '', 'file_list': {'.CR2': (0, []), '.dng': (0, []), '.tif': (0, []), '.jpg': (0, [])}, 'photo': [], 'size': [0, 'bytes', 1]}}
+        self.expected_result = {1: {'path': '', 'file_list': {'.CR2': (0, []), '.dng': (0, []), '.tif': (0, []), '.jpg': (0, [])}, 'photo': [], 'size': [0, '0bytes']}}
 
     def test_time_on_creation(self):
         if self.end < 1:
@@ -78,16 +78,16 @@ class DataMethod(unittest.TestCase):
 class IndexItemSize(unittest.TestCase):
 
     def test_zero_bytes(self):
-        results = get_appropriate_units(0)
-        self.assertEqual(str(results[0]) + results[1], "0bytes")
+        results = sizeof_fmt(0)
+        self.assertEqual(results[1], "0bytes")
 
     def test_kilobyte(self):
-        results = get_appropriate_units(1024)
-        self.assertEqual(str(int(results[0])) + results[1], "1Kb")
+        results = sizeof_fmt(1024)
+        self.assertEqual(results[1], "1.0Kb")
 
     def test_negative_byte(self):
-        results = get_appropriate_units(-1)
-        self.assertEqual(str(results[0]) + results[1], "-1bytes")
+        results = sizeof_fmt(-1)
+        self.assertEqual(results[1], "0bytes")
 
 if __name__ == "__main__":
     unittest.main()

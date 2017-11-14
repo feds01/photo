@@ -41,7 +41,7 @@ class ThreadIndex:
     def _node_filter(self):
         for node in self.nodes:
             # background check, user doesn't need to know second time
-            if handle_get_content(node, silent_mode=True) == '':
+            if handle_fdreq(node, silent_mode=True) == '':
                 self.nodes.remove(node)
             else:
                 pass
@@ -108,7 +108,7 @@ class ThreadIndex:
         try:
             self.chunks = self.split_workload(self.result)
             self.form_filter_job_queue()
-            self.result = organise_list(pool.map(self.apply_filter, self.JOB_QUEUE))
+            self.result = organise_array(pool.map(self.apply_filter, self.JOB_QUEUE))
             if not self.no_check:
                 Process.get_frame()
 
@@ -120,13 +120,13 @@ class ThreadIndex:
         global pool
         self.get_nodes()
         self.form_job_queue()
-        self.result = organise_list(pool.map(self.index_node, self.JOB_QUEUE))
+        self.result = organise_array(pool.map(self.index_node, self.JOB_QUEUE))
 
     def run(self, pipe=True):
         check_directory(self.path)
         self.launch_process_pool()
         self.photo_directories.append(self.validate_directory_structure(self.result))
-        self.photo_directories = organise_list(self.photo_directories)
+        self.photo_directories = organise_array(self.photo_directories)
         if pipe:
             Data(self.photo_directories).export()
         else:

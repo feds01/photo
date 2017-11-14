@@ -2,7 +2,9 @@
 # import time
 from src.core.core import *
 from prettytable import PrettyTable
-from src.utilities.manipulation import to_string, get_largest_element
+from src.utilities.shorts import *
+from src.utilities.manipulation import to_string, get_largest_element, sizeof_fmt
+
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -46,7 +48,7 @@ class Data:
             self.directory_data.update({'file_list': data})
 
         self.directory_data.update({'photo': sorted(analysis_path.index_photo_directory(return_folders=True).values())})
-        self.directory_data.update({'size': get_appropriate_units(Directory(path).get_directory_size())})
+        self.directory_data.update({'size': sizeof_fmt(Directory(path).get_directory_size())})
 
         return self.directory_data
 
@@ -105,7 +107,7 @@ class Table:
     def make_row_data(self, key):
         self.row = [key]
         if self.path_size <= len(list(self.import_data[key].get('path'))):
-            self.row.append(Utility().shorten_path(self.import_data[key].get('path')))
+            self.row.append(shorten(self.import_data[key].get('path')))
         else:
             self.row.append(self.import_data[key].get('path'))
         data = self.import_data[key].get('file_list')
@@ -117,12 +119,9 @@ class Table:
 
         if size_data[0] == 0:
             readable_size.append("0Kb")
-
         else:
-            if type(size_data[0]) == float:
-                size_data[0] = str(size_data[0])
-
-            readable_size.append("".join(size_data[:2]))
+            # array position 1 stores the human readable value
+            readable_size.append(size_data[1])
 
         self.readable_size.extend(readable_size)
         return self.row
@@ -138,6 +137,10 @@ class Table:
                         'id=%s' % _id,
                         'data=%s' % self.import_data)
 
+    @staticmethod
+    def __calculate_border_size(data, use_string=False):
+        return data + 1 if data >= 4 else len(str(data)) + 2 if use_string else 4
+
     def make_border(self):
         borders = []
         border_data = []
@@ -147,7 +150,7 @@ class Table:
             file_stats.update({item[0]: [x[0] for x in self.get_specific_data_from_import("file_list.'%s'" % item[0])]})
 
         for item in file_stats.values():
-            border_data.append(generate_border(get_largest_element(to_string(item))))
+            border_data.append(self.__calculate_border_size(get_largest_element(to_string(item))))
 
         for i in border_data:
             borders.append(self.border_symbol * int(i))
@@ -157,7 +160,7 @@ class Table:
                 self.path_size -= i
                 break
 
-        self.row = [generate_border(self.max_rows, True) * self.border_symbol,
+        self.row = [self.__calculate_border_size(self.max_rows, True) * self.border_symbol,
                     (self.path_size + 1) * self.border_symbol]
         self.row.extend(borders)
         self.table.add_row(self.row)
@@ -182,7 +185,7 @@ class Table:
         for row in self.all_rows:
             self.table.add_row(row)
 
-        self.readable_size.insert(0, self.border_symbol * generate_border(get_largest_element(self.readable_size)))
+        self.readable_size.insert(0, self.border_symbol * self.__calculate_border_size(get_largest_element(self.readable_size)))
         self.table.add_column("size", self.readable_size, align="r")
         self.export_table_data()
         print(self.table)

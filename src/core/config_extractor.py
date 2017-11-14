@@ -1,7 +1,7 @@
 import yaml
-from src.core.utils import global_get
-from src.config_manager import get_config_file_location
 from src.core.exceptions import *
+from src.utilities.shorts import global_get
+from src.config_manager import get_config_file_location
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -25,6 +25,7 @@ class _Config:
 
     def get(self, req):
         return global_get(self._raw_data, req)
+
 
 Config = _Config()
 del _Config

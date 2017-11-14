@@ -1,4 +1,5 @@
 from src.core.core import *
+from src.utilities.manipulation import sizeof_fmt, swap_extension
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -45,7 +46,7 @@ class Analyse:
         for file in self.files:
             crt_version = []
             for extension in crt_extensions:
-                crt_version.append(extension_swapper(self.path_converter(file), extension, remove_dot=True))
+                crt_version.append(swap_extension(self.path_converter(file), extension, remove_dot=True))
             for crt_file in crt_version:
                 if crt_file in crt_files:
                     self.report.update({file: crt_file})
@@ -73,8 +74,8 @@ class Delete:
     def delete_file(self):
         file_size = Directory(self.file_path).get_file_size()
         if not self.silent:
-            file_info = get_appropriate_units(file_size)
-            print(f"deleting: {os.path.basename(self.file_path)} size: {str(file_info[0]) + file_info[1]}")
+            file_info = sizeof_fmt(file_size)
+            print(f"deleting: {os.path.basename(self.file_path)} size: {str(file_info[1])}")
         try:
             os.remove(self.file_path)
         except Exception as e:
@@ -86,6 +87,6 @@ class Delete:
         for file in self.delete_list:
             self.file_path = file
             self.delete_file()
-        self.total_size = get_appropriate_units(self.total_size)
-        print(f"saved: {self.total_size[0]}{self.total_size[1]} of disk space with operation.")
+        self.total_size = sizeof_fmt(self.total_size)
+        print(f"saved: {self.total_size[1]} of disk space with operation.")
         return True
