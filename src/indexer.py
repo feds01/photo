@@ -45,13 +45,13 @@ class Index:
         self.photo_directories = []
         self.directories, self.directory_leaves = [], []
 
-    def validate_directory_structure(self, paths):
+    def validate(self, paths):
         return Directory(paths).index_photo_directory(max_instances=self.max_instances,
                                                       silent_mode=self.silent_mode)
 
     def analyze_directories(self):
         self.photo_directories.append(
-            self.validate_directory_structure(self.directories))
+            self.validate(self.directories))
 
     def directory_filter(self):
         for directory in self.directory_leaves:
@@ -61,7 +61,7 @@ class Index:
     def run_directory(path):
         if Directory(path).index_directory(count=True) < 3:
             pass
-        if Index(path="").validate_directory_structure(paths=path):
+        if Index(path="").validate(paths=path):
             return path
 
     def find_leaves(self):

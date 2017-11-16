@@ -68,7 +68,7 @@ parser = argparse.ArgumentParser(description="Remove redundant photo backup's")
 parser.add_argument('-p', '--path', help='specify a specific starting path, leaving blank will index the current directory.')
 parser.add_argument('-t', '--thread', default=False, action='store_true', help='use threads to increase indexing speeds')
 parser.add_argument('-b', '--blacklist', default=blacklist_default, action='store_true', help='use the blacklist to filter out unwanted directories')
-parser.add_argument('-s', '--silent', default=False, action='store_true', help="don't display mild error messages or warnings.")
+parser.add_argument('-s', '--silent_mode', default=False, action='store_true', help="don't display mild error messages or warnings.")
 parser.add_argument('--safe', default=True, action='store_true', help='inform user of any file operations')
 parser.parse_args(namespace=arguments)
 

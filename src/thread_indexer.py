@@ -18,40 +18,41 @@ pool: str
 
 
 class ThreadIndex:
-    def __init__(self, path, use_blacklist=False, silent=False, max_instances=-1, no_check=False):
+    def __init__(self, path, use_blacklist=False, silent=False, max_instances=-1, check=True):
+        self.index = Index("", silent=silent, use_blacklist=use_blacklist, max_instances=max_instances)
         self.PROCESS_COUNT = check_process_count(True, True)
-        self.JOB_QUEUE = []
+
+        self.JOB_QUEUE = [] # this is the main queue
         self.result = []
         self.nodes = []
         self.chunks = []
-        self.photo_directories = []
+        self.dirs = []
+
         self.path = path
         self.use_blacklist = use_blacklist
-        self.silent = silent
+        self.silent_mode = silent
         self.max_instances = max_instances
-        self.no_check = no_check
+        self.check = check
 
     def get_nodes(self):
-        self.nodes = Directory.get_branches(self.path, silent=self.silent)
-        if self.use_blacklist:
-            self.nodes = Blacklist.check_entry_existence(self.nodes)
-        self.photo_directories.append(self.validate_directory_structure(paths=self.nodes))
-        self._node_filter()
+        self.nodes = Directory.get_branches(self.path, silent=self.silent_mode)
 
-    def _node_filter(self):
+        if self.use_blacklist:
+            # this filters the first level directories and checks if they are blacklisted.
+            self.nodes = Blacklist.check_entry_existence(self.nodes)
+
+        self.dirs.append(self.index.validate(self.nodes))
+
         for node in self.nodes:
-            # background check, user doesn't need to know second time
-            if handle_fdreq(node, silent_mode=True) == '':
+            if handle_fdreq(node, silent_mode=self.silent_mode) == "":
                 self.nodes.remove(node)
-            else:
-                pass
 
     def launch_process_pool(self):
         global pool
 
         try:
             with Pool(self.PROCESS_COUNT) as pool:
-                if not self.no_check:
+                if self.check:
                     for _process in pool._pool[:]:
                         if not Process.register(_process.pid, 'thread'):
                             Fatal('Process authentication error', True,
@@ -81,7 +82,7 @@ class ThreadIndex:
             sys.excepthook = exception_handler
 
         try:
-            instance = Index(path=node, thread_method=True, silent=self.silent, use_blacklist=self.use_blacklist)
+            instance = Index(path=node, thread_method=True, silent=self.silent_mode, use_blacklist=self.use_blacklist)
             instance.run_directory_index()
             return instance.directories
         except KeyboardInterrupt:
@@ -89,16 +90,13 @@ class ThreadIndex:
 
     def apply_filter(self, directories):  # this is also a target function
         try:
-            instance = Index(path='', silent=self.silent)
+            instance = Index(path='', silent=self.silent_mode)
             instance.directories = directories
             instance.apply_filter()
             return instance.directories
 
         except KeyboardInterrupt:
             signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-    def validate_directory_structure(self, paths):
-        return Directory(paths).index_photo_directory(silent_mode=self.silent, max_instances=self.max_instances)
 
     def split_workload(self, results):
         return array_split(results, self.PROCESS_COUNT)
@@ -109,15 +107,16 @@ class ThreadIndex:
             self.chunks = self.split_workload(self.result)
             self.form_filter_job_queue()
             self.result = organise_array(pool.map(self.apply_filter, self.JOB_QUEUE))
-            if not self.no_check:
+            if self.check:
                 Process.get_frame()
 
         finally:
-            if not self.no_check:
+            if self.check:
                 Process.truncate(os.getpid())
 
     def run_directory_index(self):
         global pool
+
         self.get_nodes()
         self.form_job_queue()
         self.result = organise_array(pool.map(self.index_node, self.JOB_QUEUE))
@@ -125,9 +124,9 @@ class ThreadIndex:
     def run(self, pipe=True):
         check_directory(self.path)
         self.launch_process_pool()
-        self.photo_directories.append(self.validate_directory_structure(self.result))
-        self.photo_directories = organise_array(self.photo_directories)
+        self.dirs.append(self.index.validate(self.result))
+        self.dirs = organise_array(self.dirs)
         if pipe:
-            Data(self.photo_directories).export()
+            Data(self.dirs).export()
         else:
-            return self.photo_directories
+            return self.dirs

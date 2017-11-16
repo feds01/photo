@@ -48,7 +48,7 @@ class IndexWithThreadMethod(unittest.TestCase):
         setup()
 
     def test_method(self):
-        self.assertEqual(ThreadIndex(main_dir, no_check=True).run(pipe=False),  [test_dir])
+        self.assertEqual(ThreadIndex(main_dir, check=False).run(pipe=False), [test_dir])
 
     def test_fake_dir(self):
         self.assertRaises(Fatal, lambda: ThreadIndex(path="E:\\Photo\\").run(pipe=False))
