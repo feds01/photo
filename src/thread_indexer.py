@@ -1,6 +1,5 @@
 import signal
 from src.indexer import *
-from numpy import array_split
 from multiprocessing import Pool
 from src.thread.manager import Process
 from src.thread.protection import check_process_count
@@ -14,7 +13,6 @@ Usage: cli.py
 Description -
 
 """
-pool: str
 
 
 class ThreadIndex:
@@ -22,10 +20,8 @@ class ThreadIndex:
         self.index = Index("", silent=silent, use_blacklist=use_blacklist, max_instances=max_instances)
         self.PROCESS_COUNT = check_process_count(True, True)
 
-        self.JOB_QUEUE = [] # this is the main queue
         self.result = []
         self.nodes = []
-        self.chunks = []
         self.dirs = []
 
         self.path = path
@@ -47,6 +43,25 @@ class ThreadIndex:
             if handle_fdreq(node, silent_mode=self.silent_mode) == "":
                 self.nodes.remove(node)
 
+    def worker(self, node):
+        if Config.get('debug'):
+            sys.excepthook = exception_handler
+
+        __index_object = self.index
+
+        try:
+            if self.check:
+                Process.get_frame()
+
+            __index_object.path = node
+            __index_object.run_directory_index()
+            __index_object.apply_filter()
+
+            return __index_object.directories
+
+        except KeyboardInterrupt:
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
+
     def launch_process_pool(self):
         global pool
 
@@ -58,74 +73,20 @@ class ThreadIndex:
                             Fatal('Process authentication error', True,
                                   'there was a problem authorising a process launch')
 
-                self.run_directory_index()
-                self.run_apply_filter()
-
+                self.result = organise_array(pool.map(self.worker, self.nodes))
         except KeyboardInterrupt:
             signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         finally:
             pool.close(), pool.join()
-
-    def form_job_queue(self):
-        self.JOB_QUEUE = []
-        for item in self.nodes:
-            self.JOB_QUEUE.append(item)
-
-    def form_filter_job_queue(self):
-        self.JOB_QUEUE = []
-        for block in self.chunks:
-            self.JOB_QUEUE.append(list(block))
-
-    def index_node(self, node):  # This is a target function!
-        if Config.get('debug'):
-            sys.excepthook = exception_handler
-
-        try:
-            instance = Index(path=node, thread_method=True, silent=self.silent_mode, use_blacklist=self.use_blacklist)
-            instance.run_directory_index()
-            return instance.directories
-        except KeyboardInterrupt:
-            signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-    def apply_filter(self, directories):  # this is also a target function
-        try:
-            instance = Index(path='', silent=self.silent_mode)
-            instance.directories = directories
-            instance.apply_filter()
-            return instance.directories
-
-        except KeyboardInterrupt:
-            signal.signal(signal.SIGINT, signal.SIG_IGN)
-
-    def split_workload(self, results):
-        return array_split(results, self.PROCESS_COUNT)
-
-    def run_apply_filter(self):
-        global pool
-        try:
-            self.chunks = self.split_workload(self.result)
-            self.form_filter_job_queue()
-            self.result = organise_array(pool.map(self.apply_filter, self.JOB_QUEUE))
-            if self.check:
-                Process.get_frame()
-
-        finally:
-            if self.check:
-                Process.truncate(os.getpid())
-
-    def run_directory_index(self):
-        global pool
-
-        self.get_nodes()
-        self.form_job_queue()
-        self.result = organise_array(pool.map(self.index_node, self.JOB_QUEUE))
+            self.dirs.append(self.index.validate(self.result))
+            self.dirs = organise_array(self.dirs)
 
     def run(self, pipe=True):
         check_directory(self.path)
+        self.get_nodes()
         self.launch_process_pool()
-        self.dirs.append(self.index.validate(self.result))
-        self.dirs = organise_array(self.dirs)
+
         if pipe:
             Data(self.dirs).export()
         else:
