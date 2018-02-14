@@ -6,7 +6,7 @@ sys.path.extend(os.pardir)
 from src.cli_helpers import *
 from src.cleaner import *
 from src.data import Table
-from src.thread_indexer import *
+from src.indexing import *
 from src.thread.manager import Process
 from multiprocessing import freeze_support
 
@@ -36,7 +36,9 @@ def run_scan():
     else:
         Index(path=arguments.path, use_blacklist=arguments.blacklist, silent=arguments.silent).run()
 
-    Table().make_table()
+    table = Table()
+    table.make_table()
+    print(table)
 
 
 def load_table():
@@ -44,7 +46,7 @@ def load_table():
     dirs = []
     max_id = len(File(Config.join_specific_data('application_root', 'application_directories.table_data')).read('dict'))
     for i in range(1, max_id + 1):
-        dirs.append(Table().load_instance_by_id(i).get('path'))
+        dirs.append(Table().from_id(i).get('path'))
 
 
 def refresh():
@@ -102,9 +104,9 @@ if __name__ == '__main__':
                     print("The entered ID is too high or too low.")
                 else:
                     print('loading - %s' % dirs[directory_input-1])
-                    loader(Table().load_instance_by_id(directory_input))
+                    loader(Table().from_id(directory_input))
                     if bool(prompt_user('Are you sure you want to continue? [Y/n] ', ['y', 'n']) == 'y'):
-                        if prepare(Table().load_instance_by_id(directory_input).get('path')):
+                        if prepare(Table().from_id(directory_input).get('path')):
                             print()
                     else:
                         print()
@@ -126,7 +128,10 @@ if __name__ == '__main__':
                             if refresh():
                                 finished_jobs -= 1
                                 load_table()
-                            Table().make_table()
+                            table = Table()
+                            table.make_table()
+                            print(str(table))
+
                         print()
                         continue
                 except IndexError:
@@ -137,7 +142,7 @@ if __name__ == '__main__':
                     print("Entered directory path not present.")
                 else:
                     print('loading - %s' % directory_input)
-                    loader(Table().load_instance_by_id(dirs.index(directory_input)+1))
+                    loader(Table().from_id(dirs.index(directory_input) + 1))
                     if bool(prompt_user('Are you sure you want to continue? [Y/n] ', ['y', 'n']) == 'y'):
                         if prepare(directory_input):
                             finished_jobs += 1

@@ -5,7 +5,6 @@ from prettytable import PrettyTable
 from src.utilities.shorts import *
 from src.utilities.manipulation import to_string, largest_element, sizeof_fmt
 
-
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -30,13 +29,12 @@ class Data:
         self.destination_file = Config.join_specific_data('application_root', 'application_directories.size_data')
         return self.destination_file
 
-    def create_data_on_directory(self, path):
+    def datafy(self, path):
         self.directory_data, self.file_list, data = {}, [], {}
         self.directory_data.update({'path': path})
 
         analysis_path = Directory(path)
         self.file_list = Directory(path).index_directory(file=True)
-
 
         extension_keys = Config.get("file_extensions")
 
@@ -60,7 +58,7 @@ class Data:
             self.path = [self.path]
 
         for directory in self.path:
-            self.packaged_data.update({self.path.index(directory)+1: self.create_data_on_directory(directory)})
+            self.packaged_data.update({self.path.index(directory) + 1: self.datafy(directory)})
         # check if any directories were found, if none found, then exit
         if self.packaged_data == {}:
 
@@ -78,33 +76,35 @@ class Table:
         self.path_size = max_size
         self.file_location = Config.join_specific_data('application_root', 'application_directories.size_data')
         self.import_data = File(self.file_location).read("dict")
-        self.table = PrettyTable()
         self.readable_size = []
         self.all_rows = []
         self.row = []
         self.destination_file = ''
-        self.border_symbol = "-"
 
-    def import_table_data(self):
+        # data import
         self.data_packets = int(len(self.import_data.keys()))
         for i in range(self.data_packets):
-            if i+1 <= self.max_rows:
-                pass
-            else:
+            if not i + 1 <= self.max_rows:
                 dict(self.import_data).pop(i)
 
-    def export_table_data(self):
-        self.destination_file = Config.join_specific_data('application_root', 'application_directories.table_data')
-        File(self.destination_file).write(self.all_rows)
+        # table init and settings
+        self.table = PrettyTable()
+        self.table.border = False
+        self.table.field_names = ["ID", "Path", "crt", "dng", "tif", "jpg"]
+        self.table.align = "l"
+        self.border_symbol = "-"
 
-    def get_specific_data_from_import(self, req):
+    def __str__(self):
+        return str(self.table)
+
+    def get(self, req):
         specific_data = []
         for data in list(self.import_data.values()):
             specific_data.append(global_get(data, req))
 
         return specific_data
 
-    def make_row_data(self, key):
+    def make_row(self, key):
         self.row = [key]
         if self.path_size <= len(list(self.import_data[key].get('path'))):
             self.row.append(shorten(self.import_data[key].get('path')))
@@ -126,9 +126,9 @@ class Table:
         self.readable_size.extend(readable_size)
         return self.row
 
-    def load_instance_by_id(self, _id):
+    def from_id(self, _id):
         if self.import_data == {}:
-            self.import_table_data()
+            super(self.__init__)
 
         try:
             return self.import_data.get(_id)
@@ -141,22 +141,19 @@ class Table:
     def __calculate_border_size(data, use_string=False):
         return data + 1 if data >= 4 else len(str(data)) + 2 if use_string else 4
 
-    def make_border(self):
+    def border(self):
         borders = []
         border_data = []
-        file_stats = {}
 
         for item in self.import_data[1].get('file_list').items():
-            file_stats.update({item[0]: [x[0] for x in self.get_specific_data_from_import("file_list.'%s'" % item[0])]})
-
-        for item in file_stats.values():
-            border_data.append(self.__calculate_border_size(largest_element(to_string(item))))
+            border_data.append(self.__calculate_border_size(
+                largest_element(to_string([x[0] for x in self.get("file_list.'%s'" % item[0])]))))
 
         for i in border_data:
             borders.append(self.border_symbol * int(i))
 
         for i in reversed(range(self.path_size - 4)):
-            if largest_element(self.get_specific_data_from_import('path')) + i < self.path_size:
+            if largest_element(self.get('path')) + i < self.path_size:
                 self.path_size -= i
                 break
 
@@ -167,25 +164,13 @@ class Table:
 
         del self.row
 
-    def converge_row_data(self):
-        self.import_table_data()
-        for i in range(1, self.data_packets + 1):
-            self.all_rows.append(self.make_row_data(i))
-
-    def define_table(self):
-        self.table.border = False
-        self.table.field_names = ["ID", "Path", "crt", "dng", "tif", "jpg"]
-        self.table.align = "l"
-
     def make_table(self):
-        self.define_table()
-        self.converge_row_data()
-        self.make_border()
+        for i in range(1, self.data_packets + 1):
+            self.all_rows.append(self.make_row(i))
 
-        for row in self.all_rows:
-            self.table.add_row(row)
+        self.border()
+        [self.table.add_row(row) for row in self.all_rows]
 
-        self.readable_size.insert(0, self.border_symbol * self.__calculate_border_size(largest_element(self.readable_size)))
+        self.readable_size.insert(0, self.border_symbol * self.__calculate_border_size(
+            largest_element(self.readable_size)))
         self.table.add_column("size", self.readable_size, align="r")
-        self.export_table_data()
-        print(self.table)

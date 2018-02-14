@@ -1,13 +1,18 @@
 #!C:\Python\Python35-32\python.exe
+import signal
+from multiprocessing import Pool
+
 from src.data import Data
 from src.hooks.checks import *
+from src.thread.manager import Process
 from src.utilities.arrays import organise_array
+from src.thread.protection import check_process_count
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
 """
-Module name: indexer.py
+Module name: indexing.py
 Usage: cli.py, thread_indexer.py
 Description -
 
@@ -44,6 +49,7 @@ class Index:
         self.max_instances = max_instances
         self.photo_directories = []
         self.directories, self.directory_leaves = [], []
+        self.dirapi = Directory
 
     def validate(self, paths):
         return Directory(paths).index_photo_directory(max_instances=self.max_instances,
@@ -57,16 +63,10 @@ class Index:
         for directory in self.directory_leaves:
             self.directories.remove(directory)
 
-    @staticmethod
-    def run_directory(path):
-        if Directory(path).index_directory(count=True) < 3:
-            pass
-        if Index(path="").validate(paths=path):
-            return path
 
     def find_leaves(self):
         for directory in self.directories:
-            branches = Directory.get_branches(directory, silent=self.silent_mode)
+            branches = self.dirapi.get_branches(directory, silent=self.silent_mode)
             if len(branches) < 3:
                 self.directory_leaves.append(directory)
         return self.directory_leaves
@@ -77,8 +77,9 @@ class Index:
             return self.directories
 
     def run_directory_index(self):
-        if len(Directory.get_branches(self.path, silent=self.silent_mode)) == 0:
-            node_error(self.path, self.silent_mode)
+        if len(self.dirapi.get_branches(self.path, silent=self.silent_mode)) == 0:
+            if not self.silent_mode:
+                IndexingError(self.path, "leaf")
 
         if self.use_blacklist:
             self.directories = Directory(self.path).index_with_blacklist()
@@ -95,3 +96,81 @@ class Index:
             Data(self.photo_directories).export()
         else:
             return self.photo_directories
+
+
+class ThreadIndex:
+    def __init__(self, path, use_blacklist=False, silent=False, max_instances=-1, check=True):
+        self.index = Index("", silent=silent, use_blacklist=use_blacklist, max_instances=max_instances)
+        self.PROCESS_COUNT = check_process_count(True, True)
+
+        self.result = []
+        self.nodes = []
+        self.dirs = []
+
+        self.path = path
+        self.use_blacklist = use_blacklist
+        self.silent_mode = silent
+        self.max_instances = max_instances
+        self.check = check
+
+    def get_nodes(self):
+        self.nodes = Directory.get_branches(self.path, silent=self.silent_mode)
+
+        if self.use_blacklist:
+            # this filters the first level directories and checks if they are blacklisted.
+            self.nodes = Blacklist.check_entry_existence(self.nodes)
+
+        self.dirs.append(self.index.validate(self.nodes))
+
+        for node in self.nodes:
+            if handle_fdreq(node, silent_mode=self.silent_mode) == "":
+                self.nodes.remove(node)
+
+    def worker(self, node):
+        if Config.get('debug'):
+            sys.excepthook = exception_handler
+
+        __index_object = self.index
+
+        try:
+            if self.check:
+                Process.get_frame()
+
+            __index_object.path = node
+            __index_object.run_directory_index()
+            __index_object.apply_filter()
+
+            return __index_object.directories
+
+        except KeyboardInterrupt:
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+    def launch_process_pool(self):
+        global pool
+
+        try:
+            with Pool(self.PROCESS_COUNT) as pool:
+                if self.check:
+                    for _process in pool._pool[:]:
+                        if not Process.register(_process.pid, 'thread'):
+                            Fatal('Process authentication error', True,
+                                  'there was a problem authorising a process launch')
+
+                self.result = organise_array(pool.map(self.worker, self.nodes))
+        except KeyboardInterrupt:
+            signal.signal(signal.SIGINT, signal.SIG_IGN)
+
+        finally:
+            pool.close(), pool.join()
+            self.dirs.append(self.index.validate(self.result))
+            self.dirs = organise_array(self.dirs)
+
+    def run(self, pipe=True):
+        check_directory(self.path)
+        self.get_nodes()
+        self.launch_process_pool()
+
+        if pipe:
+            Data(self.dirs).export()
+        else:
+            return self.dirs

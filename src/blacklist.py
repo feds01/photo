@@ -10,7 +10,7 @@ Usage: thread_indexer.py, cli.py
 Description -
 
 This module is used to manage and access the blacklist. The class 'Blacklist' is
-used for checking and filtering the directory indexing results of indexer.py and
+used for checking and filtering the directory indexing results of indexing.py and
 thread_indexer.py. The filtering of blacklist entries is available for performance.
 Functions such as check_entry_existence() and check_child_entry() are used to verify
 that if a given directory is or is under the blacklist. The modification of the blacklist

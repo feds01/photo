@@ -85,14 +85,6 @@ class IndexingError(Exception):
 def config_warning(message):
     print('config: %s' % message)
 
-
-def node_error(silent, directory):
-    if silent:
-        pass
-    else:
-        IndexingError(directory, "leaf")
-
-
 def yml_error(error):
     Fatal('config file is unreadable.', True, 'Here is trace:\n\n%s' % error)
     exit()
