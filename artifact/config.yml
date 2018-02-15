@@ -1,19 +1,20 @@
-application_root: "F:\\\\projects\\\\Photo\\\\"
+application_root: "E:\\project archive\\maria mirage photography photo sorter\\"
 application_directories:
+   use_external: false
+   external:
+      session: ""
+      blacklist: ""
+      job_archive: ""
+
    dirs:
-   - "temp"
-   - "artifact"
+      - "temp"
+
    temp:
-   - "size_data.txt"
-   - "table_data.txt"
-   - "instance_data.txt"
-   - "removed_files_data.txt"
-   - "completed_directories.txt"
-   size_data      : "temp\\\\size_data.txt"
-   table_data     : "temp\\\\table_data.txt"
-   photo_data     : "temp\\\\instance_data.txt"
-   removed_files  : "temp\\\\removed_files_data.txt"
-   completed_dirs : "temp\\\\completed_directories.txt"
+      - "session.json"
+      - "job_archive.json"
+
+   session: "temp\\session.json"
+   job_archive: "temp\\job_archive.json"
 
 folders:
     good:
@@ -24,8 +25,8 @@ folders:
         pattern: "(_|)[dDcC][nNrR][gGtT]"
 
 blacklist:
-    enabled: false
-    location: "artifact\\\\blacklist.txt"
+    enabled: true
+    location: "artifact\\blacklist.json"
 
 thread:
     instance_multiplier: 1.25
@@ -39,4 +40,4 @@ file_extensions:
     - ".jpg"
 
 debug: true
-log_file: "F:\\\\projects\\\\Photo\\\\temp\\\\photo.log"
+log_file: "E:\\project archive\\maria mirage photography photo sorter\\temp\\photo.log"

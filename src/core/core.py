@@ -1,5 +1,6 @@
 import re
 from src.core.fileio import *
+from src.blacklist import Blacklist
 from src.core.config_extractor import *
 from src.utilities.arrays import organise_array
 from src.utilities.infrequents import handle_fdreq
@@ -15,6 +16,9 @@ class Directory:
         self.directories = []
         self.drive_letter = ""
         self.path = ""
+
+    def set_path(self, path):
+        self.__init__(path)
 
     def index_directory(self, count=False, file=False):
             directory_count, file_count = 0, 0
@@ -41,18 +45,18 @@ class Directory:
     def index_with_blacklist(self):
         # a smarter method to filter with blacklists, modifies what
         # os.walk visits by removing from dirs necessary entries
+        blacklist = Blacklist.blacklist
 
-        artifact_location = Config.join_specific_data('application_root', 'blacklist.location')
         self.drive_letter = self.get_directory_drive(self.directory)
-        blacklist = File(artifact_location).read(specific='list')
         for entry in blacklist:
             if self.get_directory_drive(entry) != self.drive_letter:
                 blacklist.remove(entry)
             else:
                 continue
+
         for root, dirs, files in os.walk(self.directory, topdown=True):
             del files
-            if blacklist is []:
+            if blacklist == []:
                 for directory in dirs:
                     self.directories.append(os.path.join(directory))
             else:
@@ -62,6 +66,7 @@ class Directory:
                     if directory in blacklist:
                         blacklist.remove(directory)
                         remove.append(os.path.split(directory)[1])
+
                     else:
                         self.directories.append(directory)
                         continue
@@ -189,24 +194,3 @@ class Directory:
 
     def get_file_size(self, unit=1):
         return os.path.getsize(self.directory) / unit
-
-    def get_artifact_file_location(self, filename):
-        self.directory = self.get_parent_directory()
-        if self.directory.endswith("src"):
-            self.directories = Directory(os.path.split(self.directory)[0]).index_directory(file=True)
-        else:
-            self.directories = Directory(self.directory).index_directory(file=True)
-        # TODO: remove code in main build, just for finder to run quicker on this method
-        for file in list(self.directories):
-            if ".git" in file:
-                self.directories.remove(file)
-            if ".idea" in file:
-                self.directories.remove(file)
-            else:
-                continue
-
-        for file in list(self.directories):
-            if os.path.split(file)[1] == filename:
-                return file
-            else:
-                pass

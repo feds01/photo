@@ -1,4 +1,4 @@
-import ast, os
+import ast, os, json
 from src.core.config_extractor import *
 
 
@@ -44,7 +44,7 @@ class File:
                 for _file in self.files:
                     self.file = os.path.join(self.application_root, application_dir, _file)
                     self.create()
-        self.file = Config.join_specific_data('application_root', 'blacklist.location')
+        self.file = Config.join('application_root', 'blacklist.location')
         self.create()
 
     def clean_files(self):
@@ -60,12 +60,21 @@ class File:
                 error_info = {'e_type': 'file+error', 'object': {self.file}}
                 return simple_error('system requested clean-up of unrecognised file.', try_recovery=True, info=error_info)
 
-    def write(self, data):
+    def write(self, data, ):
         if not check_file(self.file):
             return 0
         else:
             with open(self.file, "w") as f:
                 f.write(str(data)), f.close()
+
+    def write_json(self, data, indent=4):
+        json.dump(data, open(self.file, "w"),indent=indent)
+
+    def read_json(self):
+        if not check_file(self.file):
+            return None
+
+        return json.load(open(self.file))
 
     def read(self, specific):
 
@@ -99,4 +108,9 @@ class File:
         os.remove(self.file)
 
     def create(self):
-        open(self.file, mode='w')
+        try:
+            open(self.file, mode='w')
+
+        except FileNotFoundError:
+            if not os.path.exists(self.application_root):
+                Fatal(f"improper configuration, application_root='{self.application_root}' does not exist", stop=True)

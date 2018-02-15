@@ -1,24 +1,28 @@
 import time
 import unittest
-from src.thread_indexer import *
+from src.indexing import *
 from src.utilities.manipulation import sizeof_fmt
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
-root:     str = os.path.split(__file__)[0]
-main_dir: str = ''
-test_dir: str = ''
-dirs:    list = ['crt', 'good', 'all']
+root:      str = os.path.split(__file__)[0]
+main_dir:  str = ''
+test_dir:  str = ''
+make_dirs: list = ["test_0", "test_1"]
+dirs:      list = ['crt', 'good', 'all']
 
 
 def setup():
-    global root, main_dir, test_dir, dirs
+    global root, main_dir, test_dir, dirs, make_dirs
 
     main_dir = os.path.join(root, 'output')
     test_dir = os.path.join(main_dir, 'test_0')
+
     try:
         os.mkdir(main_dir)
-        os.mkdir(test_dir)
+
+        for i in make_dirs:
+            os.mkdir(os.path.join(main_dir, i))
 
         for d in dirs:
             os.mkdir(os.path.join(test_dir, d))
@@ -28,7 +32,6 @@ def setup():
 
 
 class IndexWithNormalMethod(unittest.TestCase):
-
     def setUp(self):
         setup()
 
@@ -62,8 +65,8 @@ class DataMethod(unittest.TestCase):
         self.start = time.time()
         Data(test_dir).export()
         self.end = time.time() - self.start
-        self.file_location = Config.join_specific_data("application_root", "application_directories.size_data")
-        self.expected_result = {1: {'path': '', 'file_list': {'.CR2': (0, []), '.dng': (0, []), '.tif': (0, []), '.jpg': (0, [])}, 'photo': [], 'size': [0, '0bytes']}}
+        self.file_location = Config.join("application_root", "application_directories.session")
+        self.expected_result = {'directories': {'1': {'path': '', 'file_list': {'.CR2': {'amount': 0, 'files': []}, '.dng': {'amount': 0, 'files': []}, '.tif': {'amount': 0, 'files': []}, '.jpg': {'amount': 0, 'files': []}}, 'photo': [], 'size': [0, '0bytes']}}}
 
     def test_time_on_creation(self):
         if self.end < 1:
@@ -73,7 +76,10 @@ class DataMethod(unittest.TestCase):
 
     def test_correct_data(self):
         Data(test_dir).export()
-        self.assertEqual(File(self.file_location).read("dict"), self.expected_result)
+        data = File(self.file_location).read_json()
+        data.pop("table")
+
+        self.assertEqual(data, self.expected_result)
 
 class IndexItemSize(unittest.TestCase):
 

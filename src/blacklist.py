@@ -1,57 +1,9 @@
-from src.core.core import *
+from src.core.fileio import *
+from src.core.exceptions import *
 from src.utilities.arrays import organise_array
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
-
-"""
-Module name: blacklist.py
-Usage: thread_indexer.py, cli.py
-Description -
-
-This module is used to manage and access the blacklist. The class 'Blacklist' is
-used for checking and filtering the directory indexing results of indexing.py and
-thread_indexer.py. The filtering of blacklist entries is available for performance.
-Functions such as check_entry_existence() and check_child_entry() are used to verify
-that if a given directory is or is under the blacklist. The modification of the blacklist
-can also be done here. The function add_entry() will add an entry to the blacklist, the
-function remove_entry() will remove an entry from a blacklist. Also the entered directory
-to be scanned is also checked through the blacklist. This module also contains the function
-'is_child()' which returns if an a given directory  is a child directory of another given
-directory. The function also has support for symbolic links.
-
-is_child():
-:argument child     (the expected child directory)                                       [default= ""   (necessary)]
-:argument directory (the parent directory)                                               [default= ""   (necessary)]
-:argument symlinks  (use symlinks to check if :arg child is a child of :arg directory)   [default= False           ]
-
-Note: Linux and Windows filesystems work
-:returns directory= "/home/docs/"      child="/home/docs/html/apple/", is_child(child, directory) -> True
-:returns directory= "/home/docs/"      child="/home/docs/",            is_child(child, directory) -> True
-:returns directory= "/home/docs/html/" child="/home/docs/",            is_child(child, directory) -> False
-
-
-_Blacklist():
-:exception if :arg, entry is a child of a blacklist entry or another blacklist entry
-:raises BlacklistEntryError
-
-:exception if :arg, entry is not present and is trying to be removed.
-:raises BlacklistEntryError
-
-
-:returns blacklist= ["C:\\Users"]
-         results=   ["C:\\Users\\Default", "C:\\photos\\projects"]
-         Blacklist(results, "", use_filter=False).run_blacklist_check() -> ["C:\\Users\\Default"]
-         Note: the function does not return the new result list, but only the results which
-               need to be removed.
-
-:returns blacklist= ["C:\\Users"]
-         Blacklist.add_entry("C:\\Windows") -> blacklist= ["C:\\Users", "C:\\Windows"]
-
-:returns blacklist= ["C:\\Users\\Default", "C:\\photos\\projects"]
-         Blacklist.remove_entry("C:\\photos\\projects") -> blacklist= ["C:\\Users\\Default"]
-"""
-
 
 def is_child(child, directory, symlinks=False):
     directory = os.path.abspath(directory)
@@ -69,23 +21,28 @@ class _Blacklist:
     def __init__(self):
         self.blacklist = []
         self.bad_entries = []
-        self.file_location = Config.join_specific_data('application_root', 'blacklist.location')
+        self.file_location = Config.join('application_root', 'blacklist.location')
+        self.file = File(file=self.file_location)
+
         self.read_blacklist()
 
     def read_blacklist(self):
-        self.blacklist = File(file=self.file_location).read(specific="list")
+        current_data = self.file.read_json()
+
+        for entry in current_data["entries"]:
+            self.blacklist.append(entry)
 
         if self.blacklist is None:
             if os.path.exists(self.file_location):
                 self.read_blacklist()
             else:
+                self.file.create(), self.file.write_json('{"entries": []}')
                 # open the file and write the initial blacklist
-                open(self.file_location, "w").write("[]")
 
+    def update_blacklist(self, instruction, array):
+        current_data = self.file.read_json()
+        current_data["entries"] = []
 
-
-
-    def update_blacklist(self, instruction, *array):
         array = organise_array([array])
         if instruction == self._INSERT:
             self.blacklist.extend(array)
@@ -95,9 +52,12 @@ class _Blacklist:
         elif instruction == self._PURGE:
             self.blacklist = []
 
-        File(self.file_location).write(self.blacklist)
+        for entry in self.blacklist:
+            current_data["entries"].append(entry)
 
-    def check_entry_existence(self, entries, inverted=False):
+        self.file.write_json(current_data)
+
+    def is_entry(self, entries, inverted=False):
         entries = organise_array([entries])
         verify_list = []
         for entry in entries:
@@ -114,7 +74,7 @@ class _Blacklist:
             # entries which are flagged as being in the blacklist
             return verify_list
 
-    def check_child_entry(self, entries, inverted=False):
+    def of_entry(self, entries, inverted=False):
         entries = organise_array([entries])
         verify_list = []
         for item in self.blacklist:
@@ -123,20 +83,18 @@ class _Blacklist:
                     # is a blacklist entry a child of a given directory
                     if is_child(item, entry):
                         verify_list.append(item)
-                    else:
-                        continue
+
                 if not inverted:
                     # is a given directory a child of a blacklist entry
                     if is_child(entry, item):
                         verify_list.append(item)
-                    else:
-                        continue
+
         return verify_list
 
     def add_entry(self, entry):
         if entry in self.blacklist:
             raise BlacklistEntryError('present')
-        if len(self.check_child_entry(entry)) > 0:
+        if len(self.of_entry(entry)) > 0:
                 raise BlacklistEntryError('present')
         else:
             self.update_blacklist(self._INSERT, entry)

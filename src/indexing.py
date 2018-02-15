@@ -118,7 +118,7 @@ class ThreadIndex:
 
         if self.use_blacklist:
             # this filters the first level directories and checks if they are blacklisted.
-            self.nodes = Blacklist.check_entry_existence(self.nodes)
+            self.nodes = Blacklist.is_entry(self.nodes)
 
         self.dirs.append(self.index.validate(self.nodes))
 

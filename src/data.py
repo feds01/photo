@@ -19,54 +19,52 @@ Description -
 class Data:
     def __init__(self, path):
         self.path = path
-        self.destination_file = ""
-        self.directory_data = {}
-        self.packaged_data = {}
-        self.counter_data = []
-        self.file_list = []
+        self.file = File(Config.join('application_root', 'application_directories.session'))
+        self.dirapi = Directory(path)
 
-    def fetch_data_destination_path(self):
-        self.destination_file = Config.join_specific_data('application_root', 'application_directories.size_data')
-        return self.destination_file
-
-    def datafy(self, path):
-        self.directory_data, self.file_list, data = {}, [], {}
-        self.directory_data.update({'path': path})
-
-        analysis_path = Directory(path)
-        self.file_list = Directory(path).index_directory(file=True)
-
-        extension_keys = Config.get("file_extensions")
-
-        for specific_key in sorted(extension_keys):
-            for extension in Config.get("file_extensions." + specific_key):
-                files = analysis_path.find_specific_file(extension, self.file_list, case_sensitive=False)
-                data.update({extension: (len(files), files)})
-
-            self.directory_data.update({'file_list': data})
-
-        self.directory_data.update({'photo': sorted(analysis_path.index_photo_directory(return_folders=True).values())})
-        self.directory_data.update({'size': sizeof_fmt(Directory(path).get_directory_size())})
-
-        return self.directory_data
-
-    def export(self):
-        self.fetch_data_destination_path()
-        self.packaged_data = {}
-
+        # just in case only one directory was passed for processing
         if type(self.path) != list:
             self.path = [self.path]
 
-        for directory in self.path:
-            self.packaged_data.update({self.path.index(directory) + 1: self.datafy(directory)})
-        # check if any directories were found, if none found, then exit
-        if self.packaged_data == {}:
+    def load(self):
+        data = self.file.read_json()
+        data.update({"directories" : {}})
 
+        return data
+
+    def datafy(self, path):
+        self.dirapi.set_path(path)
+
+        data = {}
+        file_list = {}
+        data.update({'path': path})
+
+        for specific_key in sorted(Config.get("file_extensions")):
+            for extension in Config.get("file_extensions." + specific_key):
+                files = self.dirapi.find_specific_file(extension, self.dirapi.index_directory(file=True), case_sensitive=False)
+                file_list.update({extension: {"amount": len(files), "files" : files}})
+
+            data.update({'file_list': file_list})
+
+        data.update({'photo': sorted(self.dirapi.index_photo_directory(return_folders=True).values())})
+        data.update({'size': sizeof_fmt(Directory(path).get_directory_size())})
+
+        return data
+
+    def export(self):
+        loaded_data = self.load()
+        counter = 1
+
+        for directory in self.path:
+            loaded_data["directories"].update({counter : self.datafy(directory)})
+            counter += 1
+        # check if any directories were found, if none found, then exit
+        if len(loaded_data["directories"]) == 0:
             print('zero instances of photo directories found.')
-            File(self.destination_file).clean()
+            self.file.clean()
             exit()
         else:
-            File(self.destination_file).write(self.packaged_data)
+            self.file.write_json(loaded_data, indent=None)
 
 
 class Table:
@@ -74,15 +72,17 @@ class Table:
         self.max_rows = max_instances
         self.data_packets = 0
         self.path_size = max_size
-        self.file_location = Config.join_specific_data('application_root', 'application_directories.size_data')
-        self.import_data = File(self.file_location).read("dict")
+        self.file = File(Config.join('application_root', 'application_directories.session'))
         self.readable_size = []
         self.all_rows = []
         self.row = []
         self.destination_file = ''
 
         # data import
-        self.data_packets = int(len(self.import_data.keys()))
+        self.import_data = self.file.read_json()
+        self.import_data.update({"table": []})
+
+        self.data_packets = int(len(self.import_data['directories']))
         for i in range(self.data_packets):
             if not i + 1 <= self.max_rows:
                 dict(self.import_data).pop(i)
@@ -99,22 +99,22 @@ class Table:
 
     def get(self, req):
         specific_data = []
-        for data in list(self.import_data.values()):
+        for data in list(self.import_data["directories"].values()):
             specific_data.append(global_get(data, req))
 
         return specific_data
 
     def make_row(self, key):
         self.row = [key]
-        if self.path_size <= len(list(self.import_data[key].get('path'))):
-            self.row.append(shorten(self.import_data[key].get('path')))
+        if self.path_size <= len(list(self.import_data["directories"][f"{key}"].get('path'))):
+            self.row.append(shorten(self.import_data["directories"][f"{key}"].get('path')))
         else:
-            self.row.append(self.import_data[key].get('path'))
-        data = self.import_data[key].get('file_list')
+            self.row.append(self.import_data["directories"][f"{key}"].get('path'))
+        data = self.import_data["directories"][f"{key}"].get('file_list')
         for item in data.values():
-            self.row.append(item[0])
+            self.row.append(item["amount"])
 
-        size_data = self.import_data[key].get('size')
+        size_data = self.import_data["directories"][f"{key}"].get('size')
         readable_size = []
 
         if size_data[0] == 0:
@@ -131,11 +131,11 @@ class Table:
             super(self.__init__)
 
         try:
-            return self.import_data.get(_id)
+            return self.import_data["directories"].get(f"{_id}")
         except KeyError:
             raise Fatal('System tried to load a non-existent part of the results table', True,
                         'id=%s' % _id,
-                        'data=%s' % self.import_data)
+                        'data=%s' % self.import_data["directories"])
 
     @staticmethod
     def __calculate_border_size(data, use_string=False):
@@ -145,9 +145,9 @@ class Table:
         borders = []
         border_data = []
 
-        for item in self.import_data[1].get('file_list').items():
+        for item in self.import_data["directories"]["1"].get('file_list').items():
             border_data.append(self.__calculate_border_size(
-                largest_element(to_string([x[0] for x in self.get("file_list.'%s'" % item[0])]))))
+                largest_element(to_string([x for x in list(self.get("file_list.'%s'.amount" % item[0]))]))))
 
         for i in border_data:
             borders.append(self.border_symbol * int(i))
@@ -170,6 +170,10 @@ class Table:
 
         self.border()
         [self.table.add_row(row) for row in self.all_rows]
+
+        # save to session file
+        self.import_data.update({"table": self.all_rows})
+        self.file.write_json(self.import_data, indent=None)
 
         self.readable_size.insert(0, self.border_symbol * self.__calculate_border_size(
             largest_element(self.readable_size)))

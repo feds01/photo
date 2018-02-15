@@ -20,7 +20,7 @@ class _Config:
         except Exception as exc:
             yml_error(exc)
 
-    def join_specific_data(self, key1, key2):
+    def join(self, key1, key2):
         return self.get(key1) + self.get(key2)
 
     def get(self, req):

@@ -3,6 +3,7 @@ import sys, os
 import argparse
 
 sys.path.extend(os.pardir)
+
 from src.cli_helpers import *
 from src.cleaner import *
 from src.data import Table
@@ -44,7 +45,7 @@ def run_scan():
 def load_table():
     global max_id, dirs
     dirs = []
-    max_id = len(File(Config.join_specific_data('application_root', 'application_directories.table_data')).read('dict'))
+    max_id = len(File(Config.join('application_root', 'application_directories.session')).read_json()["table"])
     for i in range(1, max_id + 1):
         dirs.append(Table().from_id(i).get('path'))
 
