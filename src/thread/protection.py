@@ -1,8 +1,9 @@
 import os
 import random
-from src.core.config_extractor import *
+from src.core.config import *
 
-def check_process_count(silent=False, return_pnum=False):
+
+def check_process_count(v=True, return_pnum=False):
     _raw_value = os.cpu_count() * Config.get('thread.instance_multiplier')
 
     if _raw_value <= 0:
@@ -10,7 +11,7 @@ def check_process_count(silent=False, return_pnum=False):
               'incorrect config magic process number of %s' % _raw_value,
               'instance_multiplier=%s' % (_raw_value / os.cpu_count()))
     elif _raw_value >= 32:
-        if not silent:
+        if not v:
             config_warning('magic process number is extremely large.')
         else:
             pass
@@ -26,7 +27,7 @@ def check_process_count(silent=False, return_pnum=False):
             Fatal('process count cannot be float.', True, 'incorrect config magic process number of %s' %
                   _raw_value, 'incorrect type: %s' % type(_raw_value), '%s' % error)
         finally:
-            if not silent:
+            if not v:
                 config_warning('magic process instance multiplier number was processed as float.')
 
     return _raw_value if return_pnum else True

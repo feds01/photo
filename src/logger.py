@@ -1,5 +1,5 @@
 import logging
-from src.core.config_extractor import Config
+from src.core.config import Config
 
 # set up logging to file - see previous section for more details
 logging.basicConfig(level=logging.DEBUG,

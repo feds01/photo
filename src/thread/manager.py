@@ -1,4 +1,5 @@
 from src.logger import *
+from src.core.exceptions import Fatal, simple_error
 from src.thread.protection import *
 
 manager_logger = logging.getLogger('photo.process_manager')
@@ -6,7 +7,7 @@ manager_logger = logging.getLogger('photo.process_manager')
 class _Process:
     def __init__(self):
         self.parent = 0
-        self.process_count = check_process_count(True, True)
+        self.process_count = check_process_count(v=True, return_pnum=True)
         self.frame = {}
         self._process_list = []
 

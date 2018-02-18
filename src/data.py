@@ -68,8 +68,8 @@ class Data:
 
 
 class Table:
-    def __init__(self, max_instances=5, max_size=30):
-        self.max_rows = max_instances
+    def __init__(self, max_size=30):
+        self.max_rows = Config.get("table_records")
         self.data_packets = 0
         self.path_size = max_size
         self.file = File(Config.join('application_root', 'application_directories.session'))
@@ -81,11 +81,12 @@ class Table:
         # data import
         self.import_data = self.file.read_json()
         self.import_data.update({"table": []})
-
         self.data_packets = int(len(self.import_data['directories']))
-        for i in range(self.data_packets):
-            if not i + 1 <= self.max_rows:
-                dict(self.import_data).pop(i)
+
+        if self.max_rows != -1:
+            for i in range(self.data_packets):
+                if not i + 1 <= self.max_rows:
+                    dict(self.import_data).pop(i)
 
         # table init and settings
         self.table = PrettyTable()

@@ -61,8 +61,7 @@ class Analyse:
 
 
 class Delete:
-    def __init__(self, delete, silent=False):
-        self.silent = silent
+    def __init__(self, delete):
         self.delete_list = delete
         self.total_size = 0
         self.file_path = ""
@@ -73,7 +72,7 @@ class Delete:
 
     def delete_file(self):
         file_size = Directory(self.file_path).get_file_size()
-        if not self.silent:
+        if not Config.get_session("verbose"):
             file_info = sizeof_fmt(file_size)
             print(f"deleting: {os.path.basename(self.file_path)} size: {str(file_info[1])}")
         try:

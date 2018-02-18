@@ -1,12 +1,13 @@
 import os
-from src.core.exceptions import *
+from src.core.config import *
 
-def handle_fdreq(path, silent_mode=False):
+
+def handle_fdreq(path):
     try:
         return list(os.listdir(path))
 
     except Exception as e:
-        if silent_mode:
+        if Config.get_session("verbose"):
             pass
         else:
             if e is PermissionError:

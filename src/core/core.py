@@ -1,7 +1,7 @@
 import re
 from src.core.fileio import *
 from src.blacklist import Blacklist
-from src.core.config_extractor import *
+from src.core.config import *
 from src.utilities.arrays import organise_array
 from src.utilities.infrequents import handle_fdreq
 
@@ -56,7 +56,9 @@ class Directory:
 
         for root, dirs, files in os.walk(self.directory, topdown=True):
             del files
-            if blacklist == []:
+
+            # DO NOT TOUCH 'IS' '==' does not work!
+            if blacklist is []:
                 for directory in dirs:
                     self.directories.append(os.path.join(directory))
             else:
@@ -93,7 +95,7 @@ class Directory:
                     pass
         return self.file_extension_list
 
-    def index_photo_directory(self, return_folders=False, silent_mode=False, max_instances=-1):
+    def index_photo_directory(self, return_folders=False):
         # the patterns are loaded from the config.yml file and complied,
         # further on they are used to quickly identify matching folder names
         # rather than relying on hard coded folder example names
@@ -105,7 +107,7 @@ class Directory:
 
         def method(path):
             directories = {}
-            content = handle_fdreq(path, silent_mode=silent_mode)
+            content = handle_fdreq(path)
 
             def _find_item(directory):
                 if crt_pattern.fullmatch(directory):
@@ -149,7 +151,7 @@ class Directory:
         else:
             for directory in self.directory:
                 result = list(method(directory).values())
-                if len(self.directories) == max_instances:
+                if len(self.directories) == Config.get("table_records"):
                     return self.directories
                 if len(result) == 3:
                     self.directories.append(directory)
@@ -161,8 +163,8 @@ class Directory:
         return os.path.exists(self.directory)
 
     @staticmethod
-    def get_branches(path, silent=False):
-        path_list = handle_fdreq(path, silent)
+    def get_branches(path):
+        path_list = handle_fdreq(path)
 
         branch_directories = []
         for directory in path_list:

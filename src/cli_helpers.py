@@ -1,6 +1,6 @@
 import time
 import subprocess
-from src.indexing import *
+from src.core.core import *
 from src.utilities.manipulation import largest_element, sizeof_fmt
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"

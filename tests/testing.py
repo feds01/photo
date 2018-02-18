@@ -33,6 +33,7 @@ def setup():
 
 class IndexWithNormalMethod(unittest.TestCase):
     def setUp(self):
+        Config.init_session({'thread': True, 'blacklist': True, 'verbose': True})
         setup()
 
     def test_method(self):
@@ -48,6 +49,7 @@ class IndexWithNormalMethod(unittest.TestCase):
 class IndexWithThreadMethod(unittest.TestCase):
 
     def setUp(self):
+        Config.init_session({'thread': True, 'blacklist': True, 'verbose': True})
         setup()
 
     def test_method(self):

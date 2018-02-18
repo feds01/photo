@@ -13,6 +13,8 @@ class _Config:
         self.key_list = []
         self.data = {}
 
+        self.session = {}
+
     @staticmethod
     def retrieve_config():
         try:
@@ -26,6 +28,14 @@ class _Config:
     def get(self, req):
         return global_get(self._raw_data, req)
 
+    def init_session(self, config):
+        self.session = config
+
+    def set_session(self, key, value):
+        self.session.update({key: value})
+
+    def get_session(self, key):
+        return self.session.get(key)
 
 Config = _Config()
 del _Config

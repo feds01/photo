@@ -113,6 +113,14 @@ class _Blacklist:
 
         self.update_blacklist(self._REMOVE, self.bad_entries)
 
+    def check(self, directory, child=False):
+        self.read_blacklist()
+
+        if child:
+            return bool(self.of_entry(directory))
+        else:
+            return bool(self.is_entry(directory, inverted=True))
+
 
 Blacklist = _Blacklist()
 del _Blacklist
