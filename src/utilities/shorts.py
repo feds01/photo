@@ -120,8 +120,9 @@ def global_get(data_structure, req):
             data_structure = data_structure.get(key)
             continue
         else:
-            Fatal('Unreadable information', True, 'key was not found, but expected', 'key=%s' % req, 'given_data=%s' % data_structure)
+            raise Fatal('Unreadable information', 'key was not found, but expected', 'key=%s' % req, 'given_data=%s' % data_structure)
     try:
         return data_structure.keys()
-    except:
+
+    except AttributeError:
         return data_structure

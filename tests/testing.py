@@ -5,6 +5,7 @@ from src.utilities.manipulation import sizeof_fmt
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
+main_root: str = os.path.abspath(os.path.join(os.path.split(__file__)[0], "..\\"))
 root:      str = os.path.split(__file__)[0]
 main_dir:  str = ''
 test_dir:  str = ''
@@ -30,6 +31,23 @@ def setup():
     except FileExistsError:
         return
 
+
+class ProgramConfiguration(unittest.TestCase):
+    def test_extraction(self):
+        self.assertEqual(Config.get("debug"), False)
+
+    def test_extraction1(self):
+        self.assertEqual(Config.get("application_root"), main_root + "\\")
+
+    def test_extraction2(self):
+        self.assertEqual(Config.get("application_directories.dirs"), ["temp"])
+
+    def test_incorrect_key(self):
+        self.assertRaises(Fatal, lambda: Config.get("non-present-key"))
+
+    def test_join(self):
+        temp_folder = os.path.join(main_root, "temp\\session.json")
+        self.assertEqual(Config.join("application_root", "application_directories.session"), temp_folder)
 
 class IndexWithNormalMethod(unittest.TestCase):
     def setUp(self):
@@ -96,6 +114,7 @@ class IndexItemSize(unittest.TestCase):
     def test_negative_byte(self):
         results = sizeof_fmt(-1)
         self.assertEqual(results[1], "0bytes")
+
 
 if __name__ == "__main__":
     unittest.main()

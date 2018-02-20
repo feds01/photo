@@ -1,5 +1,4 @@
 from src.logger import *
-from src.core.exceptions import Fatal, simple_error
 from src.thread.protection import *
 
 manager_logger = logging.getLogger('photo.process_manager')
@@ -52,13 +51,13 @@ class _Process:
                 raise ValueError
 
         except ValueError:
-            Fatal('Process could not be found by manager.', True,
+            Fatal('Process could not be found by manager.',
                   'p_id= %s' % str(pid),
-                  'p_list= %s' % self._process_list)
+                  'p_list= %s' % self._process_list).stop()
 
         finally:
             if not self.stability_check():
-                Fatal('Process instability violation.', True)
+                Fatal('Process instability violation.').stop()
 
     def stability_check(self):
         instability_level = 0

@@ -134,9 +134,9 @@ class Table:
         try:
             return self.import_data["directories"].get(f"{_id}")
         except KeyError:
-            raise Fatal('System tried to load a non-existent part of the results table', True,
+            raise Fatal('System tried to load a non-existent part of the results table',
                         'id=%s' % _id,
-                        'data=%s' % self.import_data["directories"])
+                        'data=%s' % self.import_data["directories"]).stop()
 
     @staticmethod
     def __calculate_border_size(data, use_string=False):

@@ -12,19 +12,15 @@ Description -
 
 """
 
-debug = True  # temporary value
+debug = False  # temporary value
 
 
 def exception_handler(type, value, tb):
-    print(type)
     if type == KeyboardInterrupt:
-        print('w_root.kernel.system.process.exception.keyboard_i= True')
         pass
 
     if debug:
         print(''.join(traceback.format_exception(type, value, tb)))
-    else:
-        pass
 
 sys.excepthook = exception_handler
 
@@ -51,14 +47,22 @@ class simple_error(Exception):
 
 
 class Fatal(Exception):
-    def __init__(self, message, stop=False, *other):
-        print('fatal: %s' % message)
+    def __init__(self, message, *other):
+        self.message = message
+
+        print('fatal: %s' % self.message)
+
         self.line = 0
         for information in other:
             print([hex(self.line) + ':'][0], information)
             self.line += 1
-        if stop:
-            exit()
+
+    def get_message(self):
+        return self.message
+
+    def stop(self):
+        exit()
+
 
 
 class BlacklistEntryError(Exception):
@@ -82,9 +86,9 @@ class IndexingError(Exception):
         elif reason == "leaf":
             print('error: given directory(%s) is a leaf' % directory)
 
+
 def config_warning(message):
     print('config: %s' % message)
 
 def yml_error(error):
-    Fatal('config file is unreadable.', True, 'Here is trace:\n\n%s' % error)
-    exit()
+    Fatal('config file is unreadable.', 'Here is trace:\n\n%s' % error).stop()

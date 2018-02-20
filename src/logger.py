@@ -1,14 +1,23 @@
 import logging
-from src.core.config import Config
+from src.core.config import Config, Fatal
 
-# set up logging to file - see previous section for more details
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                    datefmt='%m-%d %H:%M',
-                    filename=Config.get('log_file'),
-                    filemode='w')
+if (Config.get("debug")):
 
-logger = logging.FileHandler(Config.get('log_file'))
+    if(Config.get("log_file") is ""):
+        Fatal("Debug mode enabled, but no log file provided")
+
+    logging.basicConfig(level=logging.DEBUG,
+                        format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+                        datefmt='%m-%d %H:%M',
+                        filename=Config.get('log_file'),
+                        filemode='w')
+
+    logger = logging.FileHandler(Config.get('log_file'))
+
+else:
+    logger = logging.getLogger("main-logger")
+    logger.disabled = True
+
 logger.setLevel(logging.DEBUG)
 
 # Now, we can log to the root logger, or any other logger. First the root...

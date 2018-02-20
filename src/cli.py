@@ -2,7 +2,7 @@
 import sys, os
 import argparse
 
-sys.path.extend(os.pardir)
+sys.path.append(os.path.abspath(os.path.split(__file__)[0]+"\\..\\"))
 
 from src.cli_helpers import *
 from src.cleaner import *
@@ -75,15 +75,16 @@ parser.add_argument('-b', '--blacklist', default=blacklist_default, action='stor
                     help='use the blacklist to filter out unwanted directories')
 parser.add_argument('-v', '--verbose', default=False, action='store_true',
                     help="don't display mild error messages or warnings.")
+
 parser.parse_args(namespace=arguments)
 Config.init_session(arguments.__dict__)
 
 if __name__ == '__main__':
-    if Config.get_session("path") == '':
+    if Config.get_session("path") is None:
         Config.set_session("path", os.getcwd())
 
     if not Directory(Config.get_session("path")).check_directory():
-        Fatal("directory does not exist", True, 'directory=%s' % Config.get_session("path"))
+        Fatal("directory does not exist", 'directory=%s' % Config.get_session("path")).stop()
 
     if Config.get_session("blacklist") and not blacklist_default:
         if not Config.get_session("verbose"):
@@ -93,7 +94,7 @@ if __name__ == '__main__':
         Process.register(os.getpid(), 'parent')
         check_process_count(v=Config.get_session("verbose"), return_pnum=True)
     # environment setup
-    print(f'beginning scan of {Config.get_session("path")}')
+    print(f'Scanning {Config.get_session("path")} . . .\n')
     freeze_support(), setup()
     # actual scan function calls
     run_scan()

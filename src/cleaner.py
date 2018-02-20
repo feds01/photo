@@ -78,7 +78,7 @@ class Delete:
         try:
             os.remove(self.file_path)
         except Exception as e:
-            Fatal(f"could not remove file {self.file_path}", False, 'error=%s' % e)
+            Fatal(f"could not remove file {self.file_path}", 'error=%s' % e)
             self.total_size -= file_size
 
     def deletion_manager(self):

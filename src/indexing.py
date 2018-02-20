@@ -14,10 +14,10 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 def check_directory(path):
     if not Directory(path).check_directory():
-        raise Fatal("directory does not exist", False, 'directory= %s' % path)
+        raise Fatal("directory does not exist", 'directory= %s' % path)
 
     if Blacklist.check(path, child=True):
-        raise Fatal("directory is blacklisted.", False, 'directory=%s' % path)
+        raise Fatal("directory is blacklisted.", 'directory=%s' % path)
 
 
 class Index:
@@ -123,8 +123,8 @@ class ThreadIndex:
                 if self.check:
                     for _process in pool._pool[:]:
                         if not Process.register(_process.pid, 'thread'):
-                            Fatal('Process authentication error', True,
-                                  'there was a problem authorising a process launch')
+                            Fatal('Process authentication error',
+                                  'there was a problem authorising a process launch').stop()
 
                 self.result = organise_array(pool.map(self.worker, self.nodes))
         except KeyboardInterrupt:

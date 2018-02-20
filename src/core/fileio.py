@@ -121,4 +121,4 @@ class File:
 
         except FileNotFoundError:
             if not os.path.exists(self.application_root):
-                Fatal(f"improper configuration, application_root='{self.application_root}' does not exist", stop=True)
+                Fatal(f"improper configuration, application_root='{self.application_root}' does not exist").stop()
