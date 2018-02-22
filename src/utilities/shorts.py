@@ -2,6 +2,9 @@ import os
 from src.core.exceptions import *
 from src.utilities.arrays import center_array
 
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
+
 
 def __path_size(path, include_sep, separator):
     return len(path) if include_sep else sum([len(chunk) for chunk in path.split(separator)])

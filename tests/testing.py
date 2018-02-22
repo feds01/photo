@@ -35,7 +35,7 @@ def setup():
 
 class ProgramConfiguration(unittest.TestCase):
     def test_extraction(self):
-        self.assertEqual(Config.get("debug"), False)
+        self.assertEqual(type(Config.get("table_records")), int)
 
     def test_extraction1(self):
         self.assertEqual(Config.get("application_root"), main_root + "\\")

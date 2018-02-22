@@ -1,5 +1,8 @@
 from src.utilities.manipulation import to_integer
 
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
+
 
 def join_arrays(*arrays):
     joined_list: list = []

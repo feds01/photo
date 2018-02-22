@@ -2,6 +2,9 @@ import os
 import random
 from src.core.config import *
 
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
+
 
 def check_process_count(v=True, return_pnum=False):
     _raw_value = os.cpu_count() * Config.get('thread.instance_multiplier')

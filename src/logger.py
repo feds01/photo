@@ -1,6 +1,10 @@
 import logging
 from src.core.config import Config, Fatal
 
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
+
+
 if (Config.get("debug")):
 
     if(Config.get("log_file") is ""):

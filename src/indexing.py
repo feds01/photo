@@ -36,17 +36,16 @@ class Index:
 
     def apply_filter(self, return_results=False):
         for directory in self.directories:
-            branches = self.dirapi.get_branches(directory)
-            if len(branches) < 3:
+            if len(get_branches(directory)) < 3:
                 self.directories.remove(directory)
 
-        self.directories = self.validate(self.directories)
+        self.directories = organise_array([self.validate(self.directories)])
 
         if return_results:
             return self.directories
 
     def index(self):
-        if len(self.dirapi.get_branches(self.path)) == 0:
+        if len(get_branches(self.path)) == 0:
             if not Config.get_session("verbose"):
                 IndexingError(self.path, "leaf")
 
@@ -96,7 +95,7 @@ class ThreadIndex:
         self.check = check
 
     def get_nodes(self):
-        self.nodes = Directory.get_branches(self.path)
+        self.nodes = get_branches(self.path)
 
         if Config.get_session("blacklist"):
             # this filters the first level directories and checks if they are blacklisted.
@@ -106,7 +105,7 @@ class ThreadIndex:
         self.dirs = self.index.validate(self.nodes)
 
         for node in self.nodes:
-            if handle_fdreq(node) == "":
+            if get_branches(node) == []:
                 self.nodes.remove(node)
 
     def worker(self, node):

@@ -36,7 +36,7 @@ def loader(data):
     instance_leaves = {}
     file_count = 0
     for directory in data.get('photo'):
-        instance_leaves.update({os.path.basename(directory): Directory(directory).index_directory(count=True, file=True)})
+        instance_leaves.update({os.path.basename(directory): Directory(directory).index(count=True, file=True)})
     data.pop('photo')
     print("More detail about the photo directory - '" + os.path.basename(data.get('path')) + "' :\n")
     print("Full directory path: ", data.get('path'))

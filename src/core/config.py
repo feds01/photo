@@ -1,4 +1,6 @@
-import yaml, os
+import os
+import yaml
+
 from src.core.exceptions import *
 from src.utilities.shorts import global_get
 
@@ -19,7 +21,6 @@ class _Config:
         root = os.path.abspath(os.path.join(os.path.split(__file__)[0], "..\\..\\"))
         file = ""
         data = {'application_root': root, 'application_directories': {'use_external': False, 'external': {'session': '', 'blacklist': '', 'job_archive': ''}, 'dirs': ['temp'], 'temp': ['session.json', 'job_archive.json'], 'session': 'temp\\session.json', 'job_archive': 'temp\\job_archive.json'}, 'folders': {'good': {'pattern': '(_|)[gG][oO]{2}[dD]'}, 'all': {'pattern': '(_|)[aA][lL]{2}'}, 'crt': {'pattern': '(_|)[dDcC][nNrR][gGtT]'}}, 'blacklist': {'enabled': True, 'location': 'artifact\\blacklist.json'}, 'thread': {'instance_multiplier': 1}, 'file_extensions': {'crt': ['.CR2', '.dng', '.tif'], 'good': ['.jpg']}, 'table_records': -1, 'debug': False, 'log_file': ''}
-
 
         try:
             file = os.path.join(root, "artifact\\config.yml")

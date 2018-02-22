@@ -4,13 +4,6 @@ from src.utilities.manipulation import sizeof_fmt, swap_extension
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
-"""
-Module name: cleaner.py
-Usage:
-Description -
-
-"""
-
 
 class Analyse:
     def __init__(self, directory):
@@ -32,8 +25,8 @@ class Analyse:
                     self.directories.update({'good': directories.get(key)})
 
     def find_files(self):
-        all_files = Directory(self.directories.get('all')).index_directory(file=True)
-        good_files = Directory(self.directories.get('good')).index_directory(file=True)
+        all_files = Directory(self.directories.get('all')).index(file=True)
+        good_files = Directory(self.directories.get('good')).index(file=True)
         for file in all_files:
             if file not in good_files:
                 self.files.append(file)
@@ -41,7 +34,7 @@ class Analyse:
                 pass
 
     def find_crt_files(self):
-        crt_files = Directory(self.directories.get('crt')).index_directory(file=True)
+        crt_files = Directory(self.directories.get('crt')).index(file=True)
         crt_extensions = Config.get("file_extensions.crt")
         for file in self.files:
             crt_version = []

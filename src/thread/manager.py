@@ -1,6 +1,9 @@
 from src.logger import *
 from src.thread.protection import *
 
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
+
 manager_logger = logging.getLogger('photo.process_manager')
 
 class _Process:

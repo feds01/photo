@@ -1,14 +1,17 @@
 from src.core.config import *
 from src.utilities.arrays import organise_array
 
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
+
+
+# specific function for listing a directories contents
 def handle_fdreq(path):
     try:
-        return list(os.listdir(path))
+        return [x.name for x in os.scandir(path)]
 
     except Exception as e:
-        if Config.get_session("verbose"):
-            pass
-        else:
+        if not Config.get_session("verbose"):
             if e is PermissionError:
                 IndexingError(path, 'permissions')
 
@@ -17,6 +20,11 @@ def handle_fdreq(path):
                 IndexingError(path, 'un-loadable')
 
         return []
+
+
+# convert base-names to paths
+def to_path(root, arr):
+        return map(lambda x: os.path.join(root, x), arr)
 
 
 def to_structure(root, structure):

@@ -41,7 +41,7 @@ class Data:
 
         for specific_key in sorted(Config.get("file_extensions")):
             for extension in Config.get("file_extensions." + specific_key):
-                files = find_specific_file(extension, self.dirapi.index_directory(file=True), case_sensitive=False)
+                files = find_specific_file(extension, self.dirapi.index(file=True), case_sensitive=False)
                 file_list.update({extension: {"amount": len(files), "files" : files}})
 
             data.update({'file_list': file_list})
@@ -61,7 +61,7 @@ class Data:
         # check if any directories were found, if none found, then exit
         if len(loaded_data["directories"]) == 0:
             print('zero instances of photo directories found.')
-            self.file.clean()
+            self.file.write_json({})
             exit()
         else:
             self.file.write_json(loaded_data, indent=None)

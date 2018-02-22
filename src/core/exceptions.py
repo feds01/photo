@@ -5,14 +5,7 @@ from src.utilities.manipulation import query_user
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
-"""
-Module name: exceptions.py
-Usage:
-Description -
-
-"""
-
-debug = False  # temporary value
+debug = True  # temporary value
 
 
 def exception_handler(type, value, tb):

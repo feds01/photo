@@ -1,9 +1,11 @@
 import re
 from src.core.fileio import *
 from src.blacklist import Blacklist
-from src.core.config import *
 from src.utilities.arrays import organise_array
-from src.utilities.infrequents import handle_fdreq
+from src.utilities.infrequents import handle_fdreq, to_path
+
+__author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
+__company__ = "(C) Wasabi & Co. All rights reserved."
 
 
 def check_directory(directory):
@@ -34,7 +36,7 @@ def directory_size(path, unit=1):
         if not check_directory(path):
             return 0
 
-        files = Directory(path).index_directory(file=True)
+        files = Directory(path).index(file=True)
 
         for file in files:
             size += file_size(file)
@@ -49,76 +51,92 @@ def get_drive(path):
 def standardise_drive(path):
         drive = get_drive(path).capitalize()
 
-        return drive + os.path.splitdrive(path.directory)[1]
+        return drive + os.path.splitdrive(path)[1]
+
+
+# similar to handle_fdreq(), however this will return only directories, and the actual path's rather than basename
+def get_branches(path):
+    try:
+        return list(map(lambda x: x.path ,filter(lambda x: x.is_dir(), [x for x in os.scandir(path)])))
+
+    except Exception as e:
+        if not Config.get_session("verbose"):
+            if e is PermissionError:
+                IndexingError(path, 'permissions')
+
+            # covers weird windows hidden folder mechanics
+            if e is FileNotFoundError:
+                IndexingError(path, 'un-loadable')
+
+        return []
 
 
 class Directory:
-    def __init__(self, item):
-        self.directory = item
-        self.byte_size = self.directory
-        self.directory_list = []
+    def __init__(self, path):
+        self.path = path
         self.directories = []
-        self.path = ""
 
     def set_path(self, path):
         self.__init__(path)
 
-    def index_directory(self, count=False, file=False):
-            file_list = []
+    def index(self, count=False, file=False):
+        file_list = []
 
-            for directory, directories, files in os.walk(self.directory):
-                for sub_directory in directories:
-                    self.directory_list.append(os.path.join(directory, sub_directory))
+        for root, dirs, files in os.walk(self.path):
+            self.directories.extend(to_path(root, dirs))
+            file_list.extend(to_path(root, files))
 
-                if file:
-                    for _file in files:
-                        file_list.append(os.path.join(directory, _file))
-                else:
-                    pass
+        if file and count:
+            return len(file_list)
+        if count:
+            return len(self.directories)
 
-            if file and count:
-                return len(file_list)
-            if count:
-                return len(self.directory_list)
+        return file_list if file else self.directories
 
-            return file_list if file else self.directory_list
+    def index_directory(self):
+        for root, dirs, files in os.walk(self.path):
+            del files
+
+            if len(dirs) == 0 and root != self.path:
+                self.directories.remove(root)
+
+            else:
+                self.directories.extend(to_path(root, dirs))
+
+        return self.directories
 
     def index_with_blacklist(self):
         # a smarter method to filter with blacklists, modifies what
         # os.walk visits by removing from dirs necessary entries
         blacklist = Blacklist.blacklist
 
-        drive_letter = get_drive(self.directory)
+        drive_letter = get_drive(self.path)
 
         for entry in blacklist:
             if get_drive(entry) != drive_letter:
                 blacklist.remove(entry)
-            else:
-                continue
 
-        for root, dirs, files in os.walk(self.directory, topdown=True):
+        for root, dirs, files in os.walk(self.path, topdown=True):
             del files
 
             # DO NOT TOUCH 'IS' '==' does not work!
             if blacklist is []:
                 for directory in dirs:
-                    self.directories.append(os.path.join(directory))
+                    self.directories.append(directory)
             else:
-                remove = []
-                for directory in dirs:
-                    directory = os.path.join(root, directory)
+                # remove directory from the directory list if the length of dirs is 0
+                # check if the current 'root' is not actual directory entry point
+                if len(dirs) == 0 and root != self.path:
+                    self.directories.remove(root)
+
+                for directory in to_path(root, dirs):
                     if directory in blacklist:
                         blacklist.remove(directory)
-                        remove.append(os.path.split(directory)[1])
+                        dirs.remove(os.path.split(directory)[1])
 
                     else:
                         self.directories.append(directory)
-                        continue
-                if len(remove) > 0:
-                    for removable in remove:
-                        dirs.remove(removable)
-                else:
-                    continue
+
         return self.directories
 
     def index_photo_directory(self, return_folders=False):
@@ -128,7 +146,7 @@ class Directory:
         crt_pattern  = re.compile(Config.get('folders.crt.pattern'))
         all_pattern  = re.compile(Config.get('folders.all.pattern'))
         good_pattern = re.compile(Config.get('folders.good.pattern'))
-        self.directory = organise_array([self.directory])
+        self.path = organise_array([self.path])
         self.directories = []
 
         def method(path):
@@ -156,26 +174,23 @@ class Directory:
                 if len(directories.keys()) == 3:
                     break
 
-                else:
-                    continue
-
             return directories
 
         if return_folders:
             try:
-                return method(self.directory[0])
+                return method(self.path[0])
 
             except IndexError:
-                return method(self.directory)
+                return method(self.path)
 
-        if len(self.directory) == 1:
-            result = list(method(self.directory[0]).values())
+        if len(self.path) == 1:
+            result = list(method(self.path[0]).values())
             if len(result) == 3:
-                return self.directory[0]
+                return self.path[0]
             else:
                 pass
         else:
-            for directory in self.directory:
+            for directory in self.path:
                 result = list(method(directory).values())
                 if len(self.directories) == Config.get("table_records"):
                     return self.directories
@@ -184,30 +199,4 @@ class Directory:
                 else:
                     pass
             return self.directories
-
-    @staticmethod
-    def get_branches(path):
-        path_list = handle_fdreq(path)
-
-        branch_directories = []
-        for directory in path_list:
-            if check_file(os.path.join(path, directory)):
-                pass
-            else:
-                branch_directories.append(os.path.join(path, directory))
-
-        return branch_directories
-
-    def get_directory_size(self, unit=1):
-        size = 0
-
-        if not check_directory(self.path):
-            return 0
-
-        self.directory = self.index_directory(file=True)
-
-        for file in self.directory:
-            size += file_size(file)
-
-        return size / unit
 
