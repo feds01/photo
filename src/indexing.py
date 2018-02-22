@@ -30,7 +30,8 @@ class Index:
         self.directories = []
         self.dirapi = Directory(self.path)
 
-    def validate(self, paths):
+    @staticmethod
+    def validate(paths):
         return Directory(paths).index_photo_directory()
 
     def apply_filter(self, return_results=False):
@@ -61,6 +62,10 @@ class Index:
 
         self.index(), self.apply_filter()
 
+        # check if actual path is an applicable directory, if so append to list
+        if Index.validate(self.path):
+            self.directories.append(self.path)
+
         if pipe:
             Data(self.directories).export()
         else:
@@ -74,13 +79,20 @@ class ThreadIndex:
         else:
             self.path = Config.get_session("path")
 
+        # append session settings temp/session.json for sharing across workers
+        self.file = File(Config.join("application_root", "application_directories.session"))
+
+        data = self.file.read_json()
+        data.update({"session": Config.session})
+
+        self.file.write_json(data, indent=None)
+
         self.index = Index("")
         self.PROCESS_COUNT = check_process_count(v=True, return_pnum=True)
 
         self.result = []
         self.nodes = []
         self.dirs = [] # directories which match the specifications
-
         self.check = check
 
     def get_nodes(self):
@@ -98,6 +110,8 @@ class ThreadIndex:
                 self.nodes.remove(node)
 
     def worker(self, node):
+        Config.init_session(self.file.read_json().get("session"))
+
         if Config.get('debug'):
             sys.excepthook = exception_handler
 
@@ -140,6 +154,9 @@ class ThreadIndex:
 
         self.get_nodes()
         self.launch_process_pool()
+
+        if Index.validate(self.path):
+            self.dirs.append(self.path)
 
         if pipe:
             Data(self.dirs).export()

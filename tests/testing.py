@@ -2,34 +2,35 @@ import time
 import unittest
 from src.indexing import *
 from src.utilities.manipulation import sizeof_fmt
+from src.utilities.infrequents import to_structure
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
 main_root: str = os.path.abspath(os.path.join(os.path.split(__file__)[0], "..\\"))
 root:      str = os.path.split(__file__)[0]
 main_dir:  str = ''
-test_dir:  str = ''
-make_dirs: list = ["test_0", "test_1"]
+test_dir: str  = ''
+
 dirs:      list = ['crt', 'good', 'all']
+make_dirs: dict = {"test_0": "", "test_1" : dirs, "test_3" : [{"nested" : dirs}, dirs]}
 
 
 def setup():
-    global root, main_dir, test_dir, dirs, make_dirs
+    global root, main_dir, dirs, make_dirs
 
     main_dir = os.path.join(root, 'output')
-    test_dir = os.path.join(main_dir, 'test_0')
 
     try:
-        os.mkdir(main_dir)
+        if not os.path.exists(main_dir):
+            os.mkdir(main_dir)
 
-        for i in make_dirs:
-            os.mkdir(os.path.join(main_dir, i))
+        for item in to_structure(main_dir, make_dirs):
+            if not os.path.exists(item):
+                os.mkdir(item)
 
-        for d in dirs:
-            os.mkdir(os.path.join(test_dir, d))
-
-    except FileExistsError:
-        return
+    except PermissionError as e:
+        print("Could not perform setup! :( permissions")
+        print(e)
 
 
 class ProgramConfiguration(unittest.TestCase):
@@ -49,13 +50,18 @@ class ProgramConfiguration(unittest.TestCase):
         temp_folder = os.path.join(main_root, "temp\\session.json")
         self.assertEqual(Config.join("application_root", "application_directories.session"), temp_folder)
 
+
 class IndexWithNormalMethod(unittest.TestCase):
     def setUp(self):
-        Config.init_session({'thread': True, 'blacklist': True, 'verbose': True})
         setup()
+        Config.init_session({'thread': False, 'blacklist': True, 'verbose': True})
 
     def test_method(self):
-        self.assertEqual(Index(path=main_dir).run(pipe=False), [test_dir])
+        self.assertEqual(len(Index(path=main_dir).run(pipe=False)), 3)
+
+    def test_method_with_nested_directory(self):
+        result = Index(path=os.path.join(main_dir, "test_3"), ).run(pipe=False)
+        self.assertEqual(len(result), 2)
 
     def test_fake_dir(self):
         self.assertRaises(Fatal, lambda: Index(path="E:\\Photo\\").run(pipe=False))
@@ -65,13 +71,19 @@ class IndexWithNormalMethod(unittest.TestCase):
 
 
 class IndexWithThreadMethod(unittest.TestCase):
-
     def setUp(self):
-        Config.init_session({'thread': True, 'blacklist': True, 'verbose': True})
         setup()
+        Config.set_session("thread", True)
 
     def test_method(self):
-        self.assertEqual(ThreadIndex(main_dir, check=False).run(pipe=False), [test_dir])
+        result = ThreadIndex(path=os.path.join(main_dir), check=False).run(pipe=False)
+
+        self.assertEqual(len(result), 3)
+
+    def test_method_with_nested_directory(self):
+        result = ThreadIndex(path=os.path.join(main_dir, "test_3"), check=False).run(pipe=False)
+
+        self.assertEqual(len(result), 2)
 
     def test_fake_dir(self):
         self.assertRaises(Fatal, lambda: ThreadIndex(path="E:\\Photo\\").run(pipe=False))
@@ -82,6 +94,8 @@ class IndexWithThreadMethod(unittest.TestCase):
 
 class DataMethod(unittest.TestCase):
     def setUp(self):
+        test_dir = os.path.join(main_dir, "test_0")
+
         self.start = time.time()
         Data(test_dir).export()
         self.end = time.time() - self.start
@@ -97,7 +111,12 @@ class DataMethod(unittest.TestCase):
     def test_correct_data(self):
         Data(test_dir).export()
         data = File(self.file_location).read_json()
-        data.pop("table")
+
+        try:
+            data.pop("session")
+            data.pop("table")
+        except KeyError:
+            pass
 
         self.assertEqual(data, self.expected_result)
 

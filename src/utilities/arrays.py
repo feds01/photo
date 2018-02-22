@@ -13,13 +13,13 @@ def join_arrays(*arrays):
         return joined_list
 
 
-def organise_array(_list):
-    unorganised_list: list = [x for x in _list if x]
+def organise_array(arr):
+    unorganised_list: list = [x for x in arr if x]
     organised_list:   list = []
 
     for element in unorganised_list:
         if type(element) == list:
-            organised_list.extend(element)
+            organised_list.extend(organise_array(element))
         else:
             organised_list.append(element)
 
