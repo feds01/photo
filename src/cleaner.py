@@ -68,18 +68,23 @@ class Delete:
 
     def calculate_size(self):
         for file in self.delete_list:
-            self.total_size += Directory(file).get_file_size()
+            self.total_size += file_size(file)
 
     def delete_file(self):
-        file_size = Directory(self.file_path).get_file_size()
+        size = file_size(self.file_path)
+
         if not Config.get_session("verbose"):
-            file_info = sizeof_fmt(file_size)
+            file_info = sizeof_fmt(size)
             print(f"deleting: {os.path.basename(self.file_path)} size: {str(file_info[1])}")
+
         try:
             os.remove(self.file_path)
+
         except Exception as e:
             Fatal(f"could not remove file {self.file_path}", 'error=%s' % e)
-            self.total_size -= file_size
+
+        finally:
+            self.total_size -= size
 
     def deletion_manager(self):
         self.calculate_size()

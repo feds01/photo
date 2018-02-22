@@ -61,7 +61,7 @@ def prepare(directory):
 
 
 def setup():
-    arguments.path = Directory(arguments.path).standardise_drive()
+    arguments.path = standardise_drive(arguments.path)
 
 
 arguments = Arguments()
@@ -83,7 +83,7 @@ if __name__ == '__main__':
     if Config.get_session("path") is None:
         Config.set_session("path", os.getcwd())
 
-    if not Directory(Config.get_session("path")).check_directory():
+    if not check_directory(Config.get_session("path")):
         Fatal("directory does not exist", 'directory=%s' % Config.get_session("path")).stop()
 
     if Config.get_session("blacklist") and not blacklist_default:

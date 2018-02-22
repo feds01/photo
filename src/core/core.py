@@ -6,50 +6,92 @@ from src.utilities.arrays import organise_array
 from src.utilities.infrequents import handle_fdreq
 
 
+def check_directory(directory):
+    return os.path.exists(directory)
+
+
+def find_specific_file(extension, files, case_sensitive=True):
+    extension_list = []
+    extensions = extension.split()
+
+    if not case_sensitive:
+        if extension.islower():
+            extensions.append(extension.upper())
+        else:
+            extensions.append(extension.lower())
+
+    for file in files:
+        for extension in extensions:
+            if file.endswith(extension):
+                extension_list.append(file)
+
+    return extension_list
+
+
+def directory_size(path, unit=1):
+        size = 0
+
+        if not check_directory(path):
+            return 0
+
+        files = Directory(path).index_directory(file=True)
+
+        for file in files:
+            size += file_size(file)
+
+        return size / unit
+
+
+def get_drive(path):
+        return os.path.splitdrive(path)[0]
+
+
+def standardise_drive(path):
+        drive = get_drive(path).capitalize()
+
+        return drive + os.path.splitdrive(path.directory)[1]
+
+
 class Directory:
     def __init__(self, item):
         self.directory = item
-        self.directory_size = 0
         self.byte_size = self.directory
         self.directory_list = []
-        self.file_extension_list = []
         self.directories = []
-        self.drive_letter = ""
         self.path = ""
 
     def set_path(self, path):
         self.__init__(path)
 
     def index_directory(self, count=False, file=False):
-            directory_count, file_count = 0, 0
             file_list = []
+
             for directory, directories, files in os.walk(self.directory):
                 for sub_directory in directories:
-                    directory_count += 1
                     self.directory_list.append(os.path.join(directory, sub_directory))
+
                 if file:
                     for _file in files:
                         file_list.append(os.path.join(directory, _file))
-                        file_count += 1
                 else:
                     pass
+
             if file and count:
-                return file_count
+                return len(file_list)
             if count:
-                return directory_count
-            if file:
-                return file_list
-            else:
-                return self.directory_list
+                return len(self.directory_list)
+
+            return file_list if file else self.directory_list
 
     def index_with_blacklist(self):
         # a smarter method to filter with blacklists, modifies what
         # os.walk visits by removing from dirs necessary entries
         blacklist = Blacklist.blacklist
 
-        self.drive_letter = self.get_directory_drive(self.directory)
+        drive_letter = get_drive(self.directory)
+
         for entry in blacklist:
-            if self.get_directory_drive(entry) != self.drive_letter:
+            if get_drive(entry) != drive_letter:
                 blacklist.remove(entry)
             else:
                 continue
@@ -78,22 +120,6 @@ class Directory:
                 else:
                     continue
         return self.directories
-
-    def find_specific_file(self, extension, files, case_sensitive=True):
-        self.file_extension_list = []
-        extensions = extension.split()
-        if not case_sensitive:
-            if extension.islower():
-                extensions.append(extension.upper())
-            else:
-                extensions.append(extension.lower())
-        for file in files:
-            for extension in extensions:
-                if file.endswith(extension):
-                    self.file_extension_list.append(file)
-                else:
-                    pass
-        return self.file_extension_list
 
     def index_photo_directory(self, return_folders=False):
         # the patterns are loaded from the config.yml file and complied,
@@ -159,9 +185,6 @@ class Directory:
                     pass
             return self.directories
 
-    def check_directory(self):
-        return os.path.exists(self.directory)
-
     @staticmethod
     def get_branches(path):
         path_list = handle_fdreq(path)
@@ -175,24 +198,16 @@ class Directory:
 
         return branch_directories
 
-    @staticmethod
-    def get_directory_drive(path):
-        return os.path.splitdrive(path)[0]
-
-    def standardise_drive(self):
-        drive = self.get_directory_drive(self.directory).capitalize()
-        return drive + os.path.splitdrive(self.directory)[1]
-
-    def get_parent_directory(self):
-        return os.path.split(self.directory)[0]
-
     def get_directory_size(self, unit=1):
-        if not self.check_directory():
-            return 0
-        self.directory = self.index_directory(file=True)
-        for file in self.directory:
-            self.directory_size += os.path.getsize(file)
-        return self.directory_size / unit
+        size = 0
 
-    def get_file_size(self, unit=1):
-        return os.path.getsize(self.directory) / unit
+        if not check_directory(self.path):
+            return 0
+
+        self.directory = self.index_directory(file=True)
+
+        for file in self.directory:
+            size += file_size(file)
+
+        return size / unit
+

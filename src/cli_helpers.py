@@ -15,8 +15,9 @@ Description -
 
 
 def load_file_info(path):
-    size = sizeof_fmt(Directory(path).get_file_size())
+    size = sizeof_fmt(file_size(path))
     change_date = time.ctime(os.path.getctime(path))
+
     print("size:", str(size[1], " last modification:", change_date))
 
 

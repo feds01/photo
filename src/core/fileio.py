@@ -5,6 +5,10 @@ from src.core.config import *
 def check_file(path):
     return os.path.isfile(path)
 
+def file_size(file, unit=1):
+        return os.path.getsize(file) / unit
+
+
 
 def get_filename(path, rp=False):
     split_path = os.path.split(path)

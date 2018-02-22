@@ -41,13 +41,13 @@ class Data:
 
         for specific_key in sorted(Config.get("file_extensions")):
             for extension in Config.get("file_extensions." + specific_key):
-                files = self.dirapi.find_specific_file(extension, self.dirapi.index_directory(file=True), case_sensitive=False)
+                files = find_specific_file(extension, self.dirapi.index_directory(file=True), case_sensitive=False)
                 file_list.update({extension: {"amount": len(files), "files" : files}})
 
             data.update({'file_list': file_list})
 
         data.update({'photo': sorted(self.dirapi.index_photo_directory(return_folders=True).values())})
-        data.update({'size': sizeof_fmt(Directory(path).get_directory_size())})
+        data.update({'size': sizeof_fmt(directory_size(path))})
 
         return data
 

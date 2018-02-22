@@ -1,43 +1,20 @@
-application_root: "E:\\project archive\\maria mirage photography photo sorter\\"
 application_directories:
-   use_external: false
-   external:
-      session: ""
-      blacklist: ""
-      job_archive: ""
-
-   dirs:
-      - "temp"
-
-   temp:
-      - "session.json"
-      - "job_archive.json"
-
-   session: "temp\\session.json"
-   job_archive: "temp\\job_archive.json"
-
-folders:
-    good:
-        pattern: "(_|)[gG][oO]{2}[dD]"
-    all:
-        pattern: "(_|)[aA][lL]{2}"
-    crt:
-        pattern: "(_|)[dDcC][nNrR][gGtT]"
-
-blacklist:
-    enabled: true
-    location: "artifact\\blacklist.json"
-
-thread:
-    instance_multiplier: 1.25
-
+    dirs: [temp]
+    external: {blacklist: '', job_archive: '', session: ''}
+    job_archive: temp\job_archive.json
+    session: temp\session.json
+    temp: [session.json, job_archive.json]
+    use_external: false
+application_root: E:\project archive\maria mirage photography photo sorter
+blacklist: {enabled: true, location: artifact\blacklist.json}
+debug: false
 file_extensions:
-    crt:
-    - ".CR2"
-    - ".dng"
-    - ".tif"
-    good:
-    - ".jpg"
-
-debug: true
-log_file: "E:\\project archive\\maria mirage photography photo sorter\\temp\\photo.log"
+    crt: [.CR2, .dng, .tif]
+    good: [.jpg]
+folders:
+    all: {pattern: '(_|)[aA][lL]{2}'}
+    crt: {pattern: '(_|)[dDcC][nNrR][gGtT]'}
+    good: {pattern: '(_|)[gG][oO]{2}[dD]'}
+log_file: ''
+table_records: -1
+thread: {instance_multiplier: 1}

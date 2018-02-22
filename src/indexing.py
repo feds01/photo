@@ -12,8 +12,8 @@ __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
-def check_directory(path):
-    if not Directory(path).check_directory():
+def _check_path(path):
+    if not check_directory(path):
         raise Fatal("directory does not exist", 'directory= %s' % path)
 
     if Blacklist.check(path, child=True):
@@ -58,7 +58,7 @@ class Index:
             self.directories = self.dirapi.index_directory()
 
     def run(self, pipe=True):
-        check_directory(self.path)
+        _check_path(self.path)
 
         self.index(), self.apply_filter()
 
@@ -150,7 +150,7 @@ class ThreadIndex:
             self.dirs = organise_array(self.dirs)
 
     def run(self, pipe=True):
-        check_directory(self.path)
+        _check_path(self.path)
 
         self.get_nodes()
         self.launch_process_pool()
