@@ -19,7 +19,7 @@ Description -
 class Data:
     def __init__(self, path):
         self.path = path
-        self.file = File(Config.join('application_root', 'application_directories.session'))
+        self.file = File(Config.join('application_root', 'session'))
         self.dirapi = Directory(path)
 
         # just in case only one directory was passed for processing
@@ -37,14 +37,17 @@ class Data:
 
         data = {}
         file_list = {}
+        file_count = 0
         data.update({'path': path})
 
         for specific_key in sorted(Config.get("file_extensions")):
             for extension in Config.get("file_extensions." + specific_key):
                 files = find_specific_file(extension, self.dirapi.index(file=True), case_sensitive=False)
                 file_list.update({extension: {"amount": len(files), "files" : files}})
+                file_count += len(files)
 
             data.update({'file_list': file_list})
+            data.update({'file_count': file_count})
 
         data.update({'photo': sorted(self.dirapi.index_photo_directory(return_folders=True).values())})
         data.update({'size': sizeof_fmt(directory_size(path))})
@@ -72,7 +75,7 @@ class Table:
         self.max_rows = Config.get("table_records")
         self.data_packets = 0
         self.path_size = max_size
-        self.file = File(Config.join('application_root', 'application_directories.session'))
+        self.file = File(Config.join('application_root', 'session'))
         self.readable_size = []
         self.all_rows = []
         self.row = []

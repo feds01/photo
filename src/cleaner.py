@@ -1,66 +1,52 @@
 from src.core.core import *
-from src.utilities.manipulation import sizeof_fmt, swap_extension
+from src.utilities.infrequents import open_file
+from src.utilities.manipulation import sizeof_fmt
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
+def analyse(path):
+    to_remove = []
+    option = ""
 
-class Analyse:
-    def __init__(self, directory):
-        self.directory = directory
-        self.directories = {}
-        self.report = {}
-        self.files = []
-        self.organise_nodes()
+    info = Directory(path).index_photo_directory(return_folders=True)
+    files = [x for x in filter(lambda x: x not in index(info.get("good"), file=True), index(info.get("all"), file=True))]
+    crt_files = index(info.get('crt'), file=True)
 
-    def organise_nodes(self):
-            directories = Directory(self.directory).index_photo_directory(return_folders=True)
-            keys = list(directories.keys())
-            for key in keys:
-                if re.fullmatch(Config.get("folders.crt.pattern"), key):
-                    self.directories.update({'crt': directories.get(key)})
-                if re.fullmatch(Config.get("folders.all.pattern"), key):
-                    self.directories.update({'all': directories.get(key)})
-                else:
-                    self.directories.update({'good': directories.get(key)})
+    for file in files:
+        extensions = [(os.path.join(info.get("crt"), os.path.split(file)[1][:-4] + x)) for x in Config.get("file_extensions.crt")]
 
-    def find_files(self):
-        all_files = Directory(self.directories.get('all')).index(file=True)
-        good_files = Directory(self.directories.get('good')).index(file=True)
-        for file in all_files:
-            if file not in good_files:
-                self.files.append(file)
+        to_remove.extend([e for e in extensions if e in crt_files])
+
+    # filter by user preference
+    for file in to_remove:
+        print("use 'open' to open the current file\nuse 'stop' to abort operation\n")
+
+        while True and option != "stop":
+            option = query_user(f"Delete the file {file} ? ", ["y", "n", "open", "close"])
+
+            if option == "n":
+                to_remove.remove(file)
+                break
+            elif option == "open":
+                open_file(file)
             else:
-                pass
+                break
 
-    def find_crt_files(self):
-        crt_files = Directory(self.directories.get('crt')).index(file=True)
-        crt_extensions = Config.get("file_extensions.crt")
-        for file in self.files:
-            crt_version = []
-            for extension in crt_extensions:
-                crt_version.append(swap_extension(self.path_converter(file), extension, remove_dot=True))
-            for crt_file in crt_version:
-                if crt_file in crt_files:
-                    self.report.update({file: crt_file})
+        if option == "stop":
+            print("aborted operation")
+            return []
 
-    def path_converter(self, path):
-            return os.path.join(self.directories.get('crt'), os.path.basename(path))
-
-    def run_analysis(self):
-        self.find_files()
-        self.find_crt_files()
-        return self.report
-
+    return to_remove
 
 class Delete:
-    def __init__(self, delete):
-        self.delete_list = delete
+    def __init__(self, to_delete):
+        self.to_delete = to_delete
         self.total_size = 0
         self.file_path = ""
 
     def calculate_size(self):
-        for file in self.delete_list:
+        for file in self.to_delete:
             self.total_size += file_size(file)
 
     def delete_file(self):
@@ -81,7 +67,7 @@ class Delete:
 
     def deletion_manager(self):
         self.calculate_size()
-        for file in self.delete_list:
+        for file in self.to_delete:
             self.file_path = file
             self.delete_file()
         self.total_size = sizeof_fmt(self.total_size)

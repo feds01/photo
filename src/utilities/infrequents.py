@@ -1,3 +1,5 @@
+import subprocess
+
 from src.core.config import *
 from src.utilities.arrays import organise_array
 
@@ -50,3 +52,7 @@ def to_structure(root, structure):
                 make_list.append(os.path.join(root, item, structure.get(item)))
 
     return make_list
+
+
+def open_file(path):
+    subprocess.Popen(['C:\\Windows\\explorer.exe', path], shell=True)

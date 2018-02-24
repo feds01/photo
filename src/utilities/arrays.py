@@ -17,6 +17,9 @@ def join_arrays(*arrays):
 
 
 def organise_array(arr):
+    if arr is None:
+        return []
+
     unorganised_list: list = [x for x in arr if x]
     organised_list:   list = []
 

@@ -19,10 +19,13 @@ def get_filename(path, rp=False):
 
 
 class File:
-    def __init__(self, file):
+    def __init__(self, file=""):
         self.application_root = Config.get("application_root")
         self.file = file
         self.data = ""
+
+    def set_file(self, file):
+        self.__init__(file)
 
     def write_json(self, data, indent=4):
         with open(self.file, "w") as f:

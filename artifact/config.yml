@@ -1,20 +1,4 @@
 application_root: "E:\\project archive\\maria mirage photography photo sorter\\"
-application_directories:
-   use_external: false
-   external:
-      session: ""
-      blacklist: ""
-      job_archive: ""
-
-   dirs:
-      - "temp"
-
-   temp:
-      - "session.json"
-      - "job_archive.json"
-
-   session: "temp\\session.json"
-   job_archive: "temp\\job_archive.json"
 
 folders:
     good:
@@ -27,6 +11,8 @@ folders:
 blacklist:
     enabled: false
     location: "artifact\\blacklist.json"
+
+session: "temp\\session.json"
 
 thread:
     instance_multiplier: 1.25

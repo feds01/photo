@@ -71,6 +71,21 @@ def get_branches(path):
         return []
 
 
+def index(path, count=False, file=False):
+        file_list = []
+        directories = []
+
+        for root, dirs, files in os.walk(path):
+            directories.extend(to_path(root, dirs))
+            file_list.extend(to_path(root, files))
+
+        if file and count:
+            return len(file_list)
+        if count:
+            return len(directories)
+
+        return file_list if file else directories
+
 class Directory:
     def __init__(self, path):
         self.path = path
@@ -143,9 +158,9 @@ class Directory:
         # the patterns are loaded from the config.yml file and complied,
         # further on they are used to quickly identify matching folder names
         # rather than relying on hard coded folder example names
-        crt_pattern  = re.compile(Config.get('folders.crt.pattern'))
-        all_pattern  = re.compile(Config.get('folders.all.pattern'))
-        good_pattern = re.compile(Config.get('folders.good.pattern'))
+        crt  = re.compile(Config.get('folders.crt.pattern'))
+        all  = re.compile(Config.get('folders.all.pattern'))
+        good = re.compile(Config.get('folders.good.pattern'))
         self.path = organise_array([self.path])
         self.directories = []
 
@@ -153,13 +168,13 @@ class Directory:
             directories = {}
             content = handle_fdreq(path)
 
-            def _find_item(directory):
-                if crt_pattern.fullmatch(directory):
-                    return directory
-                if all_pattern.fullmatch(directory):
-                    return directory
-                if good_pattern.fullmatch(directory):
-                    return directory
+            def _find_item(directory, path):
+                if crt.fullmatch(directory):
+                    return {"crt": path}
+                if all.fullmatch(directory):
+                    return {"all": path}
+                if good.fullmatch(directory):
+                    return {"good": path}
                 else:
                     return False
 
@@ -167,9 +182,11 @@ class Directory:
                 return directories
 
             for item in content:
-                check = _find_item(item)
+                check = _find_item(item, os.path.join(path, item))
+
                 if bool(check):
-                    directories.update({check: os.path.join(path, check)})
+                    # we always know that certain keys will be present
+                    directories.update(check)
 
                 if len(directories.keys()) == 3:
                     break

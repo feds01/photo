@@ -79,13 +79,7 @@ class ThreadIndex:
             self.path = Config.get_session("path")
 
         # append session settings temp/session.json for sharing across workers
-        self.file = File(Config.join("application_root", "application_directories.session"))
-
-        data = self.file.read_json()
-        data.update({"session": Config.session})
-
-        self.file.write_json(data, indent=None)
-
+        self.file = File(Config.join("application_root", "session"))
         self.index = Index("")
         self.PROCESS_COUNT = check_process_count(v=True, return_pnum=True)
 
@@ -109,6 +103,7 @@ class ThreadIndex:
                 self.nodes.remove(node)
 
     def worker(self, node):
+        # worker config session init
         Config.init_session(self.file.read_json().get("session"))
 
         if Config.get('debug'):

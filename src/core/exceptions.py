@@ -7,7 +7,6 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 debug = True  # temporary value
 
-
 def exception_handler(type, value, tb):
     if type == KeyboardInterrupt:
         pass
@@ -85,3 +84,7 @@ def config_warning(message):
 
 def yml_error(error):
     Fatal('config file is unreadable.', 'Here is trace:\n\n%s' % error).stop()
+
+
+if debug:
+    config_warning("debug value is enabled!")
