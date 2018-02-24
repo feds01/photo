@@ -1,7 +1,7 @@
 import sys, os
 import argparse
 
-sys.path.append(os.path.abspath(os.path.split(__file__)[0]+"\\..\\"))
+sys.path.append(os.path.abspath(os.path.split(__file__)[0] + "\\..\\"))
 
 from src.cleaner import *
 from src.data import Table
@@ -15,19 +15,12 @@ __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
-class Arguments:
-    path = ''
-    safe = True
-    blacklist = Config.get('blacklist.enabled')
-    verbose = False
-    thread = False
-
-
 def do_index():
     if Config.get_session("thread"):
         ThreadIndex().run()
     else:
         Index().run()
+
 
 def main():
     # run scan
@@ -39,7 +32,7 @@ def main():
     print(str(table))
     print("\nEnter id of directory to instantiate file structure analysis")
 
-    options = list(range(1, table.data_packets+1))
+    options = list(range(1, table.data_packets + 1))
     options.extend(["exit", "refresh"])
 
     finished_directories = []
@@ -71,7 +64,6 @@ def main():
             print()
 
 
-arguments = Arguments()
 parser = argparse.ArgumentParser(description="Remove redundant photo backup's")
 
 parser.add_argument('-p', '--path',
@@ -83,10 +75,12 @@ parser.add_argument('-b', '--blacklist', default=Config.get('blacklist.enabled')
 parser.add_argument('-v', '--verbose', default=False, action='store_true',
                     help="don't display mild error messages or warnings.")
 
-parser.parse_args(namespace=arguments)
 
 if __name__ == '__main__':
-    Config.init_session(arguments.__dict__)
+    args = {}
+    args.update(vars(parser.parse_args()))
+
+    Config.init_session(args)
 
     # perform checks on arguments
     if Config.get_session("path") is None:

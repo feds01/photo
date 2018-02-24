@@ -1,23 +1,14 @@
 from src.core.fileio import *
 from src.core.exceptions import *
 from src.utilities.arrays import organise_array
+from src.utilities.codes import BLACKLIST_ADD, BLACKLIST_REMOVE, BLACKLIST_PURGE
+from src.utilities.infrequents import is_child
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
-def is_child(child, directory, symlinks=False):
-    directory = os.path.abspath(directory)
-    child = os.path.abspath(child)
-    if not symlinks and os.path.islink(child):
-        return False
-    return os.path.commonprefix([child, directory]) == directory
-
 
 class _Blacklist:
-    _REMOVE = 0x00
-    _INSERT = 0x01
-    _PURGE = 0x02
-
     def __init__(self):
         self.blacklist = []
         self.bad_entries = []
@@ -44,12 +35,12 @@ class _Blacklist:
         current_data["entries"] = []
 
         array = organise_array([array])
-        if instruction == self._INSERT:
+        if instruction == BLACKLIST_ADD:
             self.blacklist.extend(array)
-        elif instruction == self._REMOVE:
+        elif instruction == BLACKLIST_REMOVE:
             for entry in array:
                 self.blacklist.remove(entry)
-        elif instruction == self._PURGE:
+        elif instruction == BLACKLIST_PURGE:
             self.blacklist = []
 
         for entry in self.blacklist:
@@ -97,7 +88,7 @@ class _Blacklist:
         if len(self.of_entry(entry)) > 0:
                 raise BlacklistEntryError('present')
         else:
-            self.update_blacklist(self._INSERT, entry)
+            self.update_blacklist(BLACKLIST_ADD, entry)
 
     def remove_entry(self, entry, by_child=False):
         if entry not in self.blacklist and not by_child:
@@ -111,7 +102,7 @@ class _Blacklist:
                 else:
                     pass
 
-        self.update_blacklist(self._REMOVE, self.bad_entries)
+        self.update_blacklist(BLACKLIST_REMOVE, self.bad_entries)
 
     def check(self, directory, child=False):
         self.read_blacklist()

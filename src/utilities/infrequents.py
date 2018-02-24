@@ -56,3 +56,11 @@ def to_structure(root, structure):
 
 def open_file(path):
     subprocess.Popen(['C:\\Windows\\explorer.exe', path], shell=True)
+
+
+def is_child(child, directory, symlinks=False):
+    directory = os.path.abspath(directory)
+    child = os.path.abspath(child)
+    if not symlinks and os.path.islink(child):
+        return False
+    return os.path.commonprefix([child, directory]) == directory
