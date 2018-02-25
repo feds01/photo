@@ -3,7 +3,7 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
 def largest_element(arr):
-    return len(max(arr, key=len))
+    return max(arr, key=len)
 
 
 def find_element(arr, case):
@@ -28,7 +28,7 @@ def to_integer(str_list):
 
 def sizeof_fmt(num, suffix="b"):
     if num < 1024.0:
-        return [num, "0bytes"]
+        return [num, "0Kb"]
     for unit in [" ", "K", "M", "G", "T", "P"]:
         if abs(num) < 1024.0:
             return [num,"%3.1f%s%s" % (num, unit, suffix)]

@@ -3,8 +3,9 @@
 from src.core.core import *
 from prettytable import PrettyTable
 
-from src.utilities.session import close_session
 from src.utilities.shorts import *
+from src.utilities.arrays import organise_array
+from src.utilities.session import close_session
 from src.utilities.manipulation import to_string, largest_element, sizeof_fmt
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -73,9 +74,8 @@ class Data:
 
 class Table:
     def __init__(self, max_size=30):
-        self.path_size = max_size
+        self.max_size = max_size
         self.file = File(Config.join('application_root', 'session'))
-        self.readable_size = []
 
         # data import
         self.import_data = self.file.read_json()
@@ -88,11 +88,22 @@ class Table:
                     dict(self.import_data).pop(i)
 
         # table init and settings
+        self.data_queries = {
+            'path': 'path',
+            'crt': "file_list.'.CR2'.amount",
+            'dng': "file_list.'.dng'.amount",
+            'tif': "file_list.'.jpg'.amount",
+            'size': 'size'
+        }
+
         self.table = PrettyTable()
         self.table.border = False
-        self.table.field_names = ["id", "path", "crt", "dng", "tif", "jpg"]
-        self.table.align = "l"
         self.border_symbol = "-"
+
+        # we can easily add the id column, padding of 2 from actual digit
+        border = self.border_length(str(self.row_count), padding=2) * self.border_symbol
+
+        self.table.add_column('id', organise_array([border, list(range(1, self.row_count + 1))]), align='l')
 
     def __str__(self):
         return str(self.table)
@@ -103,30 +114,6 @@ class Table:
             specific_data.append(global_get(data, req))
 
         return specific_data
-
-    def make_row(self, key):
-        row = [key]
-
-        if self.path_size <= len(list(self.import_data["directories"][f"{key}"].get('path'))):
-            row.append(shorten(self.import_data["directories"][f"{key}"].get('path')))
-        else:
-            row.append(self.import_data["directories"][f"{key}"].get('path'))
-        data = self.import_data["directories"][f"{key}"].get('file_list')
-        for item in data.values():
-            row.append(item["amount"])
-
-        size_data = self.import_data["directories"][f"{key}"].get('size')
-        readable_size = []
-
-        if size_data[0] == 0:
-            readable_size.append("0Kb")
-        else:
-            # array position 1 stores the human readable value
-            readable_size.append(size_data[1])
-
-        self.readable_size.extend(readable_size)
-
-        return row
 
     def from_id(self, _id):
         if self.import_data == {}:
@@ -139,45 +126,28 @@ class Table:
                         'id=%s' % _id,
                         'data=%s' % self.import_data["directories"]).stop()
 
-    @staticmethod
-    def __calculate_border_size(data, use_string=False):
-        return data + 1 if data >= 4 else len(str(data)) + 2 if use_string else 4
-
-    def border(self):
-        borders = []
-        border_data = []
-
-        for item in self.import_data["directories"]["1"].get('file_list').items():
-            border_data.append(self.__calculate_border_size(
-                largest_element(to_string([x for x in list(self.get("file_list.'%s'.amount" % item[0]))]))))
-
-        for i in border_data:
-            borders.append(self.border_symbol * int(i))
-
-        for i in reversed(range(self.path_size - 4)):
-            if largest_element(self.get('path')) + i < self.path_size:
-                self.path_size -= i
-                break
-
-        row = [self.__calculate_border_size(Config.get("table_records"), True) * self.border_symbol,
-               (self.path_size + 1) * self.border_symbol]
-
-        row.extend(borders)
-        self.table.add_row(row)
-
     def make_table(self):
-        rows = []
+        for query in self.data_queries.keys():
+            results = [x for x in self.get(self.data_queries.get(query))]
 
-        for i in range(1, self.row_count + 1):
-            rows.append(self.make_row(i))
+            if query == "path":
+                results = [shorten(x, self.max_size) for x in results]
 
-        self.border()
-        [self.table.add_row(row) for row in rows]
+            if query == "size":
+                results = [x[1] for x in results]
+                border = self.border_length(largest_element(results), padding=1) * self.border_symbol
 
-        # save to session file
-        self.import_data.update({"table": rows})
-        self.file.write_json(self.import_data, indent=None)
+                self.table.add_column(query, organise_array([border, results]), align='r')
+                continue
+            else:
+                results = to_string(results)
+            border = self.border_length(largest_element(results)) * self.border_symbol
 
-        self.readable_size.insert(0, self.border_symbol * self.__calculate_border_size(
-            largest_element(self.readable_size)))
-        self.table.add_column("size", self.readable_size, align="r")
+            self.table.add_column(query, organise_array([border, results]), align='l')
+
+    @staticmethod
+    def border_length(item, padding=3):
+        # get the item size, works with string only
+        # add the amount of padding
+        # this is for making the table look and feel well spaced
+        return len(item) + padding

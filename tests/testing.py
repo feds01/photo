@@ -101,7 +101,7 @@ class DataMethod(unittest.TestCase):
         Data(test_dir).export()
         self.end = time.time() - self.start
         self.file_location = Config.join("application_root", "session")
-        self.expected_result = {'directories': {'1': {'path': '', 'file_count': 0, 'file_list': {'.CR2': {'amount': 0, 'files': []}, '.dng': {'amount': 0, 'files': []}, '.tif': {'amount': 0, 'files': []}, '.jpg': {'amount': 0, 'files': []}}, 'photo': [], 'size': [0, '0bytes']}}}
+        self.expected_result = {'directories': {'1': {'path': '', 'file_count': 0, 'file_list': {'.CR2': {'amount': 0, 'files': []}, '.dng': {'amount': 0, 'files': []}, '.tif': {'amount': 0, 'files': []}, '.jpg': {'amount': 0, 'files': []}}, 'photo': [], 'size': [0, '0Kb']}}}
 
     def test_time_on_creation(self):
         if self.end < 1:
@@ -126,7 +126,7 @@ class IndexItemSize(unittest.TestCase):
 
     def test_zero_bytes(self):
         results = sizeof_fmt(0)
-        self.assertEqual(results[1], "0bytes")
+        self.assertEqual(results[1], "0Kb")
 
     def test_kilobyte(self):
         results = sizeof_fmt(1024)
@@ -134,7 +134,7 @@ class IndexItemSize(unittest.TestCase):
 
     def test_negative_byte(self):
         results = sizeof_fmt(-1)
-        self.assertEqual(results[1], "0bytes")
+        self.assertEqual(results[1], "0Kb")
 
 
 if __name__ == "__main__":
