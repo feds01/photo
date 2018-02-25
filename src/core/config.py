@@ -10,17 +10,26 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 class _Config:
     def __init__(self):
-        self._raw_data = self.retrieve_config()
-        self.key_list = []
-        self.data = {}
-
+        self.data = self.retrieve_config()
         self.session = {}
 
     @staticmethod
     def retrieve_config():
         root = os.path.abspath(os.path.join(os.path.split(__file__)[0], "..\\..\\"))
         file = ""
-        data = {'application_root': root, 'application_directories': {'use_external': False, 'external': {'session': '', 'blacklist': '', 'job_archive': ''}, 'dirs': ['temp'], 'temp': ['session.json', 'job_archive.json'], 'session': 'temp\\session.json', 'job_archive': 'temp\\job_archive.json'}, 'folders': {'good': {'pattern': '(_|)[gG][oO]{2}[dD]'}, 'all': {'pattern': '(_|)[aA][lL]{2}'}, 'crt': {'pattern': '(_|)[dDcC][nNrR][gGtT]'}}, 'blacklist': {'enabled': True, 'location': 'artifact\\blacklist.json'}, 'thread': {'instance_multiplier': 1}, 'file_extensions': {'crt': ['.CR2', '.dng', '.tif'], 'good': ['.jpg']}, 'table_records': -1, 'debug': False, 'log_file': ''}
+
+        data = {
+            'application_root': root,
+            'folders': {'good': {'pattern': '(_|)[gG][oO]{2}[dD]'}, 'all': {'pattern': '(_|)[aA][lL]{2}'},
+                        'crt': {'pattern': '(_|)[dDcC][nNrR][gGtT]'}},
+            'blacklist': {'enabled': False, 'location': 'artifact\\blacklist.json'},
+            'session': 'temp\\session.json',
+            'thread': {'instance_multiplier': 1},
+            'table_records': -1,
+            'file_extensions': {'crt': ['.CR2', '.dng', '.tif'], 'good': ['.jpg']},
+            'debug': True,
+            'log_file': os.path.join(root, '\\temp\\photo.log')
+        }
 
         try:
             file = os.path.join(root, "artifact\\config.yml")
@@ -51,7 +60,7 @@ class _Config:
         return self.get(key1) + self.get(key2)
 
     def get(self, req):
-        return global_get(self._raw_data, req)
+        return global_get(self.data, req)
 
     def init_session(self, config):
         self.session = config

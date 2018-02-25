@@ -1,7 +1,6 @@
 import re
 from src.core.fileio import *
 from src.blacklist import Blacklist
-from src.utilities.arrays import organise_array
 from src.utilities.infrequents import handle_fdreq, to_path
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -36,7 +35,7 @@ def directory_size(path, unit=1):
         if not check_directory(path):
             return 0
 
-        files = Directory(path).index(file=True)
+        files = index(path, file=True)
 
         for file in files:
             size += file_size(file)
@@ -94,29 +93,17 @@ class Directory:
     def set_path(self, path):
         self.__init__(path)
 
-    def index(self, count=False, file=False):
-        file_list = []
-
-        for root, dirs, files in os.walk(self.path):
-            self.directories.extend(to_path(root, dirs))
-            file_list.extend(to_path(root, files))
-
-        if file and count:
-            return len(file_list)
-        if count:
-            return len(self.directories)
-
-        return file_list if file else self.directories
+    def on_index_error(self, error):
+        self.directories.remove(error.filename)
 
     def index_directory(self):
-        for root, dirs, files in os.walk(self.path):
+        for root, dirs, files in os.walk(self.path, followlinks=True, onerror=self.on_index_error):
             del files
 
-            if len(dirs) == 0 and root != self.path:
+            if len(dirs) < 3:
                 self.directories.remove(root)
 
-            else:
-                self.directories.extend(to_path(root, dirs))
+            self.directories.extend(to_path(root, dirs))
 
         return self.directories
 
@@ -131,37 +118,34 @@ class Directory:
             if get_drive(entry) != drive_letter:
                 blacklist.remove(entry)
 
-        for root, dirs, files in os.walk(self.path, topdown=True):
+        for root, dirs, files in os.walk(self.path, followlinks=True, onerror=self.on_index_error):
             del files
 
-            # DO NOT TOUCH 'IS' '==' does not work!
-            if blacklist is []:
-                for directory in dirs:
-                    self.directories.append(directory)
-            else:
-                # remove directory from the directory list if the length of dirs is 0
-                # check if the current 'root' is not actual directory entry point
-                if len(dirs) == 0 and root != self.path:
-                    self.directories.remove(root)
+            if len(dirs) < 3 and root != self.path:
+                self.directories.remove(root)
 
+            # remove directory from the directory list if the length of dirs is 0
+            # check if the current 'root' is not actual directory entry point
+            if blacklist:
                 for directory in to_path(root, dirs):
                     if directory in blacklist:
                         blacklist.remove(directory)
                         dirs.remove(os.path.split(directory)[1])
 
-                    else:
-                        self.directories.append(directory)
+            self.directories.extend(to_path(root, dirs))
 
         return self.directories
 
     def index_photo_directory(self, return_folders=False):
+        if type(self.path) != list:
+            self.path = [self.path]
         # the patterns are loaded from the config.yml file and complied,
         # further on they are used to quickly identify matching folder names
         # rather than relying on hard coded folder example names
         crt  = re.compile(Config.get('folders.crt.pattern'))
         all  = re.compile(Config.get('folders.all.pattern'))
         good = re.compile(Config.get('folders.good.pattern'))
-        self.path = organise_array([self.path])
+
         self.directories = []
 
         def method(path):
@@ -204,16 +188,15 @@ class Directory:
             result = list(method(self.path[0]).values())
             if len(result) == 3:
                 return self.path[0]
-            else:
-                pass
         else:
             for directory in self.path:
                 result = list(method(directory).values())
+
                 if len(self.directories) == Config.get("table_records"):
                     return self.directories
+
                 if len(result) == 3:
                     self.directories.append(directory)
-                else:
-                    pass
+
             return self.directories
 

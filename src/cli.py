@@ -42,6 +42,7 @@ def main():
 
         if option == "refresh":
             do_index()
+            print(f'\n{str(table)}\n')
 
         elif option == "exit":
             close_session(finished_directories)

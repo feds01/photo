@@ -20,10 +20,9 @@ def organise_array(arr):
     if arr is None:
         return []
 
-    unorganised_list: list = [x for x in arr if x]
     organised_list:   list = []
 
-    for element in unorganised_list:
+    for element in arr:
         if type(element) == list:
             organised_list.extend(organise_array(element))
         else:

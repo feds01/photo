@@ -42,7 +42,7 @@ class Data:
 
         for specific_key in sorted(Config.get("file_extensions")):
             for extension in Config.get("file_extensions." + specific_key):
-                files = find_specific_file(extension, self.dirapi.index(file=True), case_sensitive=False)
+                files = find_specific_file(extension, index(path, file=True), case_sensitive=False)
                 file_list.update({extension: {"amount": len(files), "files" : files}})
                 file_count += len(files)
 

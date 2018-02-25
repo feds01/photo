@@ -4,6 +4,7 @@ from multiprocessing import Pool
 
 from src.data import Data
 from src.core.core import *
+from numpy import array_split
 from src.utilities.arrays import organise_array
 from src.utilities.infrequents import check_process_count
 
@@ -29,21 +30,20 @@ class Index:
         self.directories = []
         self.dirapi = Directory(self.path)
 
+    def set_path(self, path):
+        self.__init__(path)
+
     @staticmethod
     def validate(paths):
         return Directory(paths).index_photo_directory()
 
-    def apply_filter(self, return_results=False):
-        for directory in self.directories:
-            if len(get_branches(directory)) < 3:
-                self.directories.remove(directory)
-
+    def apply_filter(self, ret=False):
         self.directories = organise_array([self.validate(self.directories)])
 
-        if return_results:
+        if ret:
             return self.directories
 
-    def index(self):
+    def index(self, ret=False):
         if len(get_branches(self.path)) == 0:
             if not Config.get_session("verbose"):
                 IndexingError(self.path, "leaf")
@@ -54,6 +54,9 @@ class Index:
             self.directories = self.dirapi.index_with_blacklist()
         else:
             self.directories = self.dirapi.index_directory()
+
+        if ret:
+            return self.directories
 
     def run(self, pipe=True):
         _check_path(self.path)
@@ -79,72 +82,54 @@ class ThreadIndex:
 
         # append session settings temp/session.json for sharing across workers
         self.file = File(Config.join("application_root", "session"))
-        self.index = Index("")
+        self.index = Index(path)
         self.PROCESS_COUNT = check_process_count(v=True, return_pnum=True)
         self.workers = []
 
-        self.result = []
-        self.nodes = []
-        self.dirs = [] # directories which match the specifications
+        self.directories = []  # directories which match the specifications
 
     def get_nodes(self):
-        self.nodes = get_branches(self.path)
+        self.directories = [list(x) for x in array_split(self.index.index(ret=True), self.PROCESS_COUNT)]
 
-        if Config.get_session("blacklist"):
-            # this filters the first level directories and checks if they are blacklisted.
-            self.nodes = Blacklist.is_entry(self.nodes)
-
-        # check if any of the nodes match the specifications
-        self.dirs = self.index.validate(self.nodes)
-
-        for node in self.nodes:
-            if get_branches(node) == []:
-                self.nodes.remove(node)
-
-    def worker(self, node):
+    def worker(self, arr):
         # worker config session init
         Config.init_session(self.file.read_json().get("session"))
 
         if Config.get('debug'):
             sys.excepthook = exception_handler
 
-        __index_object = self.index
-
         try:
-            __index_object.path = node
-            __index_object.index()
-
-            return __index_object.apply_filter(return_results=True)
+            return Index.validate(arr)
 
         except KeyboardInterrupt:
             signal.signal(signal.SIGINT, signal.SIG_IGN)
 
-
     def launch_process_pool(self):
-        global pool
+        result = []
 
         try:
             with Pool(self.PROCESS_COUNT) as pool:
-                self.result = organise_array(pool.map(self.worker, self.nodes))
+                result = organise_array(pool.map(self.worker, self.directories))
+
+                pool.close(), pool.join()
 
         except KeyboardInterrupt:
             signal.signal(signal.SIGINT, signal.SIG_IGN)
 
         finally:
-            pool.close(), pool.join()
-            self.dirs.append(self.result)
-            self.dirs = organise_array(self.dirs)
+            self.directories = organise_array(result)
 
     def run(self, pipe=True):
         _check_path(self.path)
 
         self.get_nodes()
+        # split workload into sections
         self.launch_process_pool()
 
         if Index.validate(self.path):
-            self.dirs.append(self.path)
+            self.directories.append(self.path)
 
         if pipe:
-            Data(self.dirs).export()
+            Data(self.directories).export()
         else:
-            return self.dirs
+            return self.directories
