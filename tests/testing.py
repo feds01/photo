@@ -14,7 +14,7 @@ main_dir:  str = ''
 test_dir: str  = ''
 
 dirs:      list = ['crt', 'good', 'all']
-make_dirs: dict = {"test_0": "", "test_1" : dirs, "test_3" : [{"nested" : dirs}, dirs]}
+make_dirs: dict = {"test_0": "", "test_1" : dirs, "test_3" : [{"nested": dirs}, dirs]}
 
 
 def setup():
@@ -76,12 +76,12 @@ class IndexWithThreadMethod(unittest.TestCase):
         Config.set_session("thread", True)
 
     def test_method(self):
-        result = ThreadIndex(path=os.path.join(main_dir), check=False).run(pipe=False)
+        result = ThreadIndex(path=os.path.join(main_dir)).run(pipe=False)
 
         self.assertEqual(len(result), 3)
 
     def test_method_with_nested_directory(self):
-        result = ThreadIndex(path=os.path.join(main_dir, "test_3"), check=False).run(pipe=False)
+        result = ThreadIndex(path=os.path.join(main_dir, "test_3")).run(pipe=False)
 
         self.assertEqual(len(result), 2)
 
@@ -94,6 +94,7 @@ class IndexWithThreadMethod(unittest.TestCase):
 
 class DataMethod(unittest.TestCase):
     def setUp(self):
+        open_session()
         test_dir = os.path.join(main_dir, "test_0")
 
         self.start = time.time()
@@ -119,6 +120,7 @@ class DataMethod(unittest.TestCase):
             pass
 
         self.assertEqual(data, self.expected_result)
+
 
 class IndexItemSize(unittest.TestCase):
 

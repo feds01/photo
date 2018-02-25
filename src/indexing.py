@@ -4,9 +4,8 @@ from multiprocessing import Pool
 
 from src.data import Data
 from src.core.core import *
-from src.thread.manager import Process
 from src.utilities.arrays import organise_array
-from src.thread.protection import check_process_count
+from src.utilities.infrequents import check_process_count
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -72,7 +71,7 @@ class Index:
 
 
 class ThreadIndex:
-    def __init__(self, path="", check=True):
+    def __init__(self, path=""):
         if path != "":
             self.path = path
         else:
@@ -82,11 +81,11 @@ class ThreadIndex:
         self.file = File(Config.join("application_root", "session"))
         self.index = Index("")
         self.PROCESS_COUNT = check_process_count(v=True, return_pnum=True)
+        self.workers = []
 
         self.result = []
         self.nodes = []
         self.dirs = [] # directories which match the specifications
-        self.check = check
 
     def get_nodes(self):
         self.nodes = get_branches(self.path)
@@ -112,9 +111,6 @@ class ThreadIndex:
         __index_object = self.index
 
         try:
-            if self.check:
-                Process.get_frame()
-
             __index_object.path = node
             __index_object.index()
 
@@ -123,18 +119,14 @@ class ThreadIndex:
         except KeyboardInterrupt:
             signal.signal(signal.SIGINT, signal.SIG_IGN)
 
+
     def launch_process_pool(self):
         global pool
 
         try:
             with Pool(self.PROCESS_COUNT) as pool:
-                if self.check:
-                    for _process in pool._pool[:]:
-                        if not Process.register(_process.pid, 'thread'):
-                            Fatal('Process authentication error',
-                                  'there was a problem authorising a process launch').stop()
-
                 self.result = organise_array(pool.map(self.worker, self.nodes))
+
         except KeyboardInterrupt:
             signal.signal(signal.SIGINT, signal.SIG_IGN)
 

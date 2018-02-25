@@ -6,7 +6,6 @@ sys.path.append(os.path.abspath(os.path.split(__file__)[0] + "\\..\\"))
 from src.cleaner import *
 from src.data import Table
 from src.indexing import *
-from src.thread.manager import Process
 from multiprocessing import freeze_support
 from src.utilities.codes import *
 from src.utilities.session import close_session, open_session
@@ -91,7 +90,6 @@ if __name__ == '__main__':
             config_warning('blacklist is not enabled in config, but is being used.')
 
     if Config.get_session("thread"):
-        Process.register(os.getpid(), 'parent')
         check_process_count(v=Config.get_session("verbose"), return_pnum=True)
     # environment setup
     print(f'Scanning {Config.get_session("path")} . . .\n')

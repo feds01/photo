@@ -1,6 +1,9 @@
+import os
 import subprocess
 
 from src.core.config import *
+from src.core.config import Config
+from src.core.exceptions import Fatal, config_warning
 from src.utilities.arrays import organise_array
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -64,3 +67,32 @@ def is_child(child, directory, symlinks=False):
     if not symlinks and os.path.islink(child):
         return False
     return os.path.commonprefix([child, directory]) == directory
+
+
+def check_process_count(v=True, return_pnum=False):
+    _raw_value = os.cpu_count() * Config.get('thread.instance_multiplier')
+
+    if _raw_value <= 0:
+        Fatal('process count cannot be %s' % _raw_value,
+              'incorrect config magic process number of %s' % _raw_value,
+              'instance_multiplier=%s' % (_raw_value / os.cpu_count())).stop()
+    elif _raw_value >= 32:
+        if not v:
+            config_warning('magic process number is extremely large.')
+        else:
+            pass
+
+    if type(_raw_value) != int:
+        try:
+            if round(_raw_value, 0) == _raw_value:
+                _raw_value = int(_raw_value)
+            else:
+                Fatal('process count cannot be float.', 'incorrect config magic process number of %s' %
+                  (_raw_value / os.cpu_count())).stop()
+        except TypeError as error:
+            Fatal('process count cannot be float.', 'incorrect config magic process number of %s' %
+                  _raw_value, 'incorrect type: %s' % type(_raw_value), '%s' % error).stop()
+            if not v:
+                config_warning('magic process instance multiplier number was processed as float.')
+
+    return _raw_value if return_pnum else True
