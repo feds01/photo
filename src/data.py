@@ -80,6 +80,8 @@ class Table:
         # data import
         self.import_data = self.file.read_json()
         self.import_data.update({"table": []})
+
+        # data truncation
         self.row_count = int(len(self.import_data['directories']))
 
         if Config.get("table_records") != -1:
@@ -88,14 +90,6 @@ class Table:
                     dict(self.import_data).pop(i)
 
         # table init and settings
-        self.data_queries = {
-            'path': 'path',
-            'crt': "file_list.'.CR2'.amount",
-            'dng': "file_list.'.dng'.amount",
-            'tif': "file_list.'.jpg'.amount",
-            'size': 'size'
-        }
-
         self.table = PrettyTable()
         self.table.border = False
         self.border_symbol = "-"
@@ -127,8 +121,16 @@ class Table:
                         'data=%s' % self.import_data["directories"]).stop()
 
     def make_table(self):
-        for query in self.data_queries.keys():
-            results = [x for x in self.get(self.data_queries.get(query))]
+        data_queries = {
+            'path': 'path',
+            'crt': "file_list.'.CR2'.amount",
+            'dng': "file_list.'.dng'.amount",
+            'tif': "file_list.'.jpg'.amount",
+            'size': 'size'
+        }
+
+        for query in data_queries.keys():
+            results = [x for x in self.get(data_queries.get(query))]
 
             if query == "path":
                 results = [shorten(x, self.max_size) for x in results]
