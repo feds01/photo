@@ -31,7 +31,7 @@ def main():
     print(str(table))
     print("\nEnter id of directory to instantiate file structure analysis")
 
-    options = list(range(1, table.data_packets + 1))
+    options = list(range(1, table.row_count + 1))
     options.extend(["exit", "refresh"])
 
     finished_directories = []

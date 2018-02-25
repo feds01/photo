@@ -1,6 +1,6 @@
 import os
-import yaml
 
+from yaml import load, dump, YAMLError
 from src.core.exceptions import *
 from src.utilities.shorts import global_get
 
@@ -33,7 +33,7 @@ class _Config:
 
         try:
             file = os.path.join(root, "artifact\\config.yml")
-            data = yaml.load(open(file, "r"))
+            data = load(open(file, "r"))
 
             # qualitative configuration checks, use global get to ensure that key actually exists
             if global_get(data, "application_root")[-1:] != os.path.sep:
@@ -45,13 +45,13 @@ class _Config:
             print("generating new file . . .", end="")
 
             with open(file, "w") as f:
-                yaml.dump(data, f, indent=4)
+                dump(data, f, indent=4)
                 f.close()
 
             print("Success!\n")
 
-        except Exception as exc:
-            yml_error(exc)
+        except YAMLError as e:
+            yml_error(e)
 
         finally:
             return data

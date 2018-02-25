@@ -1,5 +1,6 @@
 #!C:\Python\Python35-32\python.exe
 import signal
+
 from multiprocessing import Pool
 
 from src.data import Data

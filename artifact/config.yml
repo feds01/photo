@@ -9,7 +9,7 @@ folders:
         pattern: "(_|)[dDcC][nNrR][gGtT]"
 
 blacklist:
-    enabled: false
+    enabled: true
     location: "artifact\\blacklist.json"
 
 session: "temp\\session.json"

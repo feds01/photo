@@ -2,6 +2,8 @@
 # import time
 from src.core.core import *
 from prettytable import PrettyTable
+
+from src.utilities.session import close_session
 from src.utilities.shorts import *
 from src.utilities.manipulation import to_string, largest_element, sizeof_fmt
 
@@ -28,7 +30,7 @@ class Data:
 
     def load(self):
         data = self.file.read_json()
-        data.update({"directories" : {}})
+        data.update({"directories": {}})
 
         return data
 
@@ -43,7 +45,7 @@ class Data:
         for specific_key in sorted(Config.get("file_extensions")):
             for extension in Config.get("file_extensions." + specific_key):
                 files = find_specific_file(extension, index(path, file=True), case_sensitive=False)
-                file_list.update({extension: {"amount": len(files), "files" : files}})
+                file_list.update({extension: {"amount": len(files), "files": files}})
                 file_count += len(files)
 
             data.update({'file_list': file_list})
@@ -59,42 +61,36 @@ class Data:
         counter = 1
 
         for directory in self.path:
-            loaded_data["directories"].update({counter : self.datafy(directory)})
+            loaded_data["directories"].update({counter: self.datafy(directory)})
             counter += 1
         # check if any directories were found, if none found, then exit
         if len(loaded_data["directories"]) == 0:
             print('zero instances of photo directories found.')
-            self.file.write_json({})
-            exit()
+            close_session()
         else:
             self.file.write_json(loaded_data, indent=None)
 
 
 class Table:
     def __init__(self, max_size=30):
-        self.max_rows = Config.get("table_records")
-        self.data_packets = 0
         self.path_size = max_size
         self.file = File(Config.join('application_root', 'session'))
         self.readable_size = []
-        self.all_rows = []
-        self.row = []
-        self.destination_file = ''
 
         # data import
         self.import_data = self.file.read_json()
         self.import_data.update({"table": []})
-        self.data_packets = int(len(self.import_data['directories']))
+        self.row_count = int(len(self.import_data['directories']))
 
-        if self.max_rows != -1:
-            for i in range(self.data_packets):
-                if not i + 1 <= self.max_rows:
+        if Config.get("table_records") != -1:
+            for i in range(self.row_count):
+                if not i + 1 <= Config.get("table_records"):
                     dict(self.import_data).pop(i)
 
         # table init and settings
         self.table = PrettyTable()
         self.table.border = False
-        self.table.field_names = ["ID", "Path", "crt", "dng", "tif", "jpg"]
+        self.table.field_names = ["id", "path", "crt", "dng", "tif", "jpg"]
         self.table.align = "l"
         self.border_symbol = "-"
 
@@ -109,14 +105,15 @@ class Table:
         return specific_data
 
     def make_row(self, key):
-        self.row = [key]
+        row = [key]
+
         if self.path_size <= len(list(self.import_data["directories"][f"{key}"].get('path'))):
-            self.row.append(shorten(self.import_data["directories"][f"{key}"].get('path')))
+            row.append(shorten(self.import_data["directories"][f"{key}"].get('path')))
         else:
-            self.row.append(self.import_data["directories"][f"{key}"].get('path'))
+            row.append(self.import_data["directories"][f"{key}"].get('path'))
         data = self.import_data["directories"][f"{key}"].get('file_list')
         for item in data.values():
-            self.row.append(item["amount"])
+            row.append(item["amount"])
 
         size_data = self.import_data["directories"][f"{key}"].get('size')
         readable_size = []
@@ -128,7 +125,8 @@ class Table:
             readable_size.append(size_data[1])
 
         self.readable_size.extend(readable_size)
-        return self.row
+
+        return row
 
     def from_id(self, _id):
         if self.import_data == {}:
@@ -161,22 +159,23 @@ class Table:
                 self.path_size -= i
                 break
 
-        self.row = [self.__calculate_border_size(self.max_rows, True) * self.border_symbol,
-                    (self.path_size + 1) * self.border_symbol]
-        self.row.extend(borders)
-        self.table.add_row(self.row)
+        row = [self.__calculate_border_size(Config.get("table_records"), True) * self.border_symbol,
+               (self.path_size + 1) * self.border_symbol]
 
-        del self.row
+        row.extend(borders)
+        self.table.add_row(row)
 
     def make_table(self):
-        for i in range(1, self.data_packets + 1):
-            self.all_rows.append(self.make_row(i))
+        rows = []
+
+        for i in range(1, self.row_count + 1):
+            rows.append(self.make_row(i))
 
         self.border()
-        [self.table.add_row(row) for row in self.all_rows]
+        [self.table.add_row(row) for row in rows]
 
         # save to session file
-        self.import_data.update({"table": self.all_rows})
+        self.import_data.update({"table": rows})
         self.file.write_json(self.import_data, indent=None)
 
         self.readable_size.insert(0, self.border_symbol * self.__calculate_border_size(
