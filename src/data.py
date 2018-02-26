@@ -1,5 +1,4 @@
 #!C:\Python\Python36\python.exe
-# import time
 from src.core.core import *
 from prettytable import PrettyTable
 
@@ -10,13 +9,6 @@ from src.utilities.manipulation import to_string, largest_element, sizeof_fmt
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
-
-"""
-Module name: data.py
-Usage:
-Description -
-
-"""
 
 
 class Data:
@@ -29,19 +21,12 @@ class Data:
         if type(self.path) != list:
             self.path = [self.path]
 
-    def load(self):
-        data = self.file.read_json()
-        data.update({"directories": {}})
-
-        return data
-
     def datafy(self, path):
         self.dirapi.set_path(path)
 
-        data = {}
+        data = {'path': path}
         file_list = {}
         file_count = 0
-        data.update({'path': path})
 
         for specific_key in sorted(Config.get("file_extensions")):
             for extension in Config.get("file_extensions." + specific_key):
@@ -58,7 +43,7 @@ class Data:
         return data
 
     def export(self):
-        loaded_data = self.load()
+        loaded_data = {"directories": {}}
         counter = 1
 
         for directory in self.path:
@@ -69,7 +54,10 @@ class Data:
             print('zero instances of photo directories found.')
             close_session()
         else:
-            self.file.write_json(loaded_data, indent=None)
+            data = self.file.read_json()
+            data.update(loaded_data)
+
+            self.file.write_json(data, indent=None)
 
 
 class Table:
@@ -79,7 +67,6 @@ class Table:
 
         # data import
         self.import_data = self.file.read_json()
-        self.import_data.update({"table": []})
 
         # data truncation
         self.row_count = int(len(self.import_data['directories']))
