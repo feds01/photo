@@ -1,5 +1,4 @@
 import os
-
 import re
 
 from src.core.exceptions import *
@@ -47,10 +46,10 @@ def shorten(path, max_len=30, sep_char=False, separator=os.sep):
         if overflow_size > 0:
             pass
         # print(replace_chunks)
-        for chunk in replace_chunks:
-            if not chunk_replacer in chunks:
-                chunks.insert(chunks.index(chunk), chunk_replacer)
-            chunks.remove(chunk)
+        for _chunk in replace_chunks:
+            if chunk_replacer not in chunks:
+                chunks.insert(chunks.index(_chunk), chunk_replacer)
+            chunks.remove(_chunk)
 
     # print('centered: %s\n useable: %s\n chunks: %s' % (centered_list, usable_chunks, chunks))
     if len(usable_chunks) < 1:
@@ -60,7 +59,7 @@ def shorten(path, max_len=30, sep_char=False, separator=os.sep):
     simple_shorten(overflow)
 
     for chunk in replace_chunks:
-        if not chunk_replacer in chunks:
+        if chunk_replacer not in chunks:
             chunks.insert(chunks.index(chunk), chunk_replacer)
             chunks.remove(chunk)
 

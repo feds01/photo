@@ -7,6 +7,7 @@ root = Config.get("application_root")
 artifacts = {"session": Config.get("session"), "blacklist": Config.get("blacklist.location")}
 file = File()
 
+
 def open_session():
     for key in artifacts.keys():
         artifact = os.path.join(root, artifacts.get(key))

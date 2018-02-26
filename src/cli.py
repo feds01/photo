@@ -91,7 +91,7 @@ if __name__ == '__main__':
             config_warning('blacklist is not enabled in config, but is being used.')
 
     if Config.get_session("thread"):
-        check_process_count(v=Config.get_session("verbose"), return_pnum=True)
+        check_process_count(v=Config.get_session("verbose"), ret=True)
     # environment setup
     print(f'Scanning {Config.get_session("path")} . . .\n')
     freeze_support()

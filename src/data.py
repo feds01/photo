@@ -3,9 +3,9 @@ from src.core.core import *
 from prettytable import PrettyTable
 
 from src.utilities.shorts import *
-from src.utilities.arrays import organise_array
 from src.utilities.session import close_session
-from src.utilities.manipulation import to_string, largest_element, sizeof_fmt
+from src.utilities.manipulation import sizeof_fmt
+from src.utilities.arrays import organise_array, largest_element, to_string
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."

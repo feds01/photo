@@ -1,19 +1,5 @@
-from src.utilities.manipulation import to_integer
-
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
-
-
-def join_arrays(*arrays):
-    joined_list: list = []
-
-    if len(arrays) == 1:
-        return arrays
-
-    else:
-        for element_list in arrays:
-            joined_list.extend(element_list)
-        return joined_list
 
 
 def organise_array(arr):
@@ -48,3 +34,19 @@ def center_array(arr):
         i += 1
 
     return organise_array(centered_array)
+
+
+def largest_element(arr):
+    return max(arr, key=len)
+
+
+def to_string(int_list):
+    return [str(i) for i in int_list]
+
+
+def to_integer(str_list):
+    try:
+        return [int(i) for i in str_list]
+
+    except ValueError:
+        return str_list

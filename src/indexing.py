@@ -82,7 +82,7 @@ class ThreadIndex:
         # append session settings temp/session.json for sharing across workers
         self.file = File(Config.join("application_root", "session"))
         self.index = Index(path)
-        self.PROCESS_COUNT = check_process_count(v=True, return_pnum=True)
+        self.PROCESS_COUNT = check_process_count(v=True, ret=True)
         self.workers = []
 
         self.directories = []  # directories which match the specifications
