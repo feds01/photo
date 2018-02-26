@@ -5,6 +5,7 @@ from src.utilities.manipulation import sizeof_fmt
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
+
 def analyse(path):
     to_remove = []
     option = ""
@@ -38,6 +39,7 @@ def analyse(path):
             return []
 
     return to_remove
+
 
 class Delete:
     def __init__(self, to_delete):

@@ -1,11 +1,9 @@
 #!C:\Python\Python35-32\python.exe
 import signal
-
-from multiprocessing import Pool
-
 from src.data import Data
 from src.core.core import *
 from numpy import array_split
+from multiprocessing import Pool
 from src.utilities.arrays import organise_array
 from src.utilities.infrequents import check_process_count
 

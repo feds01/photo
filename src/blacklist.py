@@ -1,8 +1,7 @@
 from src.core.fileio import *
-from src.core.exceptions import *
-from src.utilities.arrays import organise_array
-from src.utilities.codes import BLACKLIST_ADD, BLACKLIST_REMOVE, BLACKLIST_PURGE
 from src.utilities.infrequents import is_child
+from src.utilities.arrays import organise_array
+
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -29,24 +28,6 @@ class _Blacklist:
             else:
                 self.file.create(), self.file.write_json('{"entries": []}')
                 # open the file and write the initial blacklist
-
-    def update_blacklist(self, instruction, array):
-        current_data = self.file.read_json()
-        current_data["entries"] = []
-
-        array = organise_array([array])
-        if instruction == BLACKLIST_ADD:
-            self.blacklist.extend(array)
-        elif instruction == BLACKLIST_REMOVE:
-            for entry in array:
-                self.blacklist.remove(entry)
-        elif instruction == BLACKLIST_PURGE:
-            self.blacklist = []
-
-        for entry in self.blacklist:
-            current_data["entries"].append(entry)
-
-        self.file.write_json(current_data)
 
     def is_entry(self, entries, inverted=False):
         entries = organise_array([entries])
@@ -81,28 +62,6 @@ class _Blacklist:
                         verify_list.append(item)
 
         return verify_list
-
-    def add_entry(self, entry):
-        if entry in self.blacklist:
-            raise BlacklistEntryError('present')
-        if len(self.of_entry(entry)) > 0:
-                raise BlacklistEntryError('present')
-        else:
-            self.update_blacklist(BLACKLIST_ADD, entry)
-
-    def remove_entry(self, entry, by_child=False):
-        if entry not in self.blacklist and not by_child:
-            return BlacklistEntryError('not-present')
-        if entry in self.blacklist:
-            self.bad_entries.append(entry)
-        else:
-            for item in self.blacklist:
-                if is_child(item, entry):
-                    self.bad_entries.append(item)
-                else:
-                    pass
-
-        self.update_blacklist(BLACKLIST_REMOVE, self.bad_entries)
 
     def check(self, directory, child=False):
         self.read_blacklist()
