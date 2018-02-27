@@ -3,18 +3,20 @@ import argparse
 
 sys.path.append(os.path.abspath(os.path.split(__file__)[0] + "\\..\\"))
 
+from src.data import *
 from src.cleaner import *
-from src.data import Table
 from src.indexing import *
 from multiprocessing import freeze_support
+
 from src.utilities.codes import *
+from src.utilities.manipulation import query_user
 from src.utilities.session import close_session, open_session
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
-def do_index():
+def do_index(table):
     if Config.get_session("thread"):
         result = ThreadIndex().run()
     else:
@@ -24,13 +26,13 @@ def do_index():
         print(f'zero instances of photo directories found under {Config.get_session("path")}')
         close_session()
     else:
-        Data(result).export()
+        table.create_data(result)
 
 
 def main():
     # run scan
-    do_index()
     table = Table()
+    do_index(table)
 
     print("\nuse 'exit' to stop and exit the program\nuse 'refresh' to refresh index results\n")
     table.make_table()
@@ -47,7 +49,7 @@ def main():
         option = query_user("id: ", options, on_error="The entered id is too high or too low.")
 
         if option == "refresh":
-            do_index()
+            do_index(table)
             print(f'\n{str(table)}\n')
 
         elif option == "exit":
@@ -80,7 +82,6 @@ parser.add_argument('-b', '--blacklist', default=Config.get('blacklist.enabled')
                     help='use the blacklist to filter out unwanted directories')
 parser.add_argument('-v', '--verbose', default=False, action='store_true',
                     help="don't display mild error messages or warnings.")
-
 
 if __name__ == '__main__':
     args = {}

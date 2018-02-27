@@ -1,6 +1,7 @@
 import time
 import unittest
 from src.indexing import *
+from src.data import *
 from src.utilities.manipulation import sizeof_fmt
 from src.utilities.infrequents import to_structure
 from src.utilities.session import open_session
@@ -95,13 +96,14 @@ class IndexWithThreadMethod(unittest.TestCase):
 class DataMethod(unittest.TestCase):
     def setUp(self):
         open_session()
+        table = Table()
         test_dir = os.path.join(main_dir, "test_0")
 
         self.start = time.time()
-        Data(test_dir).export()
+        table.create_data(test_dir)
         self.end = time.time() - self.start
         self.file_location = Config.join("application_root", "session")
-        self.expected_result = {'directories': {'1': {'path': '', 'file_count': 0, 'file_list': {'.CR2': {'amount': 0, 'files': []}, '.dng': {'amount': 0, 'files': []}, '.tif': {'amount': 0, 'files': []}, '.jpg': {'amount': 0, 'files': []}}, 'photo': [], 'size': [0, '0Kb']}}}
+        self.expected_result = {'directories': {'1': {'path': 'test_0', 'file_count': 0, 'file_list': {'.CR2': {'amount': 0}, '.dng': {'amount': 0}, '.tif': {'amount': 0}, '.jpg': {'amount': 0}}, 'photo': [], 'size': [0, '0Kb']}}}
 
     def test_time_on_creation(self):
         if self.end < 1:
@@ -110,7 +112,6 @@ class DataMethod(unittest.TestCase):
             self.assertEqual(1, 0)
 
     def test_correct_data(self):
-        Data(test_dir).export()
         data = File(self.file_location).read_json()
 
         try:

@@ -26,6 +26,7 @@ class _Config:
             'session': 'temp\\session.json',
             'thread': {'instance_multiplier': 1},
             'table_records': -1,
+            'path_length': 30,
             'file_extensions': {'crt': ['.CR2', '.dng', '.tif'], 'good': ['.jpg']},
             'debug': True,
             'log_file': os.path.join(root, '\\temp\\photo.log')
