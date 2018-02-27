@@ -56,17 +56,17 @@ class IndexWithNormalMethod(unittest.TestCase):
         Config.init_session({'thread': False, 'blacklist': True, 'verbose': True})
 
     def test_method(self):
-        self.assertEqual(len(Index(path=main_dir).run(pipe=False)), 3)
+        self.assertEqual(len(Index(path=main_dir).run()), 3)
 
     def test_method_with_nested_directory(self):
-        result = Index(path=os.path.join(main_dir, "test_3"), ).run(pipe=False)
+        result = Index(path=os.path.join(main_dir, "test_3"), ).run()
         self.assertEqual(len(result), 2)
 
     def test_fake_dir(self):
-        self.assertRaises(Fatal, lambda: Index(path="E:\\Photo\\").run(pipe=False))
+        self.assertRaises(Fatal, lambda: Index(path="E:\\Photo\\").run())
 
     def test_blacklisted_dir(self):
-        self.assertRaises(Fatal, lambda: Index(path='C:\\Windows').run(pipe=False))
+        self.assertRaises(Fatal, lambda: Index(path='C:\\Windows').run())
 
 
 class IndexWithThreadMethod(unittest.TestCase):
@@ -76,20 +76,20 @@ class IndexWithThreadMethod(unittest.TestCase):
         Config.set_session("thread", True)
 
     def test_method(self):
-        result = ThreadIndex(path=os.path.join(main_dir)).run(pipe=False)
+        result = ThreadIndex(path=os.path.join(main_dir)).run()
 
         self.assertEqual(len(result), 3)
 
     def test_method_with_nested_directory(self):
-        result = ThreadIndex(path=os.path.join(main_dir, "test_3")).run(pipe=False)
+        result = ThreadIndex(path=os.path.join(main_dir, "test_3")).run()
 
         self.assertEqual(len(result), 2)
 
     def test_fake_dir(self):
-        self.assertRaises(Fatal, lambda: ThreadIndex(path="E:\\Photo\\").run(pipe=False))
+        self.assertRaises(Fatal, lambda: ThreadIndex(path="E:\\Photo\\").run())
 
     def test_blacklisted_dir(self):
-        self.assertRaises(Fatal, lambda: ThreadIndex(path='C:\\Windows').run(pipe=False))
+        self.assertRaises(Fatal, lambda: ThreadIndex(path='C:\\Windows').run())
 
 
 class DataMethod(unittest.TestCase):

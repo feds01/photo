@@ -16,9 +16,15 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 def do_index():
     if Config.get_session("thread"):
-        ThreadIndex().run()
+        result = ThreadIndex().run()
     else:
-        Index().run()
+        result = Index().run()
+
+    if len(result) == 0:
+        print(f'zero instances of photo directories found under {Config.get_session("path")}')
+        close_session()
+    else:
+        Data(result).export()
 
 
 def main():

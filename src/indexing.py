@@ -1,6 +1,5 @@
 #!C:\Python\Python35-32\python.exe
 import signal
-from src.data import Data
 from src.core.core import *
 from numpy import array_split
 from multiprocessing import Pool
@@ -57,7 +56,7 @@ class Index:
         if ret:
             return self.directories
 
-    def run(self, pipe=True):
+    def run(self):
         _check_path(self.path)
 
         self.index(), self.apply_filter()
@@ -66,10 +65,7 @@ class Index:
         if Index.validate(self.path):
             self.directories.append(self.path)
 
-        if pipe:
-            Data(self.directories).export()
-        else:
-            return self.directories
+        return self.directories
 
 
 class ThreadIndex:
@@ -118,7 +114,7 @@ class ThreadIndex:
         finally:
             self.directories = organise_array(result)
 
-    def run(self, pipe=True):
+    def run(self):
         _check_path(self.path)
 
         self.get_nodes()
@@ -128,7 +124,4 @@ class ThreadIndex:
         if Index.validate(self.path):
             self.directories.append(self.path)
 
-        if pipe:
-            Data(self.directories).export()
-        else:
-            return self.directories
+        return self.directories

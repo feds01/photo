@@ -3,7 +3,6 @@ from src.core.core import *
 from prettytable import PrettyTable
 
 from src.utilities.shorts import *
-from src.utilities.session import close_session
 from src.utilities.manipulation import sizeof_fmt
 from src.utilities.arrays import organise_array, largest_element, to_string
 
@@ -44,20 +43,14 @@ class Data:
 
     def export(self):
         loaded_data = {"directories": {}}
-        counter = 1
 
-        for directory in self.path:
-            loaded_data["directories"].update({counter: self.datafy(directory)})
-            counter += 1
-        # check if any directories were found, if none found, then exit
-        if len(loaded_data["directories"]) == 0:
-            print('zero instances of photo directories found.')
-            close_session()
-        else:
-            data = self.file.read_json()
-            data.update(loaded_data)
+        for pos, directory in enumerate(self.path):
+            loaded_data["directories"].update({pos + 1: self.datafy(directory)})
 
-            self.file.write_json(data, indent=None)
+        data = self.file.read_json()
+        data.update(loaded_data)
+
+        self.file.write_json(data, indent=None)
 
 
 class Table:
