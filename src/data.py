@@ -17,9 +17,8 @@ class Table:
         self.row_count = 0
 
         # table init and settings
-        self.table = PrettyTable()
-        self.table.border = False
         self.border_symbol = "-"
+        self.table = PrettyTable()
 
         self.import_data()
 
@@ -68,13 +67,22 @@ class Table:
                         'id=%s' % _id,
                         'data=%s' % self.data["directories"]).stop()
 
+    def init_table(self):
+        self.table = PrettyTable()
+        self.table.border = False
+
     def make_table(self):
+        # re-initialise the variable
+        self.init_table()
+
         data_queries = {
             'path': 'path',
             'crt': "file_list.'.CR2'.amount",
             'dng': "file_list.'.dng'.amount",
-            'tif': "file_list.'.jpg'.amount",
-            'size': 'size'
+            'tif': "file_list.'.tif'.amount",
+            'jpg': "file_list.'.jpg'.amount",
+            'size': 'size',
+            'indexed': 'path'
         }
 
         # we can easily add the id column, padding of 2 from actual digit
@@ -88,14 +96,13 @@ class Table:
             if query == "path":
                 results = [shorten(x, Config.get("path_length")) for x in results]
 
-            if query == "size":
+            elif query == "size":
                 results = [x[1] for x in results]
-                border = self.border_length(largest_element(results), padding=1) * self.border_symbol
 
-                self.table.add_column(query, organise_array([border, results]), align='r')
-                continue
-            else:
-                results = to_string(results)
+            elif query == "indexed":
+                results = [Blacklist.is_completed(x) for x in results]
+
+            results = to_string(results)
             border = self.border_length(largest_element(results)) * self.border_symbol
 
             self.table.add_column(query, organise_array([border, results]), align='l')
@@ -123,7 +130,7 @@ class Table:
 
         for specific_key in sorted(Config.get("file_extensions")):
             for extension in Config.get("file_extensions." + specific_key):
-                files = list(filter(lambda x: x[-4:] == extension, index(path, file=True)))
+                files = list(filter(lambda x: x[-4:] in [extension, extension.upper()], index(path, file=True)))
 
                 file_stats.update({extension: {"amount": len(files)}})
                 file_count += len(files)

@@ -1,6 +1,7 @@
 from src.core.core import *
+from src.utilities.codes import DELETE_SUCCESS, DELETE_ABORT
 from src.utilities.infrequents import open_file
-from src.utilities.manipulation import sizeof_fmt
+from src.utilities.manipulation import sizeof_fmt, query_user
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
@@ -24,7 +25,7 @@ def analyse(path):
         print("use 'open' to open the current file\nuse 'stop' to abort operation\n")
 
         while True and option != "stop":
-            option = query_user(f"Delete the file {file} ? ", ["y", "n", "open", "close"])
+            option = query_user(f"Delete the file {file} ? ", ["y", "n", "open", "close", "abort"])
 
             if option == "n":
                 to_remove.remove(file)
@@ -35,43 +36,52 @@ def analyse(path):
                 break
 
         if option == "stop":
-            print("aborted operation")
-            return []
+            return DELETE_ABORT
 
     return to_remove
 
 
 class Delete:
-    def __init__(self, to_delete):
-        self.to_delete = to_delete
+    def __init__(self, files):
+        self.abort = False
+
+        if files == DELETE_ABORT:
+            self.abort = True
+
+        self.files = files
         self.total_size = 0
-        self.file_path = ""
 
     def calculate_size(self):
-        for file in self.to_delete:
+        for file in self.files:
             self.total_size += file_size(file)
 
-    def delete_file(self):
-        size = file_size(self.file_path)
+    def delete_file(self, file):
+        size = file_size(file)
 
         if not Config.get_session("verbose"):
             file_info = sizeof_fmt(size)
-            print(f"deleting: {os.path.basename(self.file_path)} size: {str(file_info[1])}")
+            print(f"deleting: {os.path.basename(file)} size: {str(file_info[1])}")
 
         try:
-            os.remove(self.file_path)
+            os.remove(file)
 
         except Exception as e:
-            Fatal(f"could not remove file {self.file_path}", 'error=%s' % e)
+            Fatal(f"could not remove file {file}", 'error=%s' % e)
 
         finally:
             self.total_size -= size
 
     def deletion_manager(self):
-        self.calculate_size()
-        for file in self.to_delete:
-            self.file_path = file
-            self.delete_file()
-        self.total_size = sizeof_fmt(self.total_size)
-        print(f"saved: {self.total_size[1]} of disk space with operation.")
-        return True
+        if self.abort:
+            return DELETE_ABORT
+        else:
+            self.calculate_size()
+
+            for file in self.files:
+                self.delete_file(file)
+
+            self.total_size = sizeof_fmt(self.total_size)
+
+            print(f"saved: {self.total_size[1]} of disk space with operation.")
+
+            return DELETE_SUCCESS

@@ -9,47 +9,48 @@ __company__ = "(C) Wasabi & Co. All rights reserved."
 
 class _Blacklist:
     def __init__(self):
-        self.blacklist = []
-        self.bad_entries = []
-        self.file_location = Config.join('application_root', 'blacklist.location')
-        self.file = File(file=self.file_location)
+        self.data = {}
+        self.file = File(file=Config.join('application_root', 'blacklist.location'))
 
-        self.read_blacklist()
+        self.read()
 
-    def read_blacklist(self):
-        current_data = self.file.read_json()
+    def read(self):
+        self.data = self.file.read_json()
 
-        for entry in current_data["entries"]:
-            self.blacklist.append(entry)
-
-        if self.blacklist is None:
-            if os.path.exists(self.file_location):
-                self.read_blacklist()
-            else:
-                self.file.create(), self.file.write_json('{"entries": []}')
-                # open the file and write the initial blacklist
+    def get_blacklist(self):
+        return self.data["entries"]
 
     def is_entry(self, entries, inverted=False):
         entries = organise_array([entries])
         verify_list = []
         for entry in entries:
-            if entry in self.blacklist:
+            if entry in self.data["entries"]:
                 verify_list.append(entry)
-            else:
-                pass
+
         if not inverted:
             # entries which came out clean
             for entry in verify_list:
                 entries.remove(entry)
             return entries
+
         else:
             # entries which are flagged as being in the blacklist
             return verify_list
 
+    def add_completed(self, path, update=False):
+        if path not in self.data['completed']:
+            self.data['completed'].append(path)
+
+        if update:
+            self.update()
+
+    def is_completed(self, path):
+        return path in self.data["completed"]
+
     def of_entry(self, entries, inverted=False):
         entries = organise_array([entries])
         verify_list = []
-        for item in self.blacklist:
+        for item in self.data["entries"]:
             for entry in entries:
                 if inverted:
                     # is a blacklist entry a child of a given directory
@@ -64,12 +65,13 @@ class _Blacklist:
         return verify_list
 
     def check(self, directory, child=False):
-        self.read_blacklist()
-
         if child:
             return bool(self.of_entry(directory))
         else:
             return bool(self.is_entry(directory, inverted=True))
+
+    def update(self):
+        self.file.write_json(self.data)
 
 
 Blacklist = _Blacklist()

@@ -18,6 +18,7 @@ thread:
     instance_multiplier: 1.25
 
 table_records: -1
+path_length: 30
 file_extensions:
     crt:
     - ".CR2"

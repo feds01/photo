@@ -1,4 +1,5 @@
-import sys, os
+import os
+import sys
 import argparse
 
 sys.path.append(os.path.abspath(os.path.split(__file__)[0] + "\\..\\"))
@@ -27,6 +28,7 @@ def do_index(table):
         close_session()
     else:
         table.create_data(result)
+        table.make_table()
 
 
 def main():
@@ -34,37 +36,35 @@ def main():
     table = Table()
     do_index(table)
 
-    print("\nuse 'exit' to stop and exit the program\nuse 'refresh' to refresh index results\n")
-    table.make_table()
+    print("\nuse 'exit' to stop and exit the program\nuse 'refresh' to refresh index results\nuse 'table' to print table\n")
     print(str(table))
     print("\nEnter id of directory to instantiate file structure analysis")
 
     options = list(range(1, table.row_count + 1))
-    options.extend(["exit", "refresh"])
-
-    finished_directories = []
+    options.extend(["exit", "refresh", "table"])
 
     # main loop
     while True:
-        option = query_user("id: ", options, on_error="The entered id is too high or too low.")
+        option = query_user("id: ", options, on_error="Unrecognised command, or the entered id is too high or too low.")
 
         if option == "refresh":
             do_index(table)
             print(f'\n{str(table)}\n')
-
+        elif option == "table":
+            print(f'\n{str(table)}\n')
         elif option == "exit":
-            close_session(finished_directories)
+            close_session()
         else:
             path = table.from_id(option).get("path")
 
             print(f"\nselected directory {path}")
-            confirm = query_user("are you sure you want to continue [y/N] ?", ["y", "n"], on_error="wow")
+            confirm = query_user("are you sure you want to continue [y/N] ?", ["y", "n"])
 
             if confirm == "y":
                 result = Delete(analyse(path)).deletion_manager()
 
                 if result == DELETE_SUCCESS:
-                    finished_directories.append(path)
+                    Blacklist.add_completed(path, update=True)
 
                 if result == DELETE_ABORT:
                     print("Aborted current operation")

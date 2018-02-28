@@ -1,7 +1,7 @@
 import os
 
+from src.blacklist import Blacklist
 from src.core.fileio import File, Config, check_file
-from src.utilities.arrays import organise_array
 
 root = Config.get("application_root")
 artifacts = {"session": Config.get("session"), "blacklist": Config.get("blacklist.location")}
@@ -23,7 +23,7 @@ def open_session():
             file.write_json({"session": Config.session}, indent=None)
 
 
-def close_session(jobs=None):
+def close_session():
     for key in artifacts.keys():
         artifact = os.path.join(root, artifacts.get(key))
 
@@ -35,17 +35,7 @@ def close_session(jobs=None):
         # write session settings to session file
         if key == "session":
             file.write_json({}, indent=None)
-
-        if key == "blacklist" and not jobs is None:
-            info = file.read_json()
-            data = []
-
-            try:
-                data = organise_array(info.get("completed"))
-                data.extend(jobs)
-            except KeyError:
-                data = jobs
-            finally:
-                info.update({"completed": data})
-                file.write_json(info)
+        # just in case, blacklist was not updated
+        if key == 'blacklist':
+            Blacklist.update()
     exit()

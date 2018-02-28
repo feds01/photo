@@ -56,7 +56,7 @@ def standardise_drive(path):
 # similar to handle_fdreq(), however this will return only directories, and the actual path's rather than basename
 def get_branches(path):
     try:
-        return list(map(lambda x: x.path ,filter(lambda x: x.is_dir(), [x for x in os.scandir(path)])))
+        return list(map(lambda x: x.path, filter(lambda x: x.is_dir(), [x for x in os.scandir(path)])))
 
     except Exception as e:
         if not Config.get_session("verbose"):
@@ -85,6 +85,7 @@ def index(path, count=False, file=False):
 
         return file_list if file else directories
 
+
 class Directory:
     def __init__(self, path):
         self.path = path
@@ -110,7 +111,7 @@ class Directory:
     def index_with_blacklist(self):
         # a smarter method to filter with blacklists, modifies what
         # os.walk visits by removing from dirs necessary entries
-        blacklist = Blacklist.blacklist
+        blacklist = list(Blacklist.get_blacklist())
 
         drive_letter = get_drive(self.path)
 
@@ -126,11 +127,14 @@ class Directory:
 
             # remove directory from the directory list if the length of dirs is 0
             # check if the current 'root' is not actual directory entry point
-            if blacklist:
-                for directory in to_path(root, dirs):
+            if len(blacklist) > 0:
+                items = list(to_path(root, dirs))
+
+                for directory in items:
                     if directory in blacklist:
                         blacklist.remove(directory)
                         dirs.remove(os.path.split(directory)[1])
+                        continue
 
             self.directories.extend(to_path(root, dirs))
 
@@ -142,9 +146,9 @@ class Directory:
         # the patterns are loaded from the config.yml file and complied,
         # further on they are used to quickly identify matching folder names
         # rather than relying on hard coded folder example names
-        crt  = re.compile(Config.get('folders.crt.pattern'))
-        all  = re.compile(Config.get('folders.all.pattern'))
-        good = re.compile(Config.get('folders.good.pattern'))
+        crt_p = re.compile(Config.get('folders.crt.pattern'))
+        all_p = re.compile(Config.get('folders.all.pattern'))
+        good_p = re.compile(Config.get('folders.good.pattern'))
 
         self.directories = []
 
@@ -152,13 +156,13 @@ class Directory:
             directories = {}
             content = handle_fdreq(path)
 
-            def _find_item(directory, path):
-                if crt.fullmatch(directory):
-                    return {"crt": path}
-                if all.fullmatch(directory):
-                    return {"all": path}
-                if good.fullmatch(directory):
-                    return {"good": path}
+            def _find_item(folder, folder_path):
+                if crt_p.fullmatch(folder):
+                    return {"crt": folder_path}
+                if all_p.fullmatch(folder):
+                    return {"all": folder_path}
+                if good_p.fullmatch(folder):
+                    return {"good": folder_path}
                 else:
                     return False
 
@@ -199,4 +203,3 @@ class Directory:
                     self.directories.append(directory)
 
             return self.directories
-
