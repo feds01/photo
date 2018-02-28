@@ -1,3 +1,4 @@
+import pprint
 import sys
 import traceback
 
@@ -24,15 +25,23 @@ class Fatal(Exception):
 
         print('fatal: %s' % self.message)
 
-        self.line = 0
         for information in other:
-            print([hex(self.line) + ':'][0], information)
-            self.line += 1
+            if type(information) == dict:
+                self.pretty_print(information)
+            else:
+                print(information)
 
     def get_message(self):
         return self.message
 
-    def stop(self):
+    @staticmethod
+    def pretty_print(dictionary):
+        pp = pprint.PrettyPrinter(indent=4)
+
+        pp.pprint(dictionary)
+
+    @staticmethod
+    def stop():
         exit()
 
 

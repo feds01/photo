@@ -84,7 +84,7 @@ def global_get(data, req):
             data = data.get(key)
         else:
             raise Fatal('Unreadable information', 'key was not found, but expected',
-                        'key=%s' % req, 'given_data=%s' % data)
+                        'key=\'%s\'' % req, 'given_data:', data)
 
     # try first return keys, if non-existent just return data
     try:

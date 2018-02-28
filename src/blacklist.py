@@ -22,45 +22,23 @@ class _Blacklist:
 
     def is_entry(self, entries, inverted=False):
         entries = organise_array([entries])
-        verify_list = []
-        for entry in entries:
-            if entry in self.data["entries"]:
-                verify_list.append(entry)
+        verify_list = list(filter(lambda e: e in self.data['entries'], entries))
 
         if not inverted:
             # entries which came out clean
-            for entry in verify_list:
-                entries.remove(entry)
-            return entries
-
+            return list(filter(lambda e : e not in verify_list, entries))
         else:
             # entries which are flagged as being in the blacklist
             return verify_list
-
-    def add_completed(self, path, update=False):
-        if path not in self.data['completed']:
-            self.data['completed'].append(path)
-
-        if update:
-            self.update()
-
-    def is_completed(self, path):
-        return path in self.data["completed"]
 
     def of_entry(self, entries, inverted=False):
         entries = organise_array([entries])
         verify_list = []
         for item in self.data["entries"]:
-            for entry in entries:
-                if inverted:
-                    # is a blacklist entry a child of a given directory
-                    if is_child(item, entry):
-                        verify_list.append(item)
-
-                if not inverted:
-                    # is a given directory a child of a blacklist entry
-                    if is_child(entry, item):
-                        verify_list.append(item)
+            if inverted:
+                verify_list.extend(list(filter(lambda e: is_child(item, e), entries)))
+            else:
+                verify_list.extend(list(filter(lambda e: is_child(e, item), entries)))
 
         return verify_list
 
@@ -72,6 +50,17 @@ class _Blacklist:
 
     def update(self):
         self.file.write_json(self.data)
+
+    def add_completed(self, path, update=False):
+        if path not in self.data['completed']:
+            self.data['completed'].append(path)
+
+        if update:
+            self.update()
+
+    def is_completed(self, path):
+        return path in self.data["completed"]
+
 
 
 Blacklist = _Blacklist()
