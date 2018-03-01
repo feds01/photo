@@ -62,6 +62,5 @@ class _Blacklist:
         return path in self.data["completed"]
 
 
-
 Blacklist = _Blacklist()
 del _Blacklist

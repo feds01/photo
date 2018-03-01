@@ -37,7 +37,6 @@ class Fatal(Exception):
     @staticmethod
     def pretty_print(dictionary):
         pp = pprint.PrettyPrinter(indent=4)
-
         pp.pprint(dictionary)
 
     @staticmethod
@@ -54,13 +53,12 @@ class IndexingError(Exception):
             print('error: given directory(%s) is a leaf' % directory)
 
 
-def config_warning(message):
-    print('config: %s' % message)
+def do_warning(prefix, message, *other):
+    print(f"{prefix}: {message}")
 
-
-def yml_error(error):
-    Fatal('config file is unreadable.', 'Here is trace:\n\n%s' % error).stop()
+    for item in other:
+        print(item)
 
 
 if debug:
-    config_warning("debug value is enabled!")
+    do_warning('src.core.exceptions', "debug value is enabled!")

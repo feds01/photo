@@ -36,13 +36,9 @@ class _Config:
             file = os.path.join(root, "artifact\\config.yml")
             data = load(open(file, "r"))
 
-            # qualitative configuration checks, use global get to ensure that key actually exists
-            if global_get(data, "application_root")[-1:] != os.path.sep:
-                data.update({"application_root": data.get("application_root") + os.sep})
-
         except FileNotFoundError:
             # alert the user there was a problem whilst trying to find config
-            config_warning(f"missing configuration file")
+            do_warning('config', f"missing configuration file")
             print("generating new file . . .", end="")
 
             with open(file, "w") as f:
@@ -52,9 +48,13 @@ class _Config:
             print("Success!\n")
 
         except YAMLError as e:
-            yml_error(e)
+            Fatal('config file is unreadable.', 'Here is trace:\n\n%s' % e).stop()
 
         finally:
+            # qualitative configuration checks, use global get to ensure that key actually exists)
+            if global_get(data, "application_root")[-1:] != os.path.sep:
+                data.update({"application_root": data.get("application_root") + os.sep})
+
             return data
 
     def join(self, key1, key2):

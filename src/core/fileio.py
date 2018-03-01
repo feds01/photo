@@ -20,9 +20,7 @@ def get_filename(path, rp=False):
 
 class File:
     def __init__(self, file=""):
-        self.application_root = Config.get("application_root")
         self.file = file
-        self.data = ""
 
     def set_file(self, file):
         self.__init__(file)
@@ -34,21 +32,11 @@ class File:
 
     def read_json(self):
         if not check_file(self.file):
-            return None
+            do_warning('file', "given file does not exist", 'file=%s' % self.file)
+            return {}
 
         with open(self.file, "r") as f:
             data = json.load(f)
             f.close()
 
         return {} if data is None else data
-
-    def remove(self):
-        os.remove(self.file)
-
-    def create(self):
-        try:
-            open(self.file, mode='w')
-
-        except FileNotFoundError:
-            if not os.path.exists(self.application_root):
-                Fatal(f"improper configuration, application_root='{self.application_root}' does not exist").stop()

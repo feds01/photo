@@ -95,12 +95,12 @@ if __name__ == '__main__':
 
     if Config.get_session("blacklist") and not Config.get('blacklist.enabled'):
         if not Config.get_session("verbose"):
-            config_warning('blacklist is not enabled in config, but is being used.')
+            do_warning('config', 'blacklist is not enabled in config, but is being used.')
 
     if Config.get_session("thread"):
         check_process_count(v=Config.get_session("verbose"), ret=True)
     # environment setup
-    print(f'Scanning {Config.get_session("path")} . . .\n')
+    print(f'\nScanning {Config.get_session("path")} . . .\n')
     freeze_support()
 
     Config.set_session("path", standardise_drive(Config.get_session("path")))

@@ -2,7 +2,7 @@ import subprocess
 
 from src.core.config import *
 from src.core.config import Config
-from src.core.exceptions import Fatal, config_warning
+from src.core.exceptions import Fatal
 from src.utilities.arrays import organise_array
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
@@ -28,7 +28,7 @@ def handle_fdreq(path):
 
 # convert base-names to paths
 def to_path(root, arr):
-        return map(lambda x: os.path.join(root, x), arr)
+    return map(lambda x: os.path.join(root, x), arr)
 
 
 def to_structure(root, structure):
@@ -63,6 +63,7 @@ def open_file(path):
 def is_child(child, directory, symlinks=False):
     directory = os.path.abspath(directory)
     child = os.path.abspath(child)
+
     if not symlinks and os.path.islink(child):
         return False
     return os.path.commonprefix([child, directory]) == directory
@@ -77,7 +78,7 @@ def check_process_count(v=True, ret=False):
               'instance_multiplier=%s' % (process_count / os.cpu_count())).stop()
     elif process_count >= 32:
         if not v:
-            config_warning('magic process number is extremely large.')
+            do_warning('thread', 'magic process number is extremely large.', 'count=%s' % process_count)
 
     if type(process_count) != int:
         try:
@@ -85,11 +86,11 @@ def check_process_count(v=True, ret=False):
                 process_count = int(process_count)
             else:
                 Fatal('process count cannot be float.', 'incorrect config magic process number of %s' %
-                  (process_count / os.cpu_count())).stop()
+                      (process_count / os.cpu_count())).stop()
         except TypeError as error:
             Fatal('process count cannot be float.', 'incorrect config magic process number of %s' %
                   process_count, 'incorrect type: %s' % type(process_count), '%s' % error).stop()
-            if not v:
-                config_warning('magic process instance multiplier number was processed as float.')
+        if not v:
+            do_warning('thread', 'magic process instance multiplier number was processed as float.')
 
     return process_count if ret else True
