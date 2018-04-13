@@ -20,11 +20,19 @@ class _Config:
 
         data = {
             'application_root': root,
-            'folders': {'good': {'pattern': '(_|)[gG][oO]{2}[dD]'}, 'all': {'pattern': '(_|)[aA][lL]{2}'},
-                        'crt': {'pattern': '(_|)[dDcC][nNrR][gGtT]'}},
-            'blacklist': {'enabled': False, 'location': 'artifact\\blacklist.json'},
+            'folders': {
+                'good': {'pattern': '(_|)[gG][oO]{2}[dD]'},
+                'all':  {'pattern': '(_|)[aA][lL]{2}'},
+                'crt':  {'pattern': '(_|)[dDcC][nNrR][gGtT]'}
+            },
+            'blacklist': {
+                'enabled': False,
+                'location': 'artifact\\blacklist.json'
+            },
             'session': 'temp\\session.json',
-            'thread': {'instance_multiplier': 1},
+            'thread': {
+                'instance_multiplier': 1
+            },
             'table_records': -1,
             'path_length': 30,
             'file_extensions': {'crt': ['.CR2', '.dng', '.tif'], 'good': ['.jpg']},

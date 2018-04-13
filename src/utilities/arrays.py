@@ -6,7 +6,7 @@ def organise_array(arr):
     if arr is None:
         return []
 
-    organised_list:   list = []
+    organised_list: list = []
 
     for element in arr:
         if type(element) == list:
@@ -18,13 +18,13 @@ def organise_array(arr):
 
 
 def __array_center(arr):
-    middle = float(len(arr))/2
+    middle = float(len(arr)) / 2
     return [middle - 0.5, middle - 0.5] if middle % 2 != 0 else [middle - 1, middle]
 
 
 def center_array(arr):
     i = 0
-    center = to_integer(__array_center(arr)) # returns theoretical positions
+    center = to_integer(__array_center(arr))  # returns theoretical positions
     split_object = (list(reversed(arr[:center[0]])), arr[1 + center[1]:])
     # print('arr: %s' % arr)
     centered_array = [arr[center[0]], arr[center[1]]]

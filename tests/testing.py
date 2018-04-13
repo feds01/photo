@@ -10,12 +10,12 @@ __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
 main_root: str = os.path.abspath(os.path.join(os.path.split(__file__)[0], "..\\"))
-root:      str = os.path.split(__file__)[0]
-main_dir:  str = ''
-test_dir: str  = ''
+root: str = os.path.split(__file__)[0]
+main_dir: str = ''
+test_dir: str = ''
 
-dirs:      list = ['crt', 'good', 'all']
-make_dirs: dict = {"test_0": "", "test_1" : dirs, "test_3" : [{"nested": dirs}, dirs]}
+dirs: list = ['crt', 'good', 'all']
+make_dirs: dict = {"test_0": "", "test_1": dirs, "test_3": [{"nested": dirs}, dirs]}
 
 
 def setup():
@@ -97,13 +97,16 @@ class DataMethod(unittest.TestCase):
     def setUp(self):
         open_session()
         table = Table()
-        test_dir = os.path.join(main_dir, "test_0")
+        _test_dir = os.path.join(main_dir, "test_0")
 
         self.start = time.time()
-        table.create_data(test_dir)
+        table.create_data(_test_dir)
         self.end = time.time() - self.start
         self.file_location = Config.join("application_root", "session")
-        self.expected_result = {'directories': {'1': {'path': 'test_0', 'file_count': 0, 'file_list': {'.CR2': {'amount': 0}, '.dng': {'amount': 0}, '.tif': {'amount': 0}, '.jpg': {'amount': 0}}, 'photo': [], 'size': [0, '0Kb']}}}
+        self.expected_result = {'directories': {'1': {'path': 'test_0', 'file_count': 0,
+                                                      'file_list': {'.CR2': {'amount': 0}, '.dng': {'amount': 0},
+                                                                    '.tif': {'amount': 0}, '.jpg': {'amount': 0}},
+                                                      'photo': [], 'size': [0, '0Kb']}}}
 
     def test_time_on_creation(self):
         if self.end < 1:

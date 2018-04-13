@@ -1,15 +1,9 @@
-import os
-import sys
 import argparse
-
-sys.path.append(os.path.abspath(os.path.split(__file__)[0] + "\\..\\"))
-
 from src.data import *
 from src.cleaner import *
 from src.indexing import *
-from multiprocessing import freeze_support
-
 from src.utilities.codes import *
+from multiprocessing import freeze_support
 from src.utilities.manipulation import query_user
 from src.utilities.session import close_session, open_session
 
@@ -36,7 +30,8 @@ def main():
     table = Table()
     do_index(table)
 
-    print("\nuse 'exit' to stop and exit the program\nuse 'refresh' to refresh index results\nuse 'table' to print table\n")
+    print(
+        "\nuse 'exit' to stop and exit the program\nuse 'refresh' to refresh index results\nuse 'table' to print table\n")
     print(str(table))
     print("\nEnter id of directory to instantiate file structure analysis")
 

@@ -51,7 +51,7 @@ def shorten(path, max_len=30, sep_char=False, separator=os.sep):
                 chunks.insert(chunks.index(_chunk), chunk_replacer)
             chunks.remove(_chunk)
 
-    # print('centered: %s\n useable: %s\n chunks: %s' % (centered_list, usable_chunks, chunks))
+    # print('centered: %s\n usable: %s\n chunks: %s' % (centered_list, usable_chunks, chunks))
     if len(usable_chunks) < 1:
         usable_chunks = chunks[1:-1]
 

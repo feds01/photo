@@ -1,6 +1,9 @@
 @echo off
 
+setlocal
+
 SET root=%~dp0
+SET PYTHONPATH=%PYTHONPATH%;%root%
 
 SET python="C:\Program Files (x86)\Python\Python36-32\python.exe"
 

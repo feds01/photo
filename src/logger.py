@@ -5,9 +5,9 @@ __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
 
-if (Config.get("debug")):
+if Config.get("debug"):
 
-    if(Config.get("log_file") is ""):
+    if Config.get("log_file") is "":
         Fatal("Debug mode enabled, but no log file provided")
 
     logging.basicConfig(level=logging.DEBUG,

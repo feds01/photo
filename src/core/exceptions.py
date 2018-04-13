@@ -5,8 +5,6 @@ import traceback
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
-debug = True  # temporary value
-
 
 def exception_handler(e, value, tb):
     if e == KeyboardInterrupt:
@@ -16,6 +14,7 @@ def exception_handler(e, value, tb):
         print(''.join(traceback.format_exception(type, value, tb)))
 
 
+debug = True  # temporary value, only available on main thread
 sys.excepthook = exception_handler
 
 

@@ -2,7 +2,6 @@ from src.core.fileio import *
 from src.utilities.infrequents import is_child
 from src.utilities.arrays import organise_array
 
-
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -26,7 +25,7 @@ class _Blacklist:
 
         if not inverted:
             # entries which came out clean
-            return list(filter(lambda e : e not in verify_list, entries))
+            return list(filter(lambda e: e not in verify_list, entries))
         else:
             # entries which are flagged as being in the blacklist
             return verify_list
