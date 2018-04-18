@@ -1,3 +1,6 @@
+import os
+from src.core.core import get_drive
+
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
 
@@ -27,3 +30,7 @@ def query_user(message, options, on_error=""):
                 print(on_error)
 
     return user_input
+
+
+def standardise_drive(path):
+        return get_drive(path).capitalize() + os.path.splitdrive(path)[1]

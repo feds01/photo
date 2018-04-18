@@ -25,7 +25,7 @@ else:
 logger.setLevel(logging.DEBUG)
 
 # Now, we can log to the root logger, or any other logger. First the root...
-logging.info('connected to debug console v0.10.')
+logging.info('connected to debug console v0.17.')
 
 # Now, define a couple of other loggers which might represent areas in your
 # application:

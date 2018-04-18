@@ -4,11 +4,17 @@ from src.cleaner import *
 from src.indexing import *
 from src.utilities.codes import *
 from multiprocessing import freeze_support
-from src.utilities.manipulation import query_user
 from src.utilities.session import close_session, open_session
+from src.utilities.manipulation import query_user, standardise_drive
+
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
+
+help_text = "\nuse 'exit' to stop and exit the program" \
+            "\nuse 'refresh' to refresh index results" \
+            "\nuse 'table' to print table" \
+            "\nuse 'help' to display this message\n"
 
 
 def do_index(table):
@@ -30,23 +36,24 @@ def main():
     table = Table()
     do_index(table)
 
-    print(
-        "\nuse 'exit' to stop and exit the program\nuse 'refresh' to refresh index results\nuse 'table' to print table\n")
+    print(help_text)
     print(str(table))
     print("\nEnter id of directory to instantiate file structure analysis")
 
     options = list(range(1, table.row_count + 1))
-    options.extend(["exit", "refresh", "table"])
+    options.extend(["exit", "refresh", "table", "help"])
 
     # main loop
     while True:
-        option = query_user("id: ", options, on_error="Unrecognised command, or the entered id is too high or too low.")
+        option = query_user("id: ", options, on_error="Unrecognised command, or the entered id is too high/low.")
 
         if option == "refresh":
             do_index(table)
             print(f'\n{str(table)}\n')
         elif option == "table":
             print(f'\n{str(table)}\n')
+        elif option == "help":
+            print(help_text)
         elif option == "exit":
             close_session()
         else:
@@ -63,7 +70,6 @@ def main():
 
                 if result == DELETE_ABORT:
                     print("Aborted current operation")
-
             print()
 
 
@@ -79,9 +85,7 @@ parser.add_argument('-v', '--verbose', default=False, action='store_true',
                     help="don't display mild error messages or warnings.")
 
 if __name__ == '__main__':
-    args = {}
-    args.update(vars(parser.parse_args()))
-
+    args = vars(parser.parse_args())
     Config.init_session(args)
 
     # perform checks on arguments
@@ -91,6 +95,10 @@ if __name__ == '__main__':
     if Config.get_session("blacklist") and not Config.get('blacklist.enabled'):
         if not Config.get_session("verbose"):
             do_warning('config', 'blacklist is not enabled in config, but is being used.')
+
+    # warn that debug value is set to true
+    if debug:
+        do_warning('debug', "debug value is enabled!")
 
     if Config.get_session("thread"):
         check_process_count(v=Config.get_session("verbose"), ret=True)

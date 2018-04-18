@@ -57,7 +57,3 @@ def do_warning(prefix, message, *other):
 
     for item in other:
         print(item)
-
-
-if debug:
-    do_warning('src.core.exceptions', "debug value is enabled!")

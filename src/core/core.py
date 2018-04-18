@@ -30,30 +30,20 @@ def find_specific_file(extension, files, case_sensitive=True):
 
 
 def directory_size(path, unit=1):
-        size = 0
-
         if not check_directory(path):
             return 0
 
         files = index(path, file=True)
 
-        for file in files:
-            size += file_size(file)
-
-        return size / unit
+        return sum(list(map(lambda x: file_size(x), files))) / unit
 
 
 def get_drive(path):
         return os.path.splitdrive(path)[0]
 
 
-def standardise_drive(path):
-        drive = get_drive(path).capitalize()
-
-        return drive + os.path.splitdrive(path)[1]
-
-
-# similar to handle_fdreq(), however this will return only directories, and the actual path's rather than basename
+# similar to handle_fdreq(), however this will return only directories,
+#  and the actual path's rather than basename
 def get_branches(path):
     try:
         return list(map(lambda x: x.path, filter(lambda x: x.is_dir(), [x for x in os.scandir(path)])))
@@ -184,7 +174,6 @@ class Directory:
         if return_folders:
             try:
                 return method(self.path[0])
-
             except IndexError:
                 return method(self.path)
 
