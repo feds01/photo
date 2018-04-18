@@ -1,10 +1,12 @@
 from src.core.core import *
-from src.utilities.codes import DELETE_SUCCESS, DELETE_ABORT
+from src.utilities.codes import *
 from src.utilities.infrequents import open_file
 from src.utilities.manipulation import sizeof_fmt, query_user
 
 __author__ = "Alexander Fedotov <alexander.fedotov.uk@gmail.com>"
 __company__ = "(C) Wasabi & Co. All rights reserved."
+
+total_saved_space = 0
 
 
 def analyse(path):
@@ -41,47 +43,41 @@ def analyse(path):
     return to_remove
 
 
-class Delete:
-    def __init__(self, files):
-        self.abort = False
+def delete_file(file):
+    global total_saved_space
 
-        if files == DELETE_ABORT:
-            self.abort = True
+    size = file_size(file)
 
-        self.files = files
-        self.total_size = 0
+    if not Config.get("verbose"):
+        file_info = sizeof_fmt(size)
+        print(f"deleting: {os.path.basename(file)} size: {str(file_info[1])}")
 
-    def calculate_size(self):
-        for file in self.files:
-            self.total_size += file_size(file)
+    try:
+        os.remove(file)
 
-    def delete_file(self, file):
-        size = file_size(file)
+    except Exception as e:
+        Fatal(f"could not remove file {file}", 'error=%s' % e)
+        return DELETE_FILE_FAIL
 
-        if not Config.get_session("verbose"):
-            file_info = sizeof_fmt(size)
-            print(f"deleting: {os.path.basename(file)} size: {str(file_info[1])}")
+    finally:
+        total_saved_space -= size
+        return DELETE_FILE_SUCCESS
 
-        try:
-            os.remove(file)
 
-        except Exception as e:
-            Fatal(f"could not remove file {file}", 'error=%s' % e)
+def delete_items(files):
+    global total_saved_space
 
-        finally:
-            self.total_size -= size
+    # use canceled operation
+    if files == DELETE_ABORT:
+        return DELETE_ABORT
 
-    def deletion_manager(self):
-        if self.abort:
-            return DELETE_ABORT
-        else:
-            self.calculate_size()
+    else:
+        total_saved_space = sum(list(map(lambda x: file_size(x), files)))
 
-            for file in self.files:
-                self.delete_file(file)
+        file_status = [delete_file(x) for x in files]
 
-            self.total_size = sizeof_fmt(self.total_size)
+        total_saved_space = sizeof_fmt(total_saved_space)
+        print(f"saved: {total_saved_space[1]} of disk space with operation.")
+        print(f"failed to delete {file_status.count(DELETE_FILE_FAIL)} items.")
 
-            print(f"saved: {self.total_size[1]} of disk space with operation.")
-
-            return DELETE_SUCCESS
+        return DELETE_SUCCESS

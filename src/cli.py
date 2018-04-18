@@ -56,7 +56,7 @@ def main():
             confirm = query_user("are you sure you want to continue [y/N] ?", ["y", "n"])
 
             if confirm == "y":
-                result = Delete(analyse(path)).deletion_manager()
+                result = delete_items(analyse(path))
 
                 if result == DELETE_SUCCESS:
                     Blacklist.add_completed(path, update=True)
